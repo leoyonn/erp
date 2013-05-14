@@ -28,7 +28,7 @@ import com.wiselink.model.User;
 public class TestJsoner {
     @Test
     public void testGson() {
-        String json = new ApiResult(new ApiStatus(0, "success"), "this is a test msg").toJson();
+        String json = new ApiResult(ApiStatus.SUCCESS, "this is a test msg").toJson();
         System.out.println(json);
         System.out.println(new User().toJson());
     }

@@ -10,6 +10,9 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
+import com.wiselink.base.Constants;
+import com.wiselink.security.Encrypter;
+
 /**
  * 
  * @author leo
@@ -50,5 +53,10 @@ public class TestUtils {
         Assert.assertEquals(Double.valueOf(123.0), Primitive.valueofWrapper(java.lang.Double.class, "123.0"));
         Assert.assertEquals(Float.valueOf(123.0123f), Primitive.valueofWrapper(java.lang.Float.class, "123.0123f"));
         Assert.assertEquals('c', Primitive.valueofWrapper(java.lang.Character.class, "c"));
+    }
+    
+    @Test
+    public void testAuthUtils() {
+        Encrypter.decryptBASE64(Constants.SECURITY_KEY);
     }
 }

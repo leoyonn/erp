@@ -9,14 +9,22 @@ package com.wiselink.base;
 import com.google.gson.Gson;
 
 /**
- * 
  * @author leo
  */
-public class ApiStatus {
+public enum ApiStatus {
+    SUCCESS(0, "成功"),
+    INVALID(-1, "未知错误"),
+    // 00xx: auth related
+    AUTH_INVALID_USER(0001, "无效用户"),
+    AUTH_WRONG_PASSWORD(0002, "密码错误"),
+    AUTH_BLOCKED(00010, "用户已被禁用"),
+    AUTH_DENIED(00011, "拒绝访问");
+
     private int code;
+
     private String msg;
-    
-    public ApiStatus(int code, String msg) {
+
+    ApiStatus(int code, String msg) {
         this.code = code;
         this.msg = msg;
     }
@@ -39,5 +47,10 @@ public class ApiStatus {
 
     public void setMsg(String msg) {
         this.msg = msg;
+    }
+
+    public static ApiStatus fromAuthResult(AuthResult authResult) {
+        ApiStatus status = ApiStatus.valueOf("AUTH_" + authResult.name());
+        return status == null ? INVALID : status;
     }
 }
