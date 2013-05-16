@@ -10,6 +10,6 @@ package com.wiselink.model.base;
  * 
  * @author leo
  */
-public class FuncRole {
-
+public enum FuncRole {
+    NULL,
 }

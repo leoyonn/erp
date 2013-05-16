@@ -7,14 +7,19 @@
 package com.wiselink.base;
 
 /**
+ * should map to {@link ApiStatus}
  * @author leo
  */
 public enum AuthResult {
     SUCCESS(0, "认证成功"),
     INVALID_USER(1, "无效用户"),
     WRONG_PASSWORD(2, "密码错误"),
+
     BLOCKED(10, "用户已被禁用"),
     DENIED(11, "访问被拒绝"),
+    
+    SERVER_ERROR(20, "服务出现错误"),
+    DB_ERROR(30, "数据库出现错误"),
     ;
     
     AuthResult(int code, String desc) {

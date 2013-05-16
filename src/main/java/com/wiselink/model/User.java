@@ -6,31 +6,22 @@
  */
 package com.wiselink.model;
 
+import java.sql.Timestamp;
+
 import com.google.gson.Gson;
 import com.wiselink.base.jsonable.Jsonable;
-import com.wiselink.model.base.City;
-import com.wiselink.model.base.DataRole;
-import com.wiselink.model.base.FuncRole;
-import com.wiselink.model.base.Provice;
-import com.wiselink.model.base.UserCategory;
-import com.wiselink.model.base.UserStatus;
-import com.wiselink.model.base.UserType;
 
 /**
  * @author leo
  */
 public class User implements Jsonable {
-    private String id;
+    // auth
+    private long id;
     private String account;
     private String name;
     private String password;
 
-    private UserCategory cat; 
-    private UserType type;
-    private DataRole drole; 
-    private FuncRole frole; 
-    private UserStatus stat; 
-
+    // info
     private String avatar;
     private String email;
     private String phone;
@@ -38,143 +29,208 @@ public class User implements Jsonable {
     private String desc;
     private String corpId;
     private String deptId;
+    private String province; 
+    private String city; 
+    
+    // op
+    private Timestamp updateTime;
+    private Timestamp createTime;
+    private long opUserId;
 
-    private Provice province; 
-    private City city; 
-    private long updateTime;
-    private long createTime;
-    private String opUserId;
-    private transient String forTest;
+    // role
+    private String cat; // UserCategory.name()
+    private String type;  // UserType.name()
+    private String drole; // DataRole.name()
+    private String frole; // FuncRole.name()
+    private String stat; // UserStatus.name()
 
-    public String getId() {
+    public long getId() {
         return id;
     }
-    public void setId(String id) {
+
+    public User setId(long id) {
         this.id = id;
+        return this;
     }
+
     public String getAccount() {
         return account;
     }
-    public void setAccount(String account) {
+
+    public User setAccount(String account) {
         this.account = account;
+        return this;
     }
+
     public String getName() {
         return name;
     }
-    public void setName(String name) {
+
+    public User setName(String name) {
         this.name = name;
+        return this;
     }
+
     public String getPassword() {
         return password;
     }
-    public void setPassword(String password) {
+
+    public User setPassword(String password) {
         this.password = password;
+        return this;
     }
-    public UserCategory getCat() {
-        return cat;
-    }
-    public void setCat(UserCategory cat) {
-        this.cat = cat;
-    }
-    public UserType getType() {
-        return type;
-    }
-    public void setType(UserType type) {
-        this.type = type;
-    }
-    public DataRole getDrole() {
-        return drole;
-    }
-    public void setDrole(DataRole drole) {
-        this.drole = drole;
-    }
-    public FuncRole getFrole() {
-        return frole;
-    }
-    public void setFrole(FuncRole frole) {
-        this.frole = frole;
-    }
-    public UserStatus getStat() {
-        return stat;
-    }
-    public void setStat(UserStatus stat) {
-        this.stat = stat;
-    }
+
     public String getAvatar() {
         return avatar;
     }
-    public void setAvatar(String avatar) {
+
+    public User setAvatar(String avatar) {
         this.avatar = avatar;
+        return this;
     }
+
     public String getEmail() {
         return email;
     }
-    public void setEmail(String email) {
+
+    public User setEmail(String email) {
         this.email = email;
+        return this;
     }
+
     public String getPhone() {
         return phone;
     }
-    public void setPhone(String phone) {
+
+    public User setPhone(String phone) {
         this.phone = phone;
+        return this;
     }
+
     public String getTel() {
         return tel;
     }
-    public void setTel(String tel) {
+
+    public User setTel(String tel) {
         this.tel = tel;
+        return this;
     }
+
     public String getDesc() {
         return desc;
     }
-    public void setDesc(String desc) {
+
+    public User setDesc(String desc) {
         this.desc = desc;
+        return this;
     }
+
     public String getCorpId() {
         return corpId;
     }
-    public void setCorpId(String corpId) {
+
+    public User setCorpId(String corpId) {
         this.corpId = corpId;
+        return this;
     }
+
     public String getDeptId() {
         return deptId;
     }
-    public void setDeptId(String deptId) {
+
+    public User setDeptId(String deptId) {
         this.deptId = deptId;
-    }
-    public Provice getProvince() {
-        return province;
-    }
-    public void setProvince(Provice province) {
-        this.province = province;
-    }
-    public City getCity() {
-        return city;
-    }
-    public void setCity(City city) {
-        this.city = city;
-    }
-    public long getUpdateTime() {
-        return updateTime;
-    }
-    public void setUpdateTime(long updateTime) {
-        this.updateTime = updateTime;
-    }
-    public long getCreateTime() {
-        return createTime;
-    }
-    public void setCreateTime(long createTime) {
-        this.createTime = createTime;
-    }
-    public String getOpUserId() {
-        return opUserId;
-    }
-    public void setOpUserId(String opUserId) {
-        this.opUserId = opUserId;
+        return this;
     }
 
-    public String getForTest() {
-        return forTest;
+    public String getProvince() {
+        return province;
+    }
+
+    public User setProvince(String province) {
+        this.province = province;
+        return this;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public User setCity(String city) {
+        this.city = city;
+        return this;
+    }
+
+    public Timestamp getUpdateTime() {
+        return updateTime;
+    }
+
+    public User setUpdateTime(Timestamp updateTime) {
+        this.updateTime = updateTime;
+        return this;
+    }
+
+    public Timestamp getCreateTime() {
+        return createTime;
+    }
+
+    public User setCreateTime(Timestamp createTime) {
+        this.createTime = createTime;
+        return this;
+    }
+
+    public long getOpUserId() {
+        return opUserId;
+    }
+
+    public User setOpUserId(long opUserId) {
+        this.opUserId = opUserId;
+        return this;
+    }
+
+    public String getCat() {
+        return cat;
+    }
+
+    public User setCat(String cat) {
+        this.cat = cat;
+        return this;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public User setType(String type) {
+        this.type = type;
+        return this;
+    }
+
+    public String getDrole() {
+        return drole;
+    }
+
+    public User setDrole(String drole) {
+        this.drole = drole;
+        return this;
+    }
+
+    public String getFrole() {
+        return frole;
+    }
+
+    public User setFrole(String frole) {
+        this.frole = frole;
+        return this;
+    }
+
+    public String getStat() {
+        return stat;
+    }
+
+    public User setStat(String stat) {
+        this.stat = stat;
+        return this;
     }
 
     @Override

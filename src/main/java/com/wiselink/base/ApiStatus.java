@@ -18,7 +18,11 @@ public enum ApiStatus {
     AUTH_INVALID_USER(0001, "无效用户"),
     AUTH_WRONG_PASSWORD(0002, "密码错误"),
     AUTH_BLOCKED(00010, "用户已被禁用"),
-    AUTH_DENIED(00011, "拒绝访问");
+    AUTH_DENIED(00011, "拒绝访问"),
+    
+    AUTH_SERVER_ERROR(20, "服务出现错误"),
+    AUTH_DB_ERROR(30, "数据库出现错误");
+
 
     private int code;
 

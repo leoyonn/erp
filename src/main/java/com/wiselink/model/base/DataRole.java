@@ -10,6 +10,7 @@ package com.wiselink.model.base;
  * 
  * @author leo
  */
-public class DataRole {
+public enum DataRole {
+    NULL
 
 }
