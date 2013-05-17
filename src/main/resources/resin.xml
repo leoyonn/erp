@@ -35,8 +35,8 @@
     -->
   <logger name="" level="${log_level?:'info'}"/>
 
-  <logger name="com.caucho.java" level="config"/>
-  <logger name="com.caucho.loader" level="config"/>
+  <logger name="com.caucho.java" level="all"/>
+  <logger name="com.caucho.loader" level="all"/>
 
   <!--
      - Default configuration applied to all clusters, including
@@ -105,9 +105,9 @@
       <!--
          - webapps can be overridden/extended in the resin.xml
         -->
-      <web-app id="/" root-directory="G:\j4\erp\target\erp-0.0.1-SNAPSHOT">
-        <stderr-log path-format='logs/XXXXErr.log.%Y%m%d'  rollover-period='1D'/>
-        <stdout-log path-format='logs/XXXXOut.log.%Y%m%d'  rollover-period='1D'/>
+      <web-app id="/" root-directory="${ERP_CODE}/target/erp-0.0.1-SNAPSHOT">
+        <stderr-log path-format='${ERP_CODE}/logs/erp.%Y%m%d.err.log'  rollover-period='1D'/>
+        <stdout-log path-format='${ERP_CODE}/logs/erp.%Y%m%d.out.log'  rollover-period='1D'/>
       </web-app>
     </host>
       
