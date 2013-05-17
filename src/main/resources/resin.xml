@@ -5,7 +5,7 @@
        xmlns:resin="urn:java:com.caucho.resin">
 
   <!-- property-based Resin configuration -->
-  <resin:properties path="${__DIR__}/resin.properties" optional="true"/>
+  <resin:properties path="${RESIN_HOME}/conf/resin.properties" optional="true"/>
   <resin:properties path="cloud:/resin.properties"
                     optional="true" recover="true"/>
 
@@ -42,12 +42,12 @@
      - Default configuration applied to all clusters, including
      - HTTP, HTTPS, and /resin-admin configuration.
     -->
-  <resin:import path="${__DIR__}/cluster-default.xml"/>
+  <resin:import path="${RESIN_HOME}/conf/cluster-default.xml"/>
   
   <!--
      - health configuration
     -->
-  <resin:import path="${__DIR__}/health.xml"/>
+  <resin:import path="${RESIN_HOME}/conf/health.xml"/>
 
   
   <!--
@@ -56,7 +56,7 @@
   <resin:AdminAuthenticator>
     <user name="${admin_user}" password="${admin_password}"/>
     
-    <resin:import path="${__DIR__}/admin-users.xml" optional="true"/>
+    <resin:import path="${RESIN_HOME}/conf/admin-users.xml" optional="true"/>
     <resin:import path="cloud:/admin-users.xml" optional="true" recover="true"/>
   </resin:AdminAuthenticator>
 
@@ -105,7 +105,7 @@
       <!--
          - webapps can be overridden/extended in the resin.xml
         -->
-      <web-app id="/" root-directory="${ERP_CODE}/target/erp-0.0.1-SNAPSHOT">
+	  <web-app id="/" root-directory="${ERP_CODE}/target/erp-0.0.1-SNAPSHOT">
         <stderr-log path-format='${ERP_CODE}/logs/erp.%Y%m%d.err.log'  rollover-period='1D'/>
         <stdout-log path-format='${ERP_CODE}/logs/erp.%Y%m%d.out.log'  rollover-period='1D'/>
       </web-app>
