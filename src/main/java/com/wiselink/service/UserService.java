@@ -14,12 +14,13 @@ import org.springframework.stereotype.Service;
 
 import com.wiselink.base.AuthResult;
 import com.wiselink.dao.UserDAO;
+import com.wiselink.model.User;
 
 /**
  * @author leo
  */
 @Service
-public class SecurityService {
+public class UserService {
     @Autowired
     private UserDAO userDao;
 
@@ -42,6 +43,16 @@ public class SecurityService {
             return AuthResult.WRONG_PASSWORD;
         }
         return AuthResult.SUCCESS;
+    }
+    
+    public User getUser(long userId) {
+        try {
+            return userDao.getUser(userId);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        // TODO exception
+        return null;
     }
 
 }

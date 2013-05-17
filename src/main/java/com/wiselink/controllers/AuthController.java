@@ -14,10 +14,11 @@ import net.paoding.rose.web.annotation.rest.Post;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.wiselink.base.ApiResult;
+import com.wiselink.base.ApiStatus;
 import com.wiselink.base.AuthResult;
 import com.wiselink.base.Constants;
 import com.wiselink.controllers.annotations.Trimmed;
-import com.wiselink.service.SecurityService;
+import com.wiselink.service.UserService;
 import com.wiselink.utils.AuthUtils;
 import com.wiselink.utils.CookieUtils;
 import com.wiselink.utils.HttpUtils;
@@ -29,7 +30,7 @@ import com.wiselink.utils.IdUtils;
 @Path("auth")
 public class AuthController {
     @Autowired
-    private SecurityService securityService;
+    private UserService userService;
     
     // TODO return ApiResult?
     @Post("login")
@@ -39,14 +40,13 @@ public class AuthController {
         // 2. permission check
         // TODO
         // 3. check password
-        AuthResult authResult = securityService.checkPassword(userId, password);
+        AuthResult authResult = userService.checkPassword(userId, password);
         if (AuthResult.SUCCESS != authResult) {
-            return ApiResult.authFailed(authResult).toJson();
+            return "@json:" + ApiResult.authFailed(authResult).toJson();
         }
         // 4. save cookie
         setCookie(inv, userId, password);
-        return null;
-
+        return "@json:" + new ApiResult(ApiStatus.SUCCESS, userService.getUser(userId).toJson());
     }
 
     private boolean setCookie(Invocation inv, long userId, String password) {

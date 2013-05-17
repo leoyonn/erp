@@ -6,10 +6,8 @@
  */
 package com.wiselink.dao;
 
-import java.io.IOException;
-import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Statement;
+import java.util.Random;
 
 import junit.framework.Assert;
 
@@ -19,7 +17,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -48,6 +45,7 @@ public class TestUserDao {
 
     @Before
     public void init() {
+        /*
         try {
             Connection conn = dataSource.getConnection();
             Statement st = conn.createStatement();
@@ -61,12 +59,14 @@ public class TestUserDao {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        */
     }
 
     @Test
     public void test() throws SQLException {
         User user = new User();
-        user.setAccount("account1")
+        String account = "account-" + new Random().nextInt(); 
+        user.setAccount(account)
         .setAvatar("http://avatar/1.jpg")
         .setCat(UserCategory.CORP_L0.name())
         .setCity("石家庄市")
@@ -77,7 +77,7 @@ public class TestUserDao {
         .setDrole(DataRole.NULL.name())
         .setEmail("test@test.com")
         .setFrole(FuncRole.NULL.name())
-        .setId(IdUtils.genUserId("account1"))
+        .setId(IdUtils.genUserId(account))
         .setName("名字1")
         .setOpUserId(11110000L)
         .setPassword("pass1")
@@ -88,6 +88,7 @@ public class TestUserDao {
         .setType(UserType.CEO.name())
         .setUpdateTime(new java.sql.Timestamp(System.currentTimeMillis()));
         userDao.addUser(user);
+        System.out.println(userDao);
         Assert.assertEquals(user.getPassword(), userDao.getPassword(user.getId()));
         User u2 = userDao.getUser(user.getAccount());
         Assert.assertEquals(user.getPassword(), u2.getPassword());

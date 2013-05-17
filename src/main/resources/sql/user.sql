@@ -19,11 +19,6 @@ CREATE TABLE IF NOT EXISTS `user` (
     `updateTime` TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '',
     `createTime` TIMESTAMP COMMENT '',
     `opUserId` varchar(64) COMMENT '',
-    `cat` varchar(32) COMMENT '',
-    `type` varchar(32) COMMENT '',
-    `drole` varchar(64) COMMENT '',
-    `frole` varchar(64) COMMENT '',
-    `stat` varchar(64) COMMENT '',
     PRIMARY KEY (`id`),
     UNIQUE(`id`, `account`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

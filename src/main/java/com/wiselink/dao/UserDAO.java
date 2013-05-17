@@ -22,12 +22,12 @@ public interface UserDAO {
     @SQL("INSERT INTO user "
             + "(id,account,name,password,"
             + "avatar,email,phone,tel,desc,corpId,deptId,province,city,"
-            + "updateTime,createTime,opUserId,"
+            + "createTime,opUserId,"
             + "cat,type,drole,frole,stat)"
             + " VALUES "
-            + "(:u.id,:u.account,:u.name,:u.password,"
-            + ":u.avatar,:u.email,:u.phone,:u.tel,:u.desc,:u.corpId,:u.deptId,:u.province,:u.city,"
-            + ":u.updateTime,:u.createTime,:u.opUserId,"
+            + "(:u.id,':u.account',':u.name',:u.password,"
+            + "':u.avatar',':u.email',:u.phone,:u.tel,':u.desc',:u.corpId,:u.deptId,':u.province',':u.city',"
+            + ":u.createTime,:u.opUserId,"
             + ":u.cat,:u.type,:u.drole,:u.frole,:u.stat)")
     public boolean addUser(@SQLParam("u") User user) throws SQLException;
 
