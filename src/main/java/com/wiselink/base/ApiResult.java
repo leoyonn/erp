@@ -9,8 +9,6 @@ package com.wiselink.base;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.google.gson.Gson;
-
 /**
  * @author leo
  */
@@ -34,7 +32,7 @@ public class ApiResult {
     }
     
     public String toJson() {
-        return new Gson().toJson(this, ApiResult.class);
+        return "{\"status\":" + status.toJson() + ",\"result\":\"" + result + "\"}";
     }
     
     public String toString() {

@@ -12,7 +12,7 @@ import com.wiselink.security.Encrypter;
  * @author leo
  */
 public class IdUtils {
-    public static long genUserId(String userAccount) {
+    public static String genUserId(String userAccount) {
         return Encrypter.md5(userAccount);
     }
 }

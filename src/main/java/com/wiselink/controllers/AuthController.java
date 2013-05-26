@@ -36,7 +36,7 @@ public class AuthController {
     @Post("login")
     public String login(Invocation inv, @Trimmed @Param("user") String user, @Param("pass") String password) {
         // 1. get user id from user
-        long userId = IdUtils.genUserId(user);
+        String userId = IdUtils.genUserId(user);
         // 2. permission check
         // TODO
         // 3. check password
@@ -49,16 +49,16 @@ public class AuthController {
         return "@json:" + new ApiResult(ApiStatus.SUCCESS, userService.getUser(userId).toJson());
     }
 
-    private boolean setCookie(Invocation inv, long userId, String password) {
+    private boolean setCookie(Invocation inv, String userId, String password) {
         int expire = Constants.COOKIE_EXPIRE_SECONDS_2WEEK;
         String sessionCode = AuthUtils.generateRandomAESKey();
-        CookieUtils.saveCookie(inv.getResponse(), Constants.KEY_USER_ID, String.valueOf(userId), expire, "/",
+        CookieUtils.saveCookie(inv.getResponse(), Constants.COOKIE_KEY_USER_ID, userId, expire, "/",
                 HttpUtils.getRootDomain(inv.getRequest()));
-        CookieUtils.saveCookie(inv.getResponse(), Constants.KEY_USER_ID, String.valueOf(userId), expire, "/", "");
-        CookieUtils.saveCookie(inv.getResponse(), Constants.KEY_EXPIRE_TIME, String.valueOf(expire), expire, "/", "");
+        CookieUtils.saveCookie(inv.getResponse(), Constants.COOKIE_KEY_USER_ID, userId, expire, "/", "");
+        CookieUtils.saveCookie(inv.getResponse(), Constants.COOKIE_KEY_EXPIRE_TIME, String.valueOf(expire), expire, "/", "");
         String userIp = inv.getRequest().getRemoteAddr();
         String passToken = AuthUtils.genPassToken(userId, password, sessionCode, userIp);
-        CookieUtils.saveCookie(inv.getResponse(), Constants.KEY_PASS_TOKEN, passToken, expire, "/", "");
+        CookieUtils.saveCookie(inv.getResponse(), Constants.COOKIE_KEY_PASS_TOKEN, passToken, expire, "/", "");
         return true;
     }
 

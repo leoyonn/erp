@@ -11,6 +11,6 @@ package com.wiselink.model.base;
  * @author leo
  */
 public enum DataRole {
-    NULL
+    NULL, WRITE, READ,
 
 }

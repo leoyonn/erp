@@ -6,7 +6,6 @@
  */
 package com.wiselink.base;
 
-import com.google.gson.Gson;
 
 /**
  * @author leo
@@ -17,12 +16,13 @@ public enum ApiStatus {
     // 00xx: auth related
     AUTH_INVALID_USER(0001, "无效用户"),
     AUTH_WRONG_PASSWORD(0002, "密码错误"),
+
     AUTH_BLOCKED(00010, "用户已被禁用"),
     AUTH_DENIED(00011, "拒绝访问"),
-    
-    AUTH_SERVER_ERROR(20, "服务出现错误"),
-    AUTH_DB_ERROR(30, "数据库出现错误");
+    AUTH_LOGIN_REQUIRED(00012, "接口需要登录才能访问"),
 
+    AUTH_SERVER_ERROR(00020, "服务出现错误"),
+    AUTH_DB_ERROR(00030, "数据库出现错误");
 
     private int code;
 
@@ -34,7 +34,11 @@ public enum ApiStatus {
     }
 
     public String toJson() {
-        return new Gson().toJson(this, ApiStatus.class);
+        return "{\"code\":" + code + ",\"msg\":\"" + msg + "\"}";
+    }
+
+    public String toString() {
+        return toJson();
     }
 
     public int getCode() {

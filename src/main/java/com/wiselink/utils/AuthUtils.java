@@ -10,9 +10,11 @@ import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.Random;
 
+import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.codec.DecoderException;
+import org.apache.commons.lang.StringUtils;
 
 import com.wiselink.base.Constants;
 import com.wiselink.security.Encrypter;
@@ -42,7 +44,8 @@ public class AuthUtils {
      * @param userIp
      * @return
      */
-    public static String genPassToken(long userId, String password, String sessionCode, String userIp) {
+    public static String genPassToken(String userId, String password, String sessionCode,
+            String userIp) throws SecurityException {
         JSONObject json = new JSONObject();
         json.put("p", sha1HMAC(password));
         json.put("ip", userIp);
@@ -54,15 +57,79 @@ public class AuthUtils {
     }
 
     /**
+     * @param token
+     * @return
+     * @throws SecurityException
+     */
+    public static JSONObject checkPassToken(String token) throws SecurityException {
+        return decryptPassToken(token);
+    }
+
+    /**
+     * @param token
+     * @return
+     * @throws SecurityException
+     */
+    public static JSONObject decryptPassToken(String token) throws SecurityException {
+        if (StringUtils.isBlank(token)) {
+            throw new SecurityException("no pass token");
+        }
+        try {
+            return JSONObject.fromObject(Encrypter.decryptAES(token));
+        } catch (JSONException je) {
+            throw new SecurityException("invalid pass token");
+        }
+    }
+
+    /**
+     * @param token
+     * @return
+     * @throws SecurityException
+     */
+    public static String getUserIdFromPassToken(JSONObject token) throws SecurityException {
+        try {
+            String userId = token.getString("u");
+            if (StringUtils.isEmpty(userId)) {
+                throw new SecurityException("invalid pass token: no user id found.");
+            }
+            return userId;
+        } catch (JSONException e) {
+            throw new SecurityException(e);
+        }
+    }
+
+    /**
+     * validate user's id and password from token. 
+     * @param passToken
+     * @param userId
+     * @param pwdMd5
+     * @return
+     * @throws SecurityException
+     */
+    public static JSONObject validateToken(String passToken, String userId, String pwdMd5) throws SecurityException {
+        String decryptedData = Encrypter.decryptAES(passToken);
+        JSONObject json = JSONObject.fromObject(decryptedData);
+        if (!userId.equals(json.getString("u"))) {
+            return null;
+        }
+        String pwdSign = json.getString("p");
+        if (!sha1HMAC(pwdMd5).equals(pwdSign)) {
+            return null;
+        }
+        return json;
+    }
+
+    /**
      * @param data
      * @return
      */
-    private static String sha1HMAC(String data) {
+    private static String sha1HMAC(String data) throws SecurityException {
         try {
-            return Encrypter.encryptBASE64(Encrypter.encryptHMAC(data.getBytes("UTF-8"), Constants.SECURITY_KEY));
+            return Encrypter.encryptBASE64(Encrypter.encryptHMAC(data.getBytes("UTF-8"),
+                    Constants.SECURITY_KEY));
         } catch (Exception e) {
             // InvalidKeyException UnsupportedEncodingException NoSuchAlgorithmException
-            throw new RuntimeException(e);
+            throw new SecurityException(e);
         }
     }
 

@@ -6,31 +6,34 @@
  */
 package com.wiselink.controllers;
 
+import net.paoding.rose.web.Invocation;
 import net.paoding.rose.web.annotation.Path;
 import net.paoding.rose.web.annotation.rest.Get;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.wiselink.base.ApiResult;
+import com.wiselink.base.ApiStatus;
+import com.wiselink.controllers.annotations.LoginRequired;
 
 /**
- * 
  * @author leo
  */
 @Path("")
 public class HelloController {
-    protected static final Logger LOG = Logger.getLogger(HelloController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(HelloController.class);
 
     @Get("")
-    public String index() {
-        LOG.debug("{HelloController.index} debug");
-        LOG.info("{HelloController.index} info");
-        LOG.warn("{HelloController.index} warn");
-        LOG.error("{HelloController.index} error");
-        LOG.fatal("{HelloController.index} fatal");
-        System.out.println("xxx1");
-        System.err.println("xxx2");
-        System.out.println(ClassLoader.getSystemResource("log4j.properties"));
-        System.out.println(ClassLoader.getSystemResource("log4j.xml"));
+    public String index(Invocation inv) {
+        LOGGER.debug("welcome to index");
+        return "@json:" + new ApiResult(ApiStatus.SUCCESS, "welcome to picc home page.!!").toJson();
+    }
 
-        return "@This is a blank page. please find the api document...";
+    @LoginRequired
+    @Get("shouldlogin")
+    public String shouldlogin() {
+        LOGGER.debug("{HelloController.index} debug in hello ");
+        return "@Good! This api required login, and u got that!";
     }
 }

@@ -10,13 +10,16 @@ package com.wiselink.base;
  * @author leo
  */
 public interface Constants {
-    public static final int COOKIE_EXPIRE_SECONDS_2WEEK = 60 * 60 * 24 * 14;
-    public static final int COOKIE_EXPIRE_SECONDS_DEFAULT = -1;
-    public static final String DOMAIN = "wiselink.com";
-    public static final String KEY_USER_ID = "userId";
-    public static final String KEY_EXPIRE_TIME = "expireTime";
-    public static final String KEY_PASS_TOKEN = "passToken";
-    public static final String SECURITY_KEY = "MTIzNDU2Nzg5MDEyMzQ1Ng==";
-    public static final String ENCODING = "UTF-8";
+    int COOKIE_EXPIRE_SECONDS_2WEEK = 60 * 60 * 24 * 14;
+    int COOKIE_EXPIRE_SECONDS_DEFAULT = -1;
+    int INTERCEPTOR_PRIORITY_LOGIN = 1000;
 
+    long INVALID_ID = -1;
+
+    String DOMAIN = "wiselink.com";
+    String COOKIE_KEY_USER_ID = "userId";
+    String COOKIE_KEY_EXPIRE_TIME = "expireTime";
+    String COOKIE_KEY_PASS_TOKEN = "passToken";
+    String SECURITY_KEY = "MTIzNDU2Nzg5MDEyMzQ1Ng==";
+    String ENCODING = "UTF-8";
 }

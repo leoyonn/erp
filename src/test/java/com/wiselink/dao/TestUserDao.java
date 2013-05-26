@@ -7,7 +7,6 @@
 package com.wiselink.dao;
 
 import java.sql.SQLException;
-import java.util.Random;
 
 import junit.framework.Assert;
 
@@ -21,6 +20,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.wiselink.model.User;
+import com.wiselink.model.UserRole;
 import com.wiselink.model.base.DataRole;
 import com.wiselink.model.base.FuncRole;
 import com.wiselink.model.base.UserCategory;
@@ -65,34 +65,52 @@ public class TestUserDao {
     @Test
     public void test() throws SQLException {
         User user = new User();
-        String account = "account-" + new Random().nextInt(); 
+        String account = "account-" + System.currentTimeMillis(); 
         user.setAccount(account)
         .setAvatar("http://avatar/1.jpg")
-        .setCat(UserCategory.CORP_L0.name())
         .setCity("石家庄市")
         .setCorpId("corp1111")
         .setCreateTime(new java.sql.Timestamp(System.currentTimeMillis()))
         .setDeptId("dept1111")
         .setDesc("我是一名测试用户")
-        .setDrole(DataRole.NULL.name())
         .setEmail("test@test.com")
-        .setFrole(FuncRole.NULL.name())
         .setId(IdUtils.genUserId(account))
         .setName("名字1")
-        .setOpUserId(11110000L)
+        .setOpUserId("11110000")
         .setPassword("pass1")
         .setPhone("13811811111")
         .setProvince("河北省")
-        .setStat(UserStatus.NULL.name())
         .setTel("010-11111111")
-        .setType(UserType.CEO.name())
         .setUpdateTime(new java.sql.Timestamp(System.currentTimeMillis()));
-        userDao.addUser(user);
+        userDao.addUser(
+                user.id,
+                user.account,
+                user.name,
+                user.password,
+                user.avatar,
+                user.email,
+                user.phone,
+                user.tel,
+                user.desc,
+                user.corpId,
+                user.deptId,
+                user.province,
+                user.city,
+                user.opUserId);
         System.out.println(userDao);
         Assert.assertEquals(user.getPassword(), userDao.getPassword(user.getId()));
-        User u2 = userDao.getUser(user.getAccount());
+        User u2 = userDao.getUserByAccount(user.getAccount());
         Assert.assertEquals(user.getPassword(), u2.getPassword());
-        User u3 = userDao.getUser(user.getId());
+        User u3 = userDao.getUserById(user.getId());
         Assert.assertEquals(user.getPassword(), u3.getPassword());
+        
+        UserRole role = new UserRole()
+                .setCat(UserCategory.CORP_L0.name())
+                .setDrole(DataRole.NULL.name())
+                .setFrole(FuncRole.NULL.name())
+                .setStat(UserStatus.NULL.name())
+                .setType(UserType.CEO.name());
+        // TODO test role
+        System.out.println(role);
     }
 }

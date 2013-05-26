@@ -11,5 +11,5 @@ package com.wiselink.model.base;
  * @author leo
  */
 public enum UserStatus {
-    NULL,
+    NULL, ACTIVE,
 }

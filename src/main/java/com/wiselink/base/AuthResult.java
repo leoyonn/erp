@@ -17,6 +17,7 @@ public enum AuthResult {
 
     BLOCKED(10, "用户已被禁用"),
     DENIED(11, "访问被拒绝"),
+    LOGIN_REQUIRED(12, "接口需要登录才能访问"),
     
     SERVER_ERROR(20, "服务出现错误"),
     DB_ERROR(30, "数据库出现错误"),

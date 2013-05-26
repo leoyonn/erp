@@ -16,39 +16,32 @@ import com.wiselink.base.jsonable.Jsonable;
  */
 public class User implements Jsonable {
     // auth
-    private long id;
-    private String account;
-    private String name;
-    private String password;
+    public String id;
+    public String account;
+    public String name;
+    public String password;
 
     // info
-    private String avatar;
-    private String email;
-    private String phone;
-    private String tel;
-    private String desc;
-    private String corpId;
-    private String deptId;
-    private String province; 
-    private String city; 
+    public String avatar;
+    public String email;
+    public String phone;
+    public String tel;
+    public String desc;
+    public String corpId;
+    public String deptId;
+    public String province; 
+    public String city; 
     
     // op
-    private Timestamp updateTime;
-    private Timestamp createTime;
-    private long opUserId;
+    public Timestamp updateTime;
+    public Timestamp createTime;
+    public String opUserId;
 
-    // role
-    private String cat; // UserCategory.name()
-    private String type;  // UserType.name()
-    private String drole; // DataRole.name()
-    private String frole; // FuncRole.name()
-    private String stat; // UserStatus.name()
-
-    public long getId() {
+    public String getId() {
         return id;
     }
 
-    public User setId(long id) {
+    public User setId(String id) {
         this.id = id;
         return this;
     }
@@ -179,57 +172,12 @@ public class User implements Jsonable {
         return this;
     }
 
-    public long getOpUserId() {
+    public String getOpUserId() {
         return opUserId;
     }
 
-    public User setOpUserId(long opUserId) {
+    public User setOpUserId(String opUserId) {
         this.opUserId = opUserId;
-        return this;
-    }
-
-    public String getCat() {
-        return cat;
-    }
-
-    public User setCat(String cat) {
-        this.cat = cat;
-        return this;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public User setType(String type) {
-        this.type = type;
-        return this;
-    }
-
-    public String getDrole() {
-        return drole;
-    }
-
-    public User setDrole(String drole) {
-        this.drole = drole;
-        return this;
-    }
-
-    public String getFrole() {
-        return frole;
-    }
-
-    public User setFrole(String frole) {
-        this.frole = frole;
-        return this;
-    }
-
-    public String getStat() {
-        return stat;
-    }
-
-    public User setStat(String stat) {
-        this.stat = stat;
         return this;
     }
 

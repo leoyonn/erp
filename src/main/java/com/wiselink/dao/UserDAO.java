@@ -13,30 +13,85 @@ import net.paoding.rose.jade.annotation.SQL;
 import net.paoding.rose.jade.annotation.SQLParam;
 
 import com.wiselink.model.User;
+import com.wiselink.model.UserRole;
 
 /**
  * @author leo
  */
 @DAO
 public interface UserDAO {
-    @SQL("INSERT INTO user "
-            + "(id,account,name,password,"
-            + "avatar,email,phone,tel,desc,corpId,deptId,province,city,"
-            + "createTime,opUserId,"
-            + "cat,type,drole,frole,stat)"
-            + " VALUES "
-            + "(:u.id,':u.account',':u.name',:u.password,"
-            + "':u.avatar',':u.email',:u.phone,:u.tel,':u.desc',:u.corpId,:u.deptId,':u.province',':u.city',"
-            + ":u.createTime,:u.opUserId,"
-            + ":u.cat,:u.type,:u.drole,:u.frole,:u.stat)")
-    public boolean addUser(@SQLParam("u") User user) throws SQLException;
+    String TABLE_NAME_USER = "PICC.\"user\"";
+    String TABLE_NAME_USER_ROLE = "PICC.\"user_role\"";
+    String USER_KEYS =
+            " (\"id\", \"account\", \"name\", \"password\","
+            + "\"avatar\", \"email\", \"phone\", \"tel\","
+            + "\"desc\", \"corpId\", \"deptId\","
+            + "\"province\", \"city\","
+            + "\"opUserId\", \"updateTime\", \"createTime\")";
 
-    @SQL("SELECT password FROM user WHERE id = :userId")
-    public String getPassword(@SQLParam("userId") long userId) throws SQLException;
+    String USER_VALUES = " VALUES "
+//            + "(':user.id', ':user.account', :user.name, 'testpass2',"
+//            + "'http://picc.com/1.jpg','testuser@picc.com', '13811818888', '95518',"
+//            + "'这是个测试用户，testuser', 'CORP01', 'DEPT01',"
+//            + "'河北省', '石家庄市',"
+//            + "'0', sysdate, sysdate)";
 
-    @SQL("SELECT * FROM user WHERE account=:account")
-    public User getUser(@SQLParam("account") String account)throws SQLException;
+            + "(:id,:account,:name,:password,"
+            + ":avatar,:email,:phone,:tel,"
+            + ":desc,:corpId,:deptId,"
+            + ":province,:city,"
+            + ":opUserId,sysdate,sysdate)";
 
-    @SQL("SELECT * FROM user WHERE id=:id")
-    public User getUser(@SQLParam("id") long userId)throws SQLException;
+    /**
+     * add an user into database
+     * @param user
+     * @return
+     * @throws SQLException
+     */
+    @SQL("INSERT INTO " + TABLE_NAME_USER + USER_KEYS + USER_VALUES)
+    public boolean addUser(@SQLParam("id") String id,
+            @SQLParam("account") String account,
+            @SQLParam("name") String name,
+            @SQLParam("password") String password,
+            @SQLParam("avatar") String avatar,
+            @SQLParam("email") String email,
+            @SQLParam("phone") String phone,
+            @SQLParam("tel") String tel,
+            @SQLParam("desc") String desc,
+            @SQLParam("corpId") String corpId,
+            @SQLParam("deptId") String deptId,
+            @SQLParam("province") String province,
+            @SQLParam("city") String city,
+            @SQLParam("opUserId") String opUserId) throws SQLException;
+
+    /**
+     * get password of an user (md5)
+     * @param userId
+     * @return
+     * @throws SQLException
+     */
+    @SQL("SELECT \"password\" FROM " + TABLE_NAME_USER + " WHERE \"id\" = :id")
+    public String getPassword(@SQLParam("id") String userId) throws SQLException;
+
+    /**
+     * get a user from account
+     * @param account
+     * @return
+     * @throws SQLException
+     */
+    @SQL("SELECT * FROM " + TABLE_NAME_USER + " WHERE \"account\" = :account")
+    public User getUserByAccount(@SQLParam("account") String account)throws SQLException;
+
+    /**
+     * get a user from id
+     *
+     * @param userId
+     * @return
+     * @throws SQLException
+     */
+    @SQL("SELECT * FROM " + TABLE_NAME_USER + " WHERE \"id\" = :id")
+    public User getUserById(@SQLParam("id") String userId)throws SQLException;
+
+    @SQL("INSERT INTO " + TABLE_NAME_USER )
+    public UserRole setUserRole();
 }

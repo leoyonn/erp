@@ -4,13 +4,15 @@
  * @author leo leoyonn@gmail.com
  * @date May 14, 2013 5:11:18 PM
  */
-package com.wiselink.controllers.annotations;
+package com.wiselink.controllers;
 
 import net.paoding.rose.web.Invocation;
 import net.paoding.rose.web.paramresolver.ParamMetaData;
 import net.paoding.rose.web.paramresolver.ParamResolver;
 
 import org.apache.commons.lang.StringUtils;
+
+import com.wiselink.controllers.annotations.Trimmed;
 
 /**
  * @author leo

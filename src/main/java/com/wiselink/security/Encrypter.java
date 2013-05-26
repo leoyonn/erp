@@ -326,7 +326,7 @@ public class Encrypter {
         }
     }
 
-    public static long md5(String msg) {
+    public static String md5(String msg) {
         MessageDigest md5 = null;
         try {
             md5 = MessageDigest.getInstance("MD5");
@@ -335,9 +335,8 @@ public class Encrypter {
         }
         md5.update(msg.getBytes());
         byte[] bKey = md5.digest();
-        // TODO by leo: update from old utils
-        return ((long) (bKey[3] & 0xFF) << 24) | ((long) (bKey[2] & 0xFF) << 16)
+        long l = ((long) (bKey[3] & 0xFF) << 24) | ((long) (bKey[2] & 0xFF) << 16)
                 | ((long) (bKey[1] & 0xFF) << 8) | (long) (bKey[0] & 0xFF);
-
+        return String.valueOf(l);
     }
 }

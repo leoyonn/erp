@@ -30,7 +30,7 @@ public class UserService {
      * @return
      * @throws SQLException 
      */
-    public AuthResult checkPassword(long userId, String password) {
+    public AuthResult checkPassword(String userId, String password) {
         String real = null;
         try {
             real = userDao.getPassword(userId);
@@ -45,9 +45,9 @@ public class UserService {
         return AuthResult.SUCCESS;
     }
     
-    public User getUser(long userId) {
+    public User getUser(String userId) {
         try {
-            return userDao.getUser(userId);
+            return userDao.getUserById(userId);
         } catch (SQLException e) {
             e.printStackTrace();
         }
