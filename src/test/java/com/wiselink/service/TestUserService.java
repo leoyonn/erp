@@ -32,9 +32,10 @@ public class TestUserService {
         UserService service = new UserService();
         System.out.println(service.checkPassword("1", "111"));
     }
+
     @Test
     public void testByHttp() {
-        final String LOGIN_URL = "http://localhost:8080/auth/login";
+        final String LOGIN_URL = "http://fhjy:8080/auth/login";
         // good request
         Map<String, String> params = new HashMap<String, String>() {
             private static final long serialVersionUID = 1L;

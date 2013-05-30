@@ -65,7 +65,7 @@ public class TestUserDao {
     @Test
     public void test() throws SQLException {
         User user = new User();
-        String account = "account-" + System.currentTimeMillis(); 
+        String account = "account-" + 1; 
         user.setAccount(account)
         .setAvatar("http://avatar/1.jpg")
         .setCity("石家庄市")
