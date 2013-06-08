@@ -6,10 +6,17 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>war</packaging>
 
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<project.resources.sourceEncoding>UTF-8</project.resources.sourceEncoding>
-	</properties>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.resources.sourceEncoding>UTF-8</project.resources.sourceEncoding>
+        <project_path>/home/leo/codes/erp/target</project_path>
+        <jvm.paramters>-Xms256m -Xmx512m</jvm.paramters>
+        <log4j_maxfilesize>500MB</log4j_maxfilesize>
+        <log4j_maxbackupindex>300</log4j_maxbackupindex>
+        <log4j_level>DEBUG</log4j_level>
+        <log4j_root>F</log4j_root>
+        <log4j_path>logs/erp.log</log4j_path>
+    </properties>
 
 	<dependencies>
 		<dependency>
@@ -112,6 +119,10 @@
                 <includes>
                     <include>**/*.*</include>
                 </includes>
+            </resource>
+            <resource>
+                <directory>${project.basedir}/src/main/resources</directory>
+                <filtering>true</filtering>
             </resource>
         </resources>
         <plugins>
