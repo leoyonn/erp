@@ -11,7 +11,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.security.InvalidParameterException;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -32,7 +31,7 @@ public class HttpUtils {
             String domain = String.format(".%s.%s", matcher.group(1), matcher.group(2));
             return domain;
         } else {
-            throw new InvalidParameterException("invalid server name:" + serverName);
+            return serverName;
         }
     }
 

@@ -11,6 +11,8 @@ import net.paoding.rose.web.annotation.Param;
 import net.paoding.rose.web.annotation.Path;
 import net.paoding.rose.web.annotation.rest.Post;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.wiselink.base.ApiResult;
@@ -29,12 +31,14 @@ import com.wiselink.utils.IdUtils;
  */
 @Path("auth")
 public class AuthController {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AuthController.class);
     @Autowired
     private UserService userService;
     
     // TODO return ApiResult?
     @Post("login")
-    public String login(Invocation inv, @Trimmed @Param("user") String user, @Param("pass") String password) {
+    public String login(Invocation inv, @Trimmed @Param("user") String user, @Param("password") String password) {
+        LOGGER.error("login: {}:{}", user, password);
         // 1. get user id from user
         String userId = IdUtils.genUserId(user);
         // 2. permission check

@@ -17,7 +17,7 @@
     </context:component-scan>
     -->
     
-    <context:property-placeholder location="classpath:../var.properties" />
+    <context:property-placeholder location="var.properties" />
      <!-- 数据源配置 dbcp -->
     <bean id="jade.dataSource.com.wiselink.dao" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
         <property name="driverClassName" value="${wstp.jdbc.driver}" />

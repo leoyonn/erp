@@ -65,19 +65,19 @@ public class TestUserDao {
     @Test
     public void test() throws SQLException {
         User user = new User();
-        String account = "account-" + 1; 
+        String account = "account-" + 3; 
         user.setAccount(account)
-        .setAvatar("http://avatar/1.jpg")
+        .setAvatar("http://avatar/3.jpg")
         .setCity("石家庄市")
         .setCorpId("corp1111")
         .setCreateTime(new java.sql.Timestamp(System.currentTimeMillis()))
         .setDeptId("dept1111")
-        .setDesc("我是一名测试用户")
+        .setDesc("我是一名测试用户3")
         .setEmail("test@test.com")
         .setId(IdUtils.genUserId(account))
-        .setName("名字1")
+        .setName("名字3")
         .setOpUserId("11110000")
-        .setPassword("pass1")
+        .setPassword("pass3")
         .setPhone("13811811111")
         .setProvince("河北省")
         .setTel("010-11111111")
@@ -107,7 +107,7 @@ public class TestUserDao {
         UserRole role = new UserRole()
                 .setCat(UserCategory.CORP_L0.name())
                 .setDrole(DataRole.NULL.name())
-                .setFrole(FuncRole.NULL.name())
+                .setFrole(FuncRole.Leader.name())
                 .setStat(UserStatus.NULL.name())
                 .setType(UserType.CEO.name());
         // TODO test role

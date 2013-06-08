@@ -40,7 +40,7 @@ public class TestUserService {
         Map<String, String> params = new HashMap<String, String>() {
             private static final long serialVersionUID = 1L;
             {
-                put("user", "account-1369537284743");
+                put("user", "account-1");
                 put("password", "pass1");
             }
         };
