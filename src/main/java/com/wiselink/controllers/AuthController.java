@@ -16,7 +16,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.wiselink.base.ApiResult;
-import com.wiselink.base.ApiStatus;
 import com.wiselink.base.AuthResult;
 import com.wiselink.base.Constants;
 import com.wiselink.controllers.annotations.Trimmed;
@@ -30,7 +29,7 @@ import com.wiselink.utils.IdUtils;
  * @author leo
  */
 @Path("auth")
-public class AuthController {
+public class AuthController extends BaseController {
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthController.class);
     @Autowired
     private UserService userService;
@@ -46,11 +45,11 @@ public class AuthController {
         // 3. check password
         AuthResult authResult = userService.checkPassword(userId, password);
         if (AuthResult.SUCCESS != authResult) {
-            return "@json:" + ApiResult.authFailed(authResult).toJson();
+            return apiResult(ApiResult.authFailed(authResult));
         }
         // 4. save cookie
         setCookie(inv, userId, password);
-        return "@json:" + new ApiResult(ApiStatus.SUCCESS, userService.getUser(userId).toJson());
+        return successResult(userService.getUser(userId).toJson());
     }
 
     private boolean setCookie(Invocation inv, String userId, String password) {

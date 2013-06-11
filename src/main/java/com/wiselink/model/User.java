@@ -6,8 +6,6 @@
  */
 package com.wiselink.model;
 
-import java.sql.Timestamp;
-
 import com.google.gson.Gson;
 import com.wiselink.base.jsonable.Jsonable;
 
@@ -31,10 +29,10 @@ public class User implements Jsonable {
     public String deptId;
     public String province; 
     public String city; 
-    
+
     // op
-    public Timestamp updateTime;
-    public Timestamp createTime;
+    public long updateTime;
+    public long createTime;
     public String opUserId;
 
     public String getId() {
@@ -154,22 +152,20 @@ public class User implements Jsonable {
         return this;
     }
 
-    public Timestamp getUpdateTime() {
+    public long getUpdateTime() {
         return updateTime;
     }
 
-    public User setUpdateTime(Timestamp updateTime) {
+    public void setUpdateTime(long updateTime) {
         this.updateTime = updateTime;
-        return this;
     }
 
-    public Timestamp getCreateTime() {
+    public long getCreateTime() {
         return createTime;
     }
 
-    public User setCreateTime(Timestamp createTime) {
+    public void setCreateTime(long createTime) {
         this.createTime = createTime;
-        return this;
     }
 
     public String getOpUserId() {

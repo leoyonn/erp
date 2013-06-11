@@ -8,15 +8,25 @@ package com.wiselink.model;
 
 import com.google.gson.Gson;
 import com.wiselink.base.jsonable.Jsonable;
+import com.wiselink.model.base.DataRole;
+import com.wiselink.model.base.UserCategory;
+import com.wiselink.model.base.UserStatus;
+import com.wiselink.model.base.UserType;
 
 /**
+ * 用户的功能角色、数据角色、类型等 
  * @author leo
  */
 public class UserRole implements Jsonable {
+    /** cat should be set as {@link UserCategory#name()} */
     private String cat; // UserCategory.name()
+    /** type should be set as {@link UserType#name()} */
     private String type;  // UserType.name()
+    /** frole should be set as {@link FuncRole#name()} */
+    private String froleId; // FuncRole.name()
+    /** drole should be set as {@link DataRole#name()} */
     private String drole; // DataRole.name()
-    private String frole; // FuncRole.name()
+    /** stat should be set as {@link UserStatus#name()} */
     private String stat; // UserStatus.name()
 
     public String getCat() {
@@ -46,12 +56,12 @@ public class UserRole implements Jsonable {
         return this;
     }
 
-    public String getFrole() {
-        return frole;
+    public String getFroleId() {
+        return froleId;
     }
 
-    public UserRole setFrole(String frole) {
-        this.frole = frole;
+    public UserRole setFroleId(String froleId) {
+        this.froleId = froleId;
         return this;
     }
 

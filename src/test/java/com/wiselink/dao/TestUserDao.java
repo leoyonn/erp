@@ -19,10 +19,10 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.wiselink.model.FuncRole;
 import com.wiselink.model.User;
 import com.wiselink.model.UserRole;
 import com.wiselink.model.base.DataRole;
-import com.wiselink.model.base.FuncRole;
 import com.wiselink.model.base.UserCategory;
 import com.wiselink.model.base.UserStatus;
 import com.wiselink.model.base.UserType;

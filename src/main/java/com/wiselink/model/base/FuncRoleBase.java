@@ -14,7 +14,9 @@ import net.sf.json.JSONObject;
  * 功能角色定义
  * @author leo
  */
-public enum FuncRole {
+@Deprecated
+public enum FuncRoleBase {
+    // TODO: + name
     Leader(0, "技术部领导", Actions.Leader.allAsJson()),
     ResOper(1, "耗材管理员", Actions.ResOper.allAsJson()),
     BuyOper(2, "采购管理员", Actions.BuyOper.allAsJson()),
@@ -29,7 +31,7 @@ public enum FuncRole {
     private static final String ALL;
     static {
         JSONArray allJson = new JSONArray();
-        for (FuncRole v: values()) {
+        for (FuncRoleBase v: values()) {
             allJson.add(v.json);
         }
         ALL = allJson.toString();
@@ -39,7 +41,7 @@ public enum FuncRole {
         return ALL;
     }
     
-    FuncRole(int code, String desc, String actions) {
+    FuncRoleBase(int code, String desc, String actions) {
         this.code = code;
         this.desc = desc;
         this.actions = actions;
@@ -269,6 +271,6 @@ public enum FuncRole {
     }
     
     public static void main(String[] args) {
-        System.out.println(FuncRole.allAsJson());
+        System.out.println(FuncRoleBase.allAsJson());
     }
 }

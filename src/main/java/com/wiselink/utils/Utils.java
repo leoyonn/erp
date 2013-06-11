@@ -6,6 +6,8 @@
  */
 package com.wiselink.utils;
 
+import net.sf.json.JSONObject;
+
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -21,5 +23,19 @@ public class Utils {
         char[] chars = s.toCharArray();
         chars[0] += 'A' - 'a';
         return String.valueOf(chars);
+    }
+
+    /**
+     * @param code
+     * @param name
+     * @param desc
+     * @return
+     */
+    public static String buildEnumJson(int code, String name, String desc) {
+        JSONObject j = new JSONObject();
+        j.put("code", code);
+        j.put("name", name);
+        j.put("desc", desc);
+        return j.toString();
     }
 }

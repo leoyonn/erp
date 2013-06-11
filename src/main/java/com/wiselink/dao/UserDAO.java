@@ -13,7 +13,6 @@ import net.paoding.rose.jade.annotation.SQL;
 import net.paoding.rose.jade.annotation.SQLParam;
 
 import com.wiselink.model.User;
-import com.wiselink.model.UserRole;
 
 /**
  * @author leo
@@ -91,7 +90,4 @@ public interface UserDAO {
      */
     @SQL("SELECT * FROM " + TABLE_NAME_USER + " WHERE \"id\" = :id")
     public User getUserById(@SQLParam("id") String userId)throws SQLException;
-
-    @SQL("INSERT INTO " + TABLE_NAME_USER )
-    public UserRole setUserRole();
 }
