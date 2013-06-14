@@ -1,10 +1,10 @@
 /**
  * Op.java
  * [CopyRight]
- * @author leo leoyonn@gmail.com
+ * @author leo [leoyonn@gmail.com]
  * @date 2013-6-11 下午3:55:52
  */
-package com.wiselink.model.base;
+package com.wiselink.model.role;
 
 import net.sf.json.JSONArray;
 

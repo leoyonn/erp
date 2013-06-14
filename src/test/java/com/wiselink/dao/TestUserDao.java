@@ -19,13 +19,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.wiselink.model.FuncRole;
 import com.wiselink.model.User;
 import com.wiselink.model.UserRole;
-import com.wiselink.model.base.DataRole;
-import com.wiselink.model.base.UserCategory;
-import com.wiselink.model.base.UserStatus;
-import com.wiselink.model.base.UserType;
 import com.wiselink.utils.IdUtils;
 
 /**
@@ -70,7 +65,7 @@ public class TestUserDao {
         .setAvatar("http://avatar/3.jpg")
         .setCity("石家庄市")
         .setCorpId("corp1111")
-        .setCreateTime(new java.sql.Timestamp(System.currentTimeMillis()))
+        .setCreateTime(System.currentTimeMillis())
         .setDeptId("dept1111")
         .setDesc("我是一名测试用户3")
         .setEmail("test@test.com")
@@ -81,7 +76,7 @@ public class TestUserDao {
         .setPhone("13811811111")
         .setProvince("河北省")
         .setTel("010-11111111")
-        .setUpdateTime(new java.sql.Timestamp(System.currentTimeMillis()));
+        .setUpdateTime(System.currentTimeMillis());
         userDao.addUser(
                 user.id,
                 user.account,
@@ -104,12 +99,12 @@ public class TestUserDao {
         User u3 = userDao.getUserById(user.getId());
         Assert.assertEquals(user.getPassword(), u3.getPassword());
         
-        UserRole role = new UserRole()
-                .setCat(UserCategory.CORP_L0.name())
-                .setDrole(DataRole.NULL.name())
-                .setFrole(FuncRole.Leader.name())
-                .setStat(UserStatus.NULL.name())
-                .setType(UserType.CEO.name());
+        UserRole role = new UserRole();
+//                .setCat(UserCategory.Corp.name())
+//                .setDrole(DataRole.NULL.name())
+//                .setFrole("")
+//                .setStat(UserStatus.NULL.name())
+//                .setType(UserType.CEO.name());
         // TODO test role
         System.out.println(role);
     }

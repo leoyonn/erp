@@ -6,8 +6,13 @@
  */
 package com.wiselink.controllers;
 
+import java.util.Collection;
+
+import net.sf.json.JSONArray;
+
 import com.wiselink.base.ApiResult;
 import com.wiselink.base.ApiStatus;
+import com.wiselink.base.jsonable.Jsonable;
 
 /**
  * 
@@ -20,6 +25,17 @@ public abstract class BaseController {
     
     protected String successResult(String result) {
         return "@json:" + new ApiResult(ApiStatus.SUCCESS, result);    
+    }
+
+    protected String successResult(Collection<? extends Jsonable> all) {
+        if (all == null || all.size() == 0) {
+            return failResult(ApiStatus.DATA_EMPTY);
+        }
+        JSONArray arr = new JSONArray();
+        for (Jsonable j: all) {
+            arr.add(j.toJson());
+        }
+        return arr.toString();
     }
 
     protected String failResult(ApiStatus status, String result) {

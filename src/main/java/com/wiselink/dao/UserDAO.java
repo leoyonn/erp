@@ -12,6 +12,7 @@ import net.paoding.rose.jade.annotation.DAO;
 import net.paoding.rose.jade.annotation.SQL;
 import net.paoding.rose.jade.annotation.SQLParam;
 
+import com.wiselink.base.TableName;
 import com.wiselink.model.User;
 
 /**
@@ -19,8 +20,6 @@ import com.wiselink.model.User;
  */
 @DAO
 public interface UserDAO {
-    String TABLE_NAME_USER = "PICC.\"user\"";
-    String TABLE_NAME_USER_ROLE = "PICC.\"user_role\"";
     String USER_KEYS =
             " (\"id\", \"account\", \"name\", \"password\","
             + "\"avatar\", \"email\", \"phone\", \"tel\","
@@ -47,7 +46,7 @@ public interface UserDAO {
      * @return
      * @throws SQLException
      */
-    @SQL("INSERT INTO " + TABLE_NAME_USER + USER_KEYS + USER_VALUES)
+    @SQL("INSERT INTO " + TableName.User + USER_KEYS + USER_VALUES)
     public boolean addUser(@SQLParam("id") String id,
             @SQLParam("account") String account,
             @SQLParam("name") String name,
@@ -69,7 +68,7 @@ public interface UserDAO {
      * @return
      * @throws SQLException
      */
-    @SQL("SELECT \"password\" FROM " + TABLE_NAME_USER + " WHERE \"id\" = :id")
+    @SQL("SELECT \"password\" FROM " + TableName.User + " WHERE \"id\" = :id")
     public String getPassword(@SQLParam("id") String userId) throws SQLException;
 
     /**
@@ -78,7 +77,7 @@ public interface UserDAO {
      * @return
      * @throws SQLException
      */
-    @SQL("SELECT * FROM " + TABLE_NAME_USER + " WHERE \"account\" = :account")
+    @SQL("SELECT * FROM " + TableName.User + " WHERE \"account\" = :account")
     public User getUserByAccount(@SQLParam("account") String account)throws SQLException;
 
     /**
@@ -88,6 +87,6 @@ public interface UserDAO {
      * @return
      * @throws SQLException
      */
-    @SQL("SELECT * FROM " + TABLE_NAME_USER + " WHERE \"id\" = :id")
+    @SQL("SELECT * FROM " + TableName.User + " WHERE \"id\" = :id")
     public User getUserById(@SQLParam("id") String userId)throws SQLException;
 }

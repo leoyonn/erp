@@ -26,7 +26,9 @@ public class User implements Jsonable {
     public String tel;
     public String desc;
     public String corpId;
+    public String corp;
     public String deptId;
+    public String dept;
     public String province; 
     public String city; 
 
@@ -156,16 +158,18 @@ public class User implements Jsonable {
         return updateTime;
     }
 
-    public void setUpdateTime(long updateTime) {
+    public User setUpdateTime(long updateTime) {
         this.updateTime = updateTime;
+        return this;
     }
 
     public long getCreateTime() {
         return createTime;
     }
 
-    public void setCreateTime(long createTime) {
+    public User setCreateTime(long createTime) {
         this.createTime = createTime;
+        return this;
     }
 
     public String getOpUserId() {

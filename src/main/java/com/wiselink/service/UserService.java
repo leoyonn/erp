@@ -7,6 +7,7 @@
 package com.wiselink.service;
 
 import java.sql.SQLException;
+import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 import com.wiselink.base.AuthResult;
 import com.wiselink.dao.UserDAO;
 import com.wiselink.model.User;
+import com.wiselink.model.UserCard;
 
 /**
  * @author leo
@@ -57,6 +59,15 @@ public class UserService {
             e.printStackTrace();
         }
         // TODO exception
+        return null;
+    }
+
+    /**
+     * @param userIds
+     * @return
+     */
+    public List<UserCard> getUsers(List<String> userIds) {
+        // TODO Auto-generated method stub
         return null;
     }
 

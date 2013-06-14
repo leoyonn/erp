@@ -11,9 +11,6 @@ import net.paoding.rose.web.annotation.Param;
 import net.paoding.rose.web.annotation.Path;
 import net.paoding.rose.web.annotation.rest.Post;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.wiselink.controllers.annotations.Trimmed;
 
 /**
@@ -22,7 +19,7 @@ import com.wiselink.controllers.annotations.Trimmed;
  */
 @Path("user")
 public class UserController extends BaseController {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AuthController.class);
+    // private static final Logger LOGGER = LoggerFactory.getLogger(AuthController.class);
 
     /**
      * add an user into database.

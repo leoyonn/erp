@@ -12,6 +12,7 @@ import net.paoding.rose.jade.annotation.DAO;
 import net.paoding.rose.jade.annotation.SQL;
 import net.paoding.rose.jade.annotation.SQLParam;
 
+import com.wiselink.base.TableName;
 import com.wiselink.model.Corp;
 
 /**
@@ -19,7 +20,6 @@ import com.wiselink.model.Corp;
  */
 @DAO
 public interface CorpDAO {
-    String TABLE_NAME_CORP = "PICC.\"corp\"";
     String KEYS =" (\"id\", \"name\", \"desc\", \"tel\", \"contact\")";
     String VALUES = " VALUES (:id,:name,:password,:tel,:contact)";
 
@@ -29,7 +29,7 @@ public interface CorpDAO {
      * @return
      * @throws SQLException
      */
-    @SQL("INSERT INTO " + TABLE_NAME_CORP + KEYS + VALUES)
+    @SQL("INSERT INTO " + TableName.Corp + KEYS + VALUES)
     public boolean addCorp(@SQLParam("id") String id,
             @SQLParam("name") String name,
             @SQLParam("desc") String desc,
@@ -43,6 +43,6 @@ public interface CorpDAO {
      * @return
      * @throws SQLException
      */
-    @SQL("SELECT * FROM " + TABLE_NAME_CORP + " WHERE \"id\" = :id")
+    @SQL("SELECT * FROM " + TableName.Corp + " WHERE \"id\" = :id")
     public Corp find(@SQLParam("id") String id) throws SQLException;
 }

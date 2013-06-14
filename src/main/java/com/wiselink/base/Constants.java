@@ -22,4 +22,6 @@ public interface Constants {
     String COOKIE_KEY_PASS_TOKEN = "passToken";
     String SECURITY_KEY = "MTIzNDU2Nzg5MDEyMzQ1Ng==";
     String ENCODING = "UTF-8";
+    
+    int MAX_ROLE_NUM = 9999;
 }

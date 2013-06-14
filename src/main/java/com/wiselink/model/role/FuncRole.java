@@ -4,39 +4,34 @@
  * @author leo leoyonn@gmail.com
  * @date 2013-6-11 下午3:13:40
  */
-package com.wiselink.model;
+package com.wiselink.model.role;
 
 import java.util.List;
 
 import com.google.gson.Gson;
 import com.wiselink.base.jsonable.Jsonable;
+import com.wiselink.model.UserCard;
 
 /**
- * 
+ * 功能角色，包括角色信息、角色功能(模块)、角色用户
  * @author leo
  */
 public class FuncRole implements Jsonable {
-    public int code;
-    public String name;
-    public String desc;
-    public String corpId;
-    public String deptId;
-    public long createTime;
-    public String creatorId;
-    public List<String> funcs;
+    public FuncRoleInfo info;
+    public List<Func> funcs;
+    public List<UserCard> users;
 
-    public FuncRole(int code, String name, String desc, String corpId, String deptId, long createTime, String creatorId) {
-        this.code = code;
-        this.name = name;
-        this.desc = desc;
-        this.corpId = corpId;
-        this.deptId = deptId;
-        this.createTime = createTime;
-        this.creatorId = creatorId;
+    public FuncRole(FuncRoleInfo info) {
+        this.info = info;
     }
     
-    public FuncRole setFuncs(List<String> funcs) {
+    public FuncRole setFuncs(List<Func> funcs) {
         this.funcs = funcs;
+        return this;
+    }
+    
+    public FuncRole setUsers(List<UserCard> users) {
+        this.users = users;
         return this;
     }
 

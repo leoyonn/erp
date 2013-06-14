@@ -12,6 +12,7 @@ import com.wiselink.model.base.DataRole;
 import com.wiselink.model.base.UserCategory;
 import com.wiselink.model.base.UserStatus;
 import com.wiselink.model.base.UserType;
+import com.wiselink.model.role.FuncRole;
 
 /**
  * 用户的功能角色、数据角色、类型等 
