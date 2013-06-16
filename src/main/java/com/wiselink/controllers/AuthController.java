@@ -16,9 +16,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.wiselink.base.ApiResult;
+import com.wiselink.base.ApiStatus;
 import com.wiselink.base.AuthResult;
 import com.wiselink.base.Constants;
 import com.wiselink.controllers.annotations.Trimmed;
+import com.wiselink.exception.ServiceException;
 import com.wiselink.service.UserService;
 import com.wiselink.utils.AuthUtils;
 import com.wiselink.utils.CookieUtils;
@@ -49,7 +51,11 @@ public class AuthController extends BaseController {
         }
         // 4. save cookie
         setCookie(inv, userId, password);
-        return successResult(userService.getUser(userId).toJson());
+        try {
+            return successResult(userService.getUser(userId).toJson());
+        } catch (ServiceException e) {
+            return failResult(ApiStatus.DATA_QUERY_FAILED, "读取用户数据失败");
+        }
     }
 
     private boolean setCookie(Invocation inv, String userId, String password) {

@@ -19,14 +19,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.wiselink.base.Config;
-import com.wiselink.service.UserService;
 
 /**
  * 管理系统中所有的功能模块
  * @author leo
  */
 public class FuncModules {
-    private static final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FuncModules.class);
     private static final String FUNC_ROLE_FILE = "conf/func-role.xml";
 
     /**

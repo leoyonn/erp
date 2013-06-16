@@ -21,14 +21,17 @@ public enum ApiStatus {
     AUTH_DENIED(00011, "拒绝访问"),
     AUTH_LOGIN_REQUIRED(00012, "接口需要登录才能访问"),
 
-    AUTH_SERVER_ERROR(00020, "服务出现错误"),
+    AUTH_SERVER_ERROR(00020, "授权服务出现错误"),
     AUTH_DB_ERROR(00030, "数据库出现错误"),
 
     INVALID_PARAMETER(00100, "无效参数"),
     
     DATA_INSERT_FAILED(00200, "添加数据失败"),
     DATA_QUERY_FAILED(00201, "数据检索失败"),
-    DATA_EMPTY(00203, "没有更多数据");
+    DATA_EMPTY(00203, "没有更多数据"),
+    
+    SERVICE_ERROR(00300, "数据读写或服务出现错误，请联系管理员"),
+    ;
     private int code;
 
     private String msg;

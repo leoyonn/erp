@@ -6,7 +6,6 @@
  */
 package com.wiselink.controllers;
 
-import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
 
@@ -24,17 +23,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.wiselink.base.ApiStatus;
 import com.wiselink.base.Constants;
-import com.wiselink.dao.FuncRoleFuncsDAO;
-import com.wiselink.dao.FuncRoleInfoDAO;
-import com.wiselink.dao.FuncRoleUsersDAO;
-import com.wiselink.model.UserCard;
-import com.wiselink.model.role.Func;
+import com.wiselink.exception.ServiceException;
 import com.wiselink.model.role.FuncModule;
 import com.wiselink.model.role.FuncModules;
 import com.wiselink.model.role.FuncRole;
 import com.wiselink.model.role.FuncRoleInfo;
-import com.wiselink.service.FuncService;
+import com.wiselink.service.FuncRoleService;
 import com.wiselink.service.UserService;
+import com.wiselink.utils.Utils;
 
 /**
  * 用户角色相关的操作，例如创建角色、修改添加角色人物等
@@ -45,20 +41,11 @@ public class FuncRoleController extends BaseController {
     private static final Logger LOGGER = LoggerFactory.getLogger(FuncRoleController.class);
 
     @Autowired
-    private FuncRoleInfoDAO froleDao;
-
-    @Autowired
-    private FuncRoleFuncsDAO froleFuncsDao;
-
-    @Autowired
-    private FuncRoleUsersDAO froleUsersDao;
-
-    @Autowired
     private UserService userService;
     
     @Autowired
-    private FuncService funcService;
-    
+    private FuncRoleService froleService;
+
     /**
      * 获取#code指定的功能角色的数据，包括功能清单和人员清单。<p>
      * 如果#code < 0，则返回所有的module列表
@@ -67,20 +54,14 @@ public class FuncRoleController extends BaseController {
      * @return
      */
     @Get("1")
-    public String getFrole(@Param("code")int code) {
+    public String getFrole(@Param("code") int code) {
         if (code < 0) {
             return module(code);
         }
         try {
-            FuncRoleInfo froleInfo = froleDao.find(code);
-            List<String> userIds = froleUsersDao.getUsers(code);
-            List<UserCard> users = userService.getUsers(userIds);
-            List<Integer> funcCodes = froleFuncsDao.getFuncs(code);
-            List<Func> funcs = funcService.getFuncs(funcCodes);
-            FuncRole frole = new FuncRole(froleInfo).setFuncs(funcs).setUsers(users);
-            LOGGER.debug("get func role: {}", frole);
+            FuncRole frole = froleService.getFuncRole(code);
             return successResult(frole.toJson());
-        } catch (SQLException ex) {
+        } catch (ServiceException ex) {
             LOGGER.error("add func role " + code + " got exception!", ex);
             return failResult(ApiStatus.DATA_QUERY_FAILED);
         }
@@ -90,19 +71,15 @@ public class FuncRoleController extends BaseController {
     public String newFrole(@Param("name") String name, @Param("desc") String desc) {
         LOGGER.debug("add func role of name: {}, desc: {}.", name, desc);
         // TODO full file this: get creator from cookie
-        if (froleDao.add(0, name, desc, "", "", null)) {
-            FuncRoleInfo frole = null;
-            try {
-                frole = froleDao.findByName(name);
-            } catch (SQLException ex) {
-                LOGGER.error("add func role " + name + "|" + desc + " got exception!", ex);
-            }
-            if (frole != null) {
-                LOGGER.debug("add func role success: {}.", frole);
-                return successResult(frole.toJson());
-            }
+        String corpId = "", deptId = "", creatorId = "";
+        try {
+            FuncRoleInfo frole = froleService.newFuncRole(name, desc, corpId, deptId, creatorId);
+            LOGGER.debug("add func role success: {}.", frole);
+            return successResult(frole.toJson());
+        } catch (ServiceException ex) {
+            LOGGER.error("add func role " + name + "|" + desc + " got exception!", ex);
+            return failResult(ApiStatus.DATA_INSERT_FAILED, "角色添加失败，请确认角色名不重复，或联系系统管理员");
         }
-        return failResult(ApiStatus.DATA_INSERT_FAILED, "角色添加失败，请确认角色名不重复，或联系系统管理员");
     }
     
     /**
@@ -113,11 +90,17 @@ public class FuncRoleController extends BaseController {
      * @return
      */
     @Get("list")
-    public String list(@Param("from") int from, @Param("num") int num) {
+    public String listFroles(@Param("from") int from, @Param("num") int num) {
         if (num < 0) {
             num = Constants.MAX_ROLE_NUM;
         }
-        List<FuncRoleInfo> roles = froleDao.list(from, num);
+        List<FuncRoleInfo> roles = null;
+        try {
+            roles = froleService.getFuncRoles(from, num);
+        } catch (ServiceException ex) {
+            LOGGER.error("list froles from " + from + " num " + num + " got exception!", ex);
+            return failResult(ApiStatus.SERVICE_ERROR);
+        }
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("list role from: {}, num: {}, got {}.", new Object[]{from, num, roles});
         }
@@ -137,8 +120,8 @@ public class FuncRoleController extends BaseController {
      * @return
      */
     @Get("all")
-    public String all() {
-        return list(-1, -1);
+    public String allFroles() {
+        return listFroles(-1, -1);
     }
 
     /**
@@ -149,17 +132,64 @@ public class FuncRoleController extends BaseController {
     @Get("module")
     public String module(@Param("code") int code) {
         LOGGER.debug("query for module {}.", code);
-        if (code >= 0) {
-            FuncModule module = FuncModules.getInstance().getModule(code);
-            LOGGER.debug("query for module {} got {}.", code, module);
-            if (module == null) {
-                return failResult(ApiStatus.INVALID_PARAMETER);
-            } else {
-                return successResult(module.toJson());
-            }
+        if (code < 0) {
+            return allModules();
         }
-        Collection<FuncModule> allModules = funcService.allModules();
-        LOGGER.debug("query for all-module {} got {}.", code, allModules);
+        FuncModule module = FuncModules.getInstance().getModule(code);
+        LOGGER.debug("query for module {} got {}.", code, module);
+        if (module == null) {
+            return failResult(ApiStatus.INVALID_PARAMETER);
+        } else {
+            return successResult(module.toJson());
+        }
+    }
+
+    /**
+     * 获取系统所有的功能模块
+     * @return
+     */
+    @Get("modules")
+    public String allModules() {
+        Collection<FuncModule> allModules = froleService.allModules();
+        LOGGER.debug("query for all-module got {}.", allModules);
         return successResult(allModules);
+    }
+
+    /**
+     * 更新功能角色#code对应的功能和用户
+     * <p>
+     * 注意参数说明 TODO 参数支持list？
+     * 
+     * @param code
+     * @param funcsToDel
+     *            要从角色中删除的功能列表，列表为用逗号隔开的func-code，如"0012,0123"
+     * @param funcsToAdd
+     *            要添加到角色中的功能列表，列表为用逗号隔开的func-code，如"0012,0123"
+     * @param usersToDel
+     *            要从角色中删除的用户列表，列表为用逗号隔开的userId，如“111,222,333"
+     * @param usersToAdd
+     *            要添加到角色中的用户列表，列表为用逗号隔开的userId，如“111,222,333"
+     * @return
+     */
+    @Post("update")
+    public String updateFrole(@Param("code") int code,
+            @Param("funcsToDel") String funcsToDel, @Param("funcsToAdd") String funcsToAdd, 
+            @Param("usersToDel") String usersToDel, @Param("usersToAdd") String usersToAdd) {
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("updating func role: {}|fd:{}|fa:{}; ud:{}|ua:{}", 
+                    new Object[]{code, funcsToDel, funcsToAdd, usersToDel, usersToAdd});
+        }
+        List<Integer> fdel = Utils.parseArrayFromStrings(funcsToDel, ",");
+        List<Integer> fadd = Utils.parseArrayFromStrings(funcsToAdd, ",");
+        List<String> udel = Utils.split(usersToDel, ",");
+        List<String> uadd = Utils.split(usersToAdd, ",");
+        try {
+            froleService.updateFuncRole(code, fdel, fadd, udel, uadd);
+        } catch (ServiceException ex) {
+            LOGGER.error("update func role " + code + " funcs " + funcsToDel + "|" + funcsToAdd
+                    + " users " + usersToDel + "|" + usersToAdd + " got exception!", ex);
+            return failResult(ApiStatus.SERVICE_ERROR);
+        }
+        return successResult("设置角色成功");
     }
 }

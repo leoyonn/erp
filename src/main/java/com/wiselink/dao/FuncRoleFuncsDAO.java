@@ -6,6 +6,7 @@
  */
 package com.wiselink.dao;
 
+import java.sql.SQLException;
 import java.util.List;
 
 import net.paoding.rose.jade.annotation.DAO;
@@ -15,26 +16,43 @@ import net.paoding.rose.jade.annotation.SQLParam;
 import com.wiselink.base.TableName;
 
 /**
- * <funcRoleCode, funcCode>
+ * <roleCode, funcCode>
  * @author leo
  */
 @DAO
 public interface FuncRoleFuncsDAO {
     /**
      * get list of func codes which are assigned to according func-role-code
-     * @param funcRoleCode
+     * @param roleCode
      * @return
+     * @throws SQLException
      */
-    @SQL("SELECT \"funcCode\" from " + TableName.FuncRoleFuncs + " WHERE \"funcRoleCode\" = :funcRoleCode")
-    public List<Integer> getFuncs(@SQLParam("funcRoleCode") int funcRoleCode);
+    @SQL("SELECT \"funcCode\" from " + TableName.FuncRoleFuncs + " WHERE \"roleCode\" = :roleCode")
+    public List<Integer> getFuncs(@SQLParam("roleCode") int roleCode) throws SQLException;;
 
     /**
      * 添加一个功能到指定的role
-     * @param funcRoleCode
+     * 
+     * @param roleCode
      * @param funcCode
      * @return
+     * @throws SQLException
      */
     @SQL("INSERT INTO " + TableName.FuncRoleFuncs
-            + "(\"funcRoleCode\", \"funcCode\")" + " VALUES (:funcRoleCode,:funcCode)")
-    public boolean addFuncToRole(@SQLParam("funcRoleCode") int funcRoleCode, @SQLParam("funcCode") int funcCode);
+            + "(\"roleCode\", \"funcCode\")" + " VALUES (:roleCode,:funcCode)")
+    public boolean addFuncToRole(@SQLParam("roleCode") int roleCode, @SQLParam("funcCode") int funcCode) throws SQLException;;
+
+    /**
+     * 删除角色中的一个功能
+     * @return
+     */
+    @SQL("DELETE FROM " + TableName.FuncRoleFuncs + " WHERE \"funcCode\" = :funcCode AND \"roleCode\" = :roleCode")
+    public boolean delete(@SQLParam("roleCode") int roleCode, @SQLParam("funcCode") int funcCode) throws SQLException;
+
+    /**
+     * 清除表中数据，慎用
+     * @return
+     */
+    @SQL("DELETE * FROM " + TableName.FuncRoleFuncs)
+    public boolean clear() throws SQLException;
 }

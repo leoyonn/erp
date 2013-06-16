@@ -37,7 +37,7 @@ public interface FuncRoleInfoDAO {
             + "(\"code\", \"name\", \"desc\", \"corpId\", \"deptId\", \"createTime\", \"creator\")"
             + " VALUES (:code,:name,:desc,:corpId,:deptId,systime,:creatorId)")
     public boolean add(@SQLParam("code") int code, @SQLParam("name") String name, @SQLParam("desc") String desc,
-            @SQLParam("corpId") String corpId, @SQLParam("deptId") String deptId, @SQLParam("creatorId") String creatorId);
+            @SQLParam("corpId") String corpId, @SQLParam("deptId") String deptId, @SQLParam("creatorId") String creatorId) throws SQLException;
 
     /**
      * 修改一条func-role-info
@@ -52,7 +52,7 @@ public interface FuncRoleInfoDAO {
             + " SET (\"name\", \"desc\", \"corpId\", \"deptId\")"
             + " = (:name,:desc,:corpId,:deptId) WHERE \"code\" = :code")
     public boolean modify(@SQLParam("code") int code, @SQLParam("name") String name, @SQLParam("desc") String desc,
-            @SQLParam("corpId") String corpId, @SQLParam("deptId") String deptId);
+            @SQLParam("corpId") String corpId, @SQLParam("deptId") String deptId) throws SQLException;
 
     /**
      * find func-role using id
@@ -75,5 +75,5 @@ public interface FuncRoleInfoDAO {
      */
     // config:mysql @SQL("SELECT * FROM " + TABLE_NAME_FROLE + " WHERE \"code\" >= ':from' LIMIT 0,:num")
     @SQL("SELECT * FROM " + TableName.FuncRoleInfo + " WHERE \"code\" >= ':from' AND ROWNUM <=:num")
-    public List<FuncRoleInfo> list(@SQLParam("from") int from, @SQLParam("num") int num);
+    public List<FuncRoleInfo> list(@SQLParam("from") int from, @SQLParam("num") int num) throws SQLException;
 }

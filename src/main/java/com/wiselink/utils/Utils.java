@@ -6,6 +6,11 @@
  */
 package com.wiselink.utils;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.StringUtils;
@@ -15,6 +20,38 @@ import org.apache.commons.lang.StringUtils;
  * @author leo
  */
 public class Utils {
+
+    /**
+     * split string to list.
+     * @param source
+     * @param splitter
+     * @return
+     */
+    public static List<String> split(String source, String splitter) {
+        if (StringUtils.isBlank(source)) {
+            return Collections.emptyList();
+        }
+        return Arrays.asList(source.split(splitter));
+    }
+
+    /**
+     * split string and parse integers
+     * @param source
+     * @param splitter
+     * @return
+     */
+    public static  List<Integer> parseArrayFromStrings(String source, String splitter) {
+        if (StringUtils.isBlank(source)) {
+            return Collections.emptyList();
+        }
+        String[] arr = source.split(splitter);
+        List<Integer> r = new ArrayList<Integer>();
+        for (String f: arr) {
+            r.add(Integer.valueOf(f));
+        }
+        return r;
+    }
+
     ////////////////////////////////String utils///////////////////////////////////////////
     public static String upperFirst(String s) {
         if (StringUtils.isEmpty(s) || s.charAt(0) > 'z' || s.charAt(0) < 'a') {

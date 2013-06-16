@@ -1,25 +1,24 @@
 /**
- * CorpDAO.java
+ * DeptDAO.java
  * [CopyRight]
  * @author leo [leoyonn@gmail.com]
- * @date 2013-6-11 下午5:51:13
+ * @date 2013-6-16 下午3:56:46
  */
 package com.wiselink.dao;
 
 import java.sql.SQLException;
 
-import net.paoding.rose.jade.annotation.DAO;
 import net.paoding.rose.jade.annotation.SQL;
 import net.paoding.rose.jade.annotation.SQLParam;
 
 import com.wiselink.base.TableName;
-import com.wiselink.model.org.Corp;
+import com.wiselink.model.org.Dept;
 
 /**
+ * 
  * @author leo
  */
-@DAO
-public interface CorpDAO {
+public interface DeptDAO {
     String KEYS =" (\"id\", \"name\", \"desc\", \"tel\", \"contact\")";
     String VALUES = " VALUES (:id,:name,:password,:tel,:contact)";
 
@@ -29,7 +28,7 @@ public interface CorpDAO {
      * @return
      * @throws SQLException
      */
-    @SQL("INSERT INTO " + TableName.Corp + KEYS + VALUES)
+    @SQL("INSERT INTO " + TableName.Dept + KEYS + VALUES)
     public boolean addCorp(@SQLParam("id") String id,
             @SQLParam("name") String name,
             @SQLParam("desc") String desc,
@@ -43,6 +42,6 @@ public interface CorpDAO {
      * @return
      * @throws SQLException
      */
-    @SQL("SELECT * FROM " + TableName.Corp + " WHERE \"id\" = :id")
-    public Corp find(@SQLParam("id") String id) throws SQLException;
+    @SQL("SELECT * FROM " + TableName.Dept + " WHERE \"id\" = :id")
+    public Dept find(@SQLParam("id") String id) throws SQLException;
 }

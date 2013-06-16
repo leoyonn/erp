@@ -21,8 +21,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.wiselink.base.ApiStatus;
 import com.wiselink.controllers.annotations.Trimmed;
 import com.wiselink.dao.CorpDAO;
-import com.wiselink.model.Corp;
 import com.wiselink.model.base.CorpType;
+import com.wiselink.model.org.Corp;
 
 /**
  * 公司/机构管理相关的接口

@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<data-role>
+    <levels>
+        <level code="0" name="集团级" desc="可以看到本公司和下属分支公司的数据"></level>
+        <level code="1" name="公司级" desc="能看本公司所有部门的数据"></level>
+        <level code="2" name="部门级" desc="可以看到本部门的数据"></level>
+        <level code="3" name="垂直级" desc="可以看本部门和分支公司对应部门的数据"></level>
+        <level code="4" name="个人级" desc="仅能查看个人操作的数据"></level>
+        <level code="5" name="自定义级" desc="可以自由定义权限范围的数据"></level>
+    </levels>
+</data-role>

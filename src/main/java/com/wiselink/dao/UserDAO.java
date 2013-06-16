@@ -7,6 +7,7 @@
 package com.wiselink.dao;
 
 import java.sql.SQLException;
+import java.util.List;
 
 import net.paoding.rose.jade.annotation.DAO;
 import net.paoding.rose.jade.annotation.SQL;
@@ -14,6 +15,7 @@ import net.paoding.rose.jade.annotation.SQLParam;
 
 import com.wiselink.base.TableName;
 import com.wiselink.model.User;
+import com.wiselink.model.UserCard;
 
 /**
  * @author leo
@@ -78,7 +80,7 @@ public interface UserDAO {
      * @throws SQLException
      */
     @SQL("SELECT * FROM " + TableName.User + " WHERE \"account\" = :account")
-    public User getUserByAccount(@SQLParam("account") String account)throws SQLException;
+    public User getUserByAccount(@SQLParam("account") String account) throws SQLException;
 
     /**
      * get a user from id
@@ -88,5 +90,13 @@ public interface UserDAO {
      * @throws SQLException
      */
     @SQL("SELECT * FROM " + TableName.User + " WHERE \"id\" = :id")
-    public User getUserById(@SQLParam("id") String userId)throws SQLException;
+    public User getUserById(@SQLParam("id") String userId) throws SQLException;
+
+    /**
+     * get users from id
+     * @param userIds
+     * @return
+     */
+    @SQL("SELECT * FROM " + TableName.User + " WHERE \"id\" IN (:ids)")
+    public List<UserCard> getUserCardsById(@SQLParam("ids") List<String> userIds) throws SQLException;
 }

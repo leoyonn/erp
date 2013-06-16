@@ -8,10 +8,10 @@ package com.wiselink.model;
 
 import com.google.gson.Gson;
 import com.wiselink.base.jsonable.Jsonable;
-import com.wiselink.model.base.DataRole;
 import com.wiselink.model.base.UserCategory;
 import com.wiselink.model.base.UserStatus;
 import com.wiselink.model.base.UserType;
+import com.wiselink.model.role.DataRole;
 import com.wiselink.model.role.FuncRole;
 
 /**

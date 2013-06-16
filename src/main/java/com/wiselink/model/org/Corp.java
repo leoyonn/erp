@@ -4,7 +4,7 @@
  * @author leo leoyonn@gmail.com
  * @date 2013-6-11 下午12:12:14
  */
-package com.wiselink.model;
+package com.wiselink.model.org;
 
 import com.google.gson.Gson;
 import com.wiselink.base.jsonable.Jsonable;

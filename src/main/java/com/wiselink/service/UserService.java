@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import com.wiselink.base.AuthResult;
 import com.wiselink.dao.UserDAO;
+import com.wiselink.exception.ServiceException;
 import com.wiselink.model.User;
 import com.wiselink.model.UserCard;
 
@@ -51,24 +52,30 @@ public class UserService {
         }
         return AuthResult.SUCCESS;
     }
-    
-    public User getUser(String userId) {
+
+    /**
+     * @param userId
+     * @return
+     * @throws ServiceException
+     */
+    public User getUser(String userId) throws ServiceException {
         try {
             return userDao.getUserById(userId);
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } catch (SQLException ex) {
+            throw new ServiceException(ex);
         }
-        // TODO exception
-        return null;
     }
 
     /**
      * @param userIds
      * @return
+     * @throws ServiceException 
      */
-    public List<UserCard> getUsers(List<String> userIds) {
-        // TODO Auto-generated method stub
-        return null;
+    public List<UserCard> getUsers(List<String> userIds) throws ServiceException {
+        try {
+            return userDao.getUserCardsById(userIds);
+        } catch (SQLException ex) {
+            throw new ServiceException(ex);
+        }
     }
-
 }
