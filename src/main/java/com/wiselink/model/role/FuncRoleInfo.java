@@ -33,6 +33,8 @@ public class FuncRoleInfo implements Jsonable {
         this.creatorId = creatorId;
     }
 
+    public FuncRoleInfo() {}
+
     @Override
     public String toJson() {
         return new Gson().toJson(this, FuncRoleInfo.class);

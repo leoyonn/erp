@@ -19,12 +19,12 @@ import com.wiselink.dao.DataRoleInfoDAO;
 import com.wiselink.dao.DataRoleScopesDAO;
 import com.wiselink.dao.DataRoleUsersDAO;
 import com.wiselink.exception.ServiceException;
-import com.wiselink.model.UserCard;
 import com.wiselink.model.org.Org;
 import com.wiselink.model.role.DataLevel;
 import com.wiselink.model.role.DataLevels;
 import com.wiselink.model.role.DataRole;
 import com.wiselink.model.role.DataRoleInfo;
+import com.wiselink.model.user.UserCard;
 
 /**
  * 

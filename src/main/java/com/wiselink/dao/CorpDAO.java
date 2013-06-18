@@ -20,12 +20,12 @@ import com.wiselink.model.org.Corp;
  */
 @DAO
 public interface CorpDAO {
-    String KEYS =" (\"id\", \"name\", \"desc\", \"tel\", \"contact\")";
-    String VALUES = " VALUES (:id,:name,:password,:tel,:contact)";
+    String KEYS =" (\"id\", \"name\", \"desc\", \"address\", \"tel\", \"contact\")";
+    String VALUES = " VALUES (:id, :name, :desc, :address, :tel, :contact)";
 
     /**
-     * add an user into database
-     * @param user
+     * add an corp into database
+     * @param corp
      * @return
      * @throws SQLException
      */

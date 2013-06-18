@@ -1,14 +1,14 @@
 
-CREATE TABLE PICC."user_role"
+CREATE TABLE PICC."func_role_info"
 (
-  "id"          VARCHAR2(64 CHAR)   NOT NULL,
-  "catCode"     NUMBER(6),
-  "posCode"     NUNBER(6),
-  "froleCode"   NUNBER(6),
-  "droleCode"   NUNBER(6),
-  "statCode"    NUNBER(6),
+  "code"        NUMBER(8) NOT NULL,
+  "name"        VARCHAR2(64 CHAR) UNIQUE NOT NULL,
+  "desc"        VARCHAR2(256 CHAR),
   "corpId"      VARCHAR2(32 CHAR),
-  "deptId"      VARCHAR2(32 CHAR)
+  "deptId"      VARCHAR2(32 CHAR),
+  "creatorId"   VARCHAR2(32 CHAR),
+  "createTime"  TIMESTAMP(6)
+  "updateTime"  TIMESTAMP(6),
 )
 TABLESPACE PICCTABLE
 RESULT_CACHE (MODE DEFAULT)
@@ -34,7 +34,7 @@ NOCACHE
 NOPARALLEL
 MONITORING;
 
-ALTER TABLE PICC."user_role"
-    ADD CONSTRAINT "user_role_PK"
-    PRIMARY KEY ("id")
+ALTER TABLE PICC."func_role_info"
+    ADD CONSTRAINT "func_role_info_PK"
+    PRIMARY KEY ("code")
     ENABLE VALIDATE;

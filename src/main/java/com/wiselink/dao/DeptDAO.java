@@ -15,30 +15,30 @@ import com.wiselink.base.TableName;
 import com.wiselink.model.org.Dept;
 
 /**
- * 
  * @author leo
  */
 public interface DeptDAO {
-    String KEYS =" (\"id\", \"name\", \"desc\", \"tel\", \"contact\")";
-    String VALUES = " VALUES (:id,:name,:password,:tel,:contact)";
+    String KEYS =" (\"id\", \"name\", \"deptType\", \"corpId\")";
+    String VALUES = " VALUES (:id, :name, :tel, :contact)";
 
     /**
-     * add an user into database
-     * @param user
+     * 添加一个新的部门
+     * @param id
+     * @param name
+     * @param corpId
+     * @param deptType
      * @return
      * @throws SQLException
      */
     @SQL("INSERT INTO " + TableName.Dept + KEYS + VALUES)
-    public boolean addCorp(@SQLParam("id") String id,
+    public boolean addDept(@SQLParam("id") String id,
             @SQLParam("name") String name,
-            @SQLParam("desc") String desc,
-            @SQLParam("address") String address,
-            @SQLParam("tel") String tel,
-            @SQLParam("contact") String contact) throws SQLException;
+            @SQLParam("corpId") String corpId,
+            @SQLParam("deptType") String deptType) throws SQLException;
 
     /**
-     * get password of an user (md5)
-     * @param userId
+     * 获取一个部门信息
+     * @param id
      * @return
      * @throws SQLException
      */

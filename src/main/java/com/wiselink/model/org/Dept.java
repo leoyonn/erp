@@ -8,44 +8,41 @@ package com.wiselink.model.org;
 
 import com.google.gson.Gson;
 import com.wiselink.base.jsonable.Jsonable;
-import com.wiselink.model.base.CorpType;
 
 /**
  * 
  * @author leo
  */
-public class Dept implements Jsonable {
-    /** type should be {@link CorpType#name()} */
-    public String type;
-    public String id;
-    public String name;
-    public String address;
-    public String tel;
-    public String contact;
+public class Dept extends Org {
+    public String deptType;
+    public String corpId;
 
-    public Dept() {}
+    public Dept() {
+        super.type = OrgType.Dept.cname;
+    }
 
-    public Dept(String type, String id, String name, String address, String tel, String contact) {
-        this.type = type;
-        this.id = id;
-        this.name = name;
-        this.address = address;
-        this.tel = tel;
-        this.contact = contact;
+    public Dept(String id, String name, String deptType, String corpId) {
+        super(id, OrgType.Dept.cname, name);
+        this.deptType = deptType;
+        this.corpId = corpId;
     }
 
     @Override
     public String toJson() {
-        return new Gson().toJson(this, Corp.class);
+        return new Gson().toJson(this, Dept.class);
     }
 
     @Override
     public Jsonable fromJson(String json) {
-        return new Gson().fromJson(json, Corp.class);
+        return new Gson().fromJson(json, Dept.class);
     }
-    
+
     @Override
     public String toString() {
         return toJson();
+    }
+    
+    public static void main(String[] args) {
+        System.out.println(new Dept("1", "3", "4", "5").toJson());
     }
 }

@@ -18,8 +18,8 @@ import org.springframework.stereotype.Service;
 import com.wiselink.base.AuthResult;
 import com.wiselink.dao.UserDAO;
 import com.wiselink.exception.ServiceException;
-import com.wiselink.model.User;
-import com.wiselink.model.UserCard;
+import com.wiselink.model.user.User;
+import com.wiselink.model.user.UserCard;
 
 /**
  * @author leo

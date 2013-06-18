@@ -4,7 +4,7 @@
  * @author leo leoyonn@gmail.com
  * @date 2013-5-4 下午3:27:47
  */
-package com.wiselink.model.base;
+package com.wiselink.model.user;
 
 /**
  * 用户类别，比如采购员/省市县公司技术部领导等

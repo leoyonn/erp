@@ -35,6 +35,8 @@ public class DataRoleInfo implements Jsonable {
         this.creatorId = creatorId;
     }
 
+    public DataRoleInfo() {}
+
     @Override
     public String toJson() {
         return new Gson().toJson(this, DataRoleInfo.class);

@@ -20,12 +20,12 @@ import com.wiselink.dao.FuncRoleFuncsDAO;
 import com.wiselink.dao.FuncRoleInfoDAO;
 import com.wiselink.dao.FuncRoleUsersDAO;
 import com.wiselink.exception.ServiceException;
-import com.wiselink.model.UserCard;
 import com.wiselink.model.role.Func;
 import com.wiselink.model.role.FuncModule;
 import com.wiselink.model.role.FuncModules;
 import com.wiselink.model.role.FuncRole;
 import com.wiselink.model.role.FuncRoleInfo;
+import com.wiselink.model.user.UserCard;
 
 /**
  * 功能角色相关的服务

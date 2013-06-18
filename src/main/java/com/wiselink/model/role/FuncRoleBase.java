@@ -4,7 +4,7 @@
  * @author leo [leoyonn@gmail.com]
  * @date 2013-5-4 下午4:00:06
  */
-package com.wiselink.model.base;
+package com.wiselink.model.role;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;

@@ -28,8 +28,8 @@ public class UserController extends BaseController {
      * @param password
      * @return
      */
-    @Post("add")
-    public String add(Invocation inv, @Trimmed @Param("user") String user, @Param("password") String password) {
+    @Post("new")
+    public String newUser(Invocation inv, @Trimmed @Param("user") String user, @Param("password") String password) {
         return "@json:" + "";
     }
 

@@ -14,14 +14,14 @@ import com.wiselink.base.jsonable.Jsonable;
  * @author leo
  */
 public class Org implements Jsonable {
-    public int id;
+    public String id;
     /** use {@link OrgType#cname} */
     public String type;
     public String name;
     
     public Org() {}
 
-    public Org(int orgId, String orgType, String orgName) {
+    public Org(String orgId, String orgType, String orgName) {
         this.id = orgId;
         this.type = orgType;
         this.name = orgName;

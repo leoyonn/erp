@@ -10,7 +10,7 @@ import java.util.List;
 
 import com.google.gson.Gson;
 import com.wiselink.base.jsonable.Jsonable;
-import com.wiselink.model.UserCard;
+import com.wiselink.model.user.UserCard;
 
 /**
  * 功能角色，包括角色信息、角色功能(模块)、角色用户

@@ -14,8 +14,8 @@ import net.paoding.rose.jade.annotation.SQL;
 import net.paoding.rose.jade.annotation.SQLParam;
 
 import com.wiselink.base.TableName;
-import com.wiselink.model.User;
-import com.wiselink.model.UserCard;
+import com.wiselink.model.user.User;
+import com.wiselink.model.user.UserCard;
 
 /**
  * @author leo
