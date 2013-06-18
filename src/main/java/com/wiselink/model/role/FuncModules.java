@@ -26,17 +26,17 @@ import com.wiselink.base.Config;
  */
 public class FuncModules {
     private static final Logger LOGGER = LoggerFactory.getLogger(FuncModules.class);
-    private static final String FUNC_ROLE_FILE = "conf/func-role.xml";
+    private static final String FUNC_ROLE_FILE = Config.path("conf/func-role.xml");
 
     /**
      * 从配置文件中加载所有功能模块
      */
     private void load() {
-        LOGGER.debug("loading modules from {}...", Config.path(FUNC_ROLE_FILE));
+        LOGGER.debug("loading modules from {}...", FUNC_ROLE_FILE);
         SAXReader saxReader = new SAXReader();
         Document document = null;
         try {
-            document = saxReader.read(new File(Config.path(FUNC_ROLE_FILE)));
+            document = saxReader.read(new File(FUNC_ROLE_FILE));
         } catch (DocumentException ex) {
             throw new RuntimeException(ex);
         }

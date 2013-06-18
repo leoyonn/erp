@@ -10,6 +10,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.resources.sourceEncoding>UTF-8</project.resources.sourceEncoding>
         <project_path>/home/leo/codes/erp/target</project_path>
+        <web.home>G:/j4/erp/target/erp-0.0.1-SNAPSHOT/WEB-INF</web.home>
         <jvm.paramters>-Xms256m -Xmx512m</jvm.paramters>
         <log4j_maxfilesize>500MB</log4j_maxfilesize>
         <log4j_maxbackupindex>300</log4j_maxbackupindex>

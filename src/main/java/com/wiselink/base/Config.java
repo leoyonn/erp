@@ -6,16 +6,26 @@
  */
 package com.wiselink.base;
 
+import java.util.Properties;
+
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLConfiguration;
+
+import com.wiselink.utils.PropertyUtils;
 
 /**
  * @author leo
  */
 public final class Config {
-    private static final String APP_HOME = System.getProperty("user.dir");
     private static Configuration conf;
+    private static final Properties prop;
+    private static final String WEB_HOME;
+    static {
+        prop = PropertyUtils.getPropertiesFromResource(Config.class, "/erp.properties");
+        WEB_HOME = prop.getProperty("web.home");
+        System.out.println("got prop:" + prop);
+    }
     
     /**
      * 从一个xml文件load配置信息
@@ -47,7 +57,7 @@ public final class Config {
      * @return
      */
     public static final String appHome() {
-        return APP_HOME;
+        return WEB_HOME;
     }
 
     /**
@@ -56,6 +66,6 @@ public final class Config {
      * @return
      */
     public static String path(String file) {
-        return APP_HOME + "/" + file;
+        return WEB_HOME + "/" + file;
     }
 }

@@ -36,7 +36,7 @@ public class DataLevels {
         SAXReader saxReader = new SAXReader();
         Document document = null;
         try {
-            document = saxReader.read(new File(Config.path(DATA_ROLE_PATH)));
+            document = saxReader.read(new File(DATA_ROLE_PATH));
         } catch (DocumentException ex) {
             throw new RuntimeException(ex);
         }

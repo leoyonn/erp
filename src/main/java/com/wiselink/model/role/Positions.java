@@ -36,7 +36,7 @@ public class Positions {
         SAXReader saxReader = new SAXReader();
         Document document = null;
         try {
-            document = saxReader.read(new File(Config.path(POSITION_PATH)));
+            document = saxReader.read(new File(POSITION_PATH));
         } catch (DocumentException ex) {
             throw new RuntimeException(ex);
         }

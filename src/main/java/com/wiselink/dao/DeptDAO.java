@@ -8,6 +8,7 @@ package com.wiselink.dao;
 
 import java.sql.SQLException;
 
+import net.paoding.rose.jade.annotation.DAO;
 import net.paoding.rose.jade.annotation.SQL;
 import net.paoding.rose.jade.annotation.SQLParam;
 
@@ -17,6 +18,7 @@ import com.wiselink.model.org.Dept;
 /**
  * @author leo
  */
+@DAO
 public interface DeptDAO {
     String KEYS =" (\"id\", \"name\", \"deptType\", \"corpId\")";
     String VALUES = " VALUES (:id, :name, :tel, :contact)";

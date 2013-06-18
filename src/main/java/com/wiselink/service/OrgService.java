@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 import com.wiselink.dao.CorpDAO;
 import com.wiselink.dao.DeptDAO;
-import com.wiselink.dao.OrgDAO;
 import com.wiselink.model.org.Org;
 
 /**
@@ -25,9 +24,6 @@ import com.wiselink.model.org.Org;
 @Service
 public class OrgService {
     private static final Logger LOGGER = LoggerFactory.getLogger(OrgService.class);
-
-    @Autowired
-    private OrgDAO orgDao;
 
     @Autowired
     private CorpDAO corpDao;
