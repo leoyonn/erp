@@ -56,16 +56,56 @@ public class FuncRoleService {
     }
 
     /**
-     * 批量查询功能代码对应的功能
-     * @param funcCodes
+     * 获取一个功能角色的完整信息
+     * @param code
      * @return
+     * @throws ServiceException
      */
-    public List<Func> getFuncs(List<Integer> funcCodes) {
-        List<Func> funcs = new ArrayList<Func>();
-        for (int code: funcCodes) {
-            funcs.add(modules.getFunc(code));
+    public FuncRole getFuncRole(int code) throws ServiceException {
+        FuncRole role = getFuncRoleInfo(code);
+        if (role == null) {
+            return null;
         }
-        return funcs;
+        return getFuncRoleList(role);
+    }
+
+    /**
+     * 获取一个功能角色的基本信息
+     * @param code
+     * @return
+     * @throws ServiceException
+     */
+    public FuncRole getFuncRoleInfo(int code) throws ServiceException {
+        try {
+            FuncRoleInfo froleInfo = froleDao.find(code);
+            if (froleInfo == null) {
+                return null;
+            }
+            LOGGER.debug("get func role info: {}", froleInfo);
+            return new FuncRole(froleInfo);
+        } catch (SQLException ex) {
+            throw new ServiceException(ex);
+        }
+    }
+
+    /**
+     * 获取一个角色#frole对应的所有功能和用户信息
+     * @param frole
+     * @return
+     * @throws ServiceException 
+     */
+    public FuncRole getFuncRoleList(FuncRole frole) throws ServiceException {
+        try {
+            List<String> userIds = froleUsersDao.getUsers(frole.info.code);
+            List<UserCard> users = userService.getUsers(userIds);
+            List<Integer> funcCodes = froleFuncsDao.getFuncs(frole.info.code);
+            List<Func> funcs = getFuncs(funcCodes);
+            frole.setFuncs(funcs).setUsers(users);
+            LOGGER.debug("get func role: {}", frole);
+            return frole;
+        } catch (SQLException ex) {
+            throw new ServiceException(ex);
+        }
     }
 
     /**
@@ -81,6 +121,91 @@ public class FuncRoleService {
         } catch (SQLException ex) {
             throw new ServiceException(ex);
         }
+    }
+
+    /**
+     * 获取所有的功能模块
+     * @return
+     */
+    public Collection<FuncModule> allModules() {
+        return modules.allModules();
+    }
+
+    /**
+     * 获取code指定的功能模块
+     * 
+     * @param code
+     * @return
+     */
+    public FuncModule getModule(int code) {
+        return modules.getModule(code);
+    }
+
+    /**
+     * 批量查询功能代码对应的功能
+     * @param funcCodes
+     * @return
+     */
+    public List<Func> getFuncs(List<Integer> funcCodes) {
+        List<Func> funcs = new ArrayList<Func>();
+        for (int code: funcCodes) {
+            funcs.add(modules.getFunc(code));
+        }
+        return funcs;
+    }
+
+    /**
+     * 添加一个新的功能角色
+     * 
+     * @param code
+     * @param name
+     * @param desc
+     * @param corpId
+     * @param deptId
+     * @param creatorId
+     * @return
+     * @throws ServiceException
+     */
+    public FuncRole newFuncRole(String name, String desc, String corpId, String deptId, String creatorId) throws ServiceException {
+        boolean ok = false;
+        try {
+            ok = froleDao.add(name, desc, corpId, deptId, creatorId);
+        } catch (Exception ex) { // SQLException, DataAccessException
+            throw new ServiceException(ex);
+        }
+        if (!ok) {
+            throw new ServiceException("new func role failed.");
+        }
+        try {
+            FuncRoleInfo frole = froleDao.findByName(name);
+            LOGGER.debug("add func role success: {}.", frole);
+            return new FuncRole(frole);
+        } catch (SQLException ex) {
+            throw new ServiceException(ex);
+        }
+    }
+
+    /**
+     * 修改一个功能角色对应的信息
+     * @param code
+     * @param name
+     * @param desc
+     * @param corpId
+     * @param deptId
+     * @return
+     * @throws ServiceException
+     */
+    public FuncRole updateFuncRole(int code, String name, String desc, String corpId, String deptId) throws ServiceException {
+        boolean ok = false;
+        try {
+            ok = froleDao.update(code, name, desc, corpId, deptId);;
+        } catch (Exception ex) { // SQLException, DataAccessException
+            throw new ServiceException(ex);
+        }
+        if (!ok) {
+            throw new ServiceException("update func role failed.");
+        }
+        return getFuncRole(code);
     }
 
     /**
@@ -117,125 +242,6 @@ public class FuncRoleService {
             throw new ServiceException(ex);
         }
         return getFuncRoleList(role);
-    }
-
-    /**
-     * 修改一个功能角色对应的信息
-     * @param code
-     * @param name
-     * @param desc
-     * @param corpId
-     * @param deptId
-     * @return
-     * @throws ServiceException
-     */
-    public FuncRole updateFuncRole(int code, String name, String desc, String corpId, String deptId) throws ServiceException {
-        boolean ok = false;
-        try {
-            ok = froleDao.update(code, name, desc, corpId, deptId);;
-        } catch (Exception ex) { // SQLException, DataAccessException
-            throw new ServiceException(ex);
-        }
-        if (!ok) {
-            throw new ServiceException("update func role failed.");
-        }
-        return getFuncRole(code);
-    }
-
-    public FuncRole getFuncRole(int code) throws ServiceException {
-        FuncRole role = getFuncRoleInfo(code);
-        if (role == null) {
-            return null;
-        }
-        return getFuncRoleList(role);
-    }
-
-    /**
-     * 获取一个角色#roleCode 对应的所有功能和用户信息
-     * @param frole
-     * @return
-     * @throws ServiceException 
-     */
-    public FuncRole getFuncRoleList(FuncRole frole) throws ServiceException {
-        try {
-            List<String> userIds = froleUsersDao.getUsers(frole.info.code);
-            List<UserCard> users = userService.getUsers(userIds);
-            List<Integer> funcCodes = froleFuncsDao.getFuncs(frole.info.code);
-            List<Func> funcs = getFuncs(funcCodes);
-            frole.setFuncs(funcs).setUsers(users);
-            LOGGER.debug("get func role: {}", frole);
-            return frole;
-        } catch (SQLException ex) {
-            throw new ServiceException(ex);
-        }
-    }
-
-    /**
-     * 获取一个功能角色信息
-     * @param roleCode
-     * @return
-     * @throws ServiceException
-     */
-    public FuncRole getFuncRoleInfo(int code) throws ServiceException {
-        try {
-            FuncRoleInfo froleInfo = froleDao.find(code);
-            if (froleInfo == null) {
-                return null;
-            }
-            LOGGER.debug("get func role info: {}", froleInfo);
-            return new FuncRole(froleInfo);
-        } catch (SQLException ex) {
-            throw new ServiceException(ex);
-        }
-    }
-
-    /**
-     * 添加一个新的功能角色
-     * 
-     * @param code
-     * @param name
-     * @param desc
-     * @param corpId
-     * @param deptId
-     * @param creatorId
-     * @return
-     * @throws ServiceException
-     */
-    public FuncRole newFuncRole(String name, String desc, String corpId, String deptId, String creatorId) throws ServiceException {
-        boolean ok = false;
-        try {
-            ok = froleDao.add(name, desc, corpId, deptId, creatorId);
-        } catch (Exception ex) { // SQLException, DataAccessException
-            throw new ServiceException(ex);
-        }
-        if (!ok) {
-            throw new ServiceException("new func role failed.");
-        }
-        try {
-            FuncRoleInfo frole = froleDao.findByName(name);
-            LOGGER.debug("add func role success: {}.", frole);
-            return new FuncRole(frole);
-        } catch (SQLException ex) {
-            throw new ServiceException(ex);
-        }
-    }
-
-    /**
-     * 获取所有的功能模块
-     * @return
-     */
-    public Collection<FuncModule> allModules() {
-        return modules.allModules();
-    }
-
-    /**
-     * 获取code指定的功能模块
-     * 
-     * @param code
-     * @return
-     */
-    public FuncModule getModule(int code) {
-        return modules.getModule(code);
     }
 
     /**

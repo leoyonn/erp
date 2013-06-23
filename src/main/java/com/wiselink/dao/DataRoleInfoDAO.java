@@ -24,6 +24,7 @@ import com.wiselink.model.role.DataRoleInfo;
  * @author leo
  */
 @DAO
+@SuppressWarnings("not completed|post|验证sequence！")
 public interface DataRoleInfoDAO {
 
     /**

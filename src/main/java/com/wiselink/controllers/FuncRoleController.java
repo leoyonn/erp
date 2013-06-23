@@ -56,7 +56,7 @@ public class FuncRoleController extends BaseController {
     @Get("1")
     public String getFrole(@Param("code") int code) {
         if (code < 0) {
-            return module(code);
+            return allFroles();
         }
         try {
             FuncRole frole = froleService.getFuncRole(code);
@@ -69,108 +69,6 @@ public class FuncRoleController extends BaseController {
             return failResult(ApiStatus.DATA_QUERY_FAILED);
         }
     }
-
-    /**
-     * 新建一个功能角色
-     * @param name
-     * @param desc
-     * @param corpId
-     * @param deptId
-     * @param creatorId
-     * @return
-     */
-    @SuppressWarnings("not completed|post")
-    @Get("new")
-    public String newFrole(Invocation inv, @Param("name") String name, @Param("desc") String desc,
-            @Param("corpId") String corpId, @Param("deptId") String deptId, @Param("creatorId") String creatorId) {
-        LOGGER.debug("add func role of name: {}, desc: {}.", name, desc);
-        // TODO full file this: get creator from cookie
-        CookieUtils.getCookie(inv, "user");
-        try {
-            FuncRole frole = froleService.newFuncRole(name, desc, corpId, deptId, creatorId);
-            LOGGER.debug("add func role success: {}.", frole);
-            if (frole == null) {
-                return failResult(ApiStatus.INVALID_PARAMETER, "未检索导数据，请检查参数或联系管理员");
-            }
-            return successResult(frole.toJson());
-        } catch (ServiceException ex) {
-            LOGGER.error("add func role " + name + "|" + desc + " got exception!", ex);
-            return failResult(ApiStatus.DATA_INSERT_FAILED, "角色添加失败，请检查参数或联系管理员");
-        }
-    }
-
-    /**
-     * 修改一个功能角色的信息
-     * @param inv
-     * @param code
-     * @param name
-     * @param desc
-     * @param corpId
-     * @param deptId
-     * @return
-     */
-    @SuppressWarnings("not completed|post")
-    @Get("up/info")
-    public String updateFroleInfo(Invocation inv, @Param("code") int code, @Param("name") String name, 
-            @Param("desc") String desc, @Param("corpId") String corpId, @Param("deptId") String deptId) {
-        LOGGER.debug("add func role of name: {}, desc: {}.", name, desc);
-        // TODO full file this: get creator from cookie
-        CookieUtils.getCookie(inv, "user");
-        try {
-            FuncRole frole = froleService.updateFuncRole(code, name, desc, corpId, deptId);
-            LOGGER.debug("add func role success: {}.", frole);
-            if (frole == null) {
-                return failResult(ApiStatus.INVALID_PARAMETER, "未检索导数据，请检查参数或联系管理员");
-            }
-            return successResult(frole.toJson());
-        } catch (ServiceException ex) {
-            LOGGER.error("add func role " + name + "|" + desc + " got exception!", ex);
-            return failResult(ApiStatus.DATA_INSERT_FAILED, "角色添加失败，请检查参数或联系管理员");
-        }
-    }
-    
-    /**
-     * 更新功能角色#code对应的功能和用户
-     * <p>
-     * 注意参数说明 TODO 参数支持list？
-     * 
-     * @param code
-     * @param funcsToDel
-     *            要从角色中删除的功能列表，列表为用逗号隔开的func-code，如"0012,0123"
-     * @param funcsToAdd
-     *            要添加到角色中的功能列表，列表为用逗号隔开的func-code，如"0012,0123"
-     * @param usersToDel
-     *            要从角色中删除的用户列表，列表为用逗号隔开的userId，如“111,222,333"
-     * @param usersToAdd
-     *            要添加到角色中的用户列表，列表为用逗号隔开的userId，如“111,222,333"
-     * @return
-     */
-    @SuppressWarnings("@Post")
-    @Get("up/list")
-    public String updateFroleList(@Param("code") int code,
-            @Param("funcsToDel") String funcsToDel, @Param("funcsToAdd") String funcsToAdd, 
-            @Param("usersToDel") String usersToDel, @Param("usersToAdd") String usersToAdd) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("updating func role: {}|fd:{}|fa:{}; ud:{}|ua:{}", 
-                    new Object[]{code, funcsToDel, funcsToAdd, usersToDel, usersToAdd});
-        }
-        List<Integer> fdel = Utils.parseArrayFromStrings(funcsToDel, ",");
-        List<Integer> fadd = Utils.parseArrayFromStrings(funcsToAdd, ",");
-        List<String> udel = Utils.split(usersToDel, ",");
-        List<String> uadd = Utils.split(usersToAdd, ",");
-        try {
-            FuncRole role = froleService.updateFuncRole(code, fdel, fadd, udel, uadd);
-            if (role == null) {
-                return failResult(ApiStatus.INVALID_PARAMETER, "未检索导数据，请检查参数或联系管理员");
-            }
-            return successResult(role.toJson());
-        } catch (ServiceException ex) {
-            LOGGER.error("update func role " + code + " funcs " + funcsToDel + "|" + funcsToAdd
-                    + " users " + usersToDel + "|" + usersToAdd + " got exception!", ex);
-            return failResult(ApiStatus.SERVICE_ERROR);
-        }
-    }
-
     /**
      * list all #num func-roles sorted by {@link Role#code} from #from 
      * 如果需要listall，设置from和num都为负值
@@ -242,5 +140,107 @@ public class FuncRoleController extends BaseController {
         Collection<FuncModule> allModules = froleService.allModules();
         LOGGER.debug("query for all-module got {}.", allModules);
         return successResult(allModules);
+    }
+
+
+    /**
+     * 新建一个功能角色
+     * @param name
+     * @param desc
+     * @param corpId
+     * @param deptId
+     * @param creatorId
+     * @return
+     */
+    @SuppressWarnings("not completed|post")
+    @Get("new")
+    public String newFrole(Invocation inv, @Param("name") String name, @Param("desc") String desc,
+            @Param("corpId") String corpId, @Param("deptId") String deptId, @Param("creatorId") String creatorId) {
+        LOGGER.debug("add func role of name: {}, desc: {}.", name, desc);
+        // TODO full file this: get creator from cookie
+        CookieUtils.getCookie(inv, "user");
+        try {
+            FuncRole frole = froleService.newFuncRole(name, desc, corpId, deptId, creatorId);
+            LOGGER.debug("add func role result: {}.", frole);
+            if (frole == null) {
+                return failResult(ApiStatus.INVALID_PARAMETER, "未检索导数据，请检查参数或联系管理员");
+            }
+            return successResult(frole.toJson());
+        } catch (ServiceException ex) {
+            LOGGER.error("add func role " + name + "|" + desc + " got exception!", ex);
+            return failResult(ApiStatus.DATA_INSERT_FAILED, "角色添加失败，请检查参数或联系管理员");
+        }
+    }
+
+    /**
+     * 修改一个功能角色的信息
+     * @param inv
+     * @param code
+     * @param name
+     * @param desc
+     * @param corpId
+     * @param deptId
+     * @return
+     */
+    @SuppressWarnings("not completed|post")
+    @Get("up/info")
+    public String updateFroleInfo(Invocation inv, @Param("code") int code, @Param("name") String name, 
+            @Param("desc") String desc, @Param("corpId") String corpId, @Param("deptId") String deptId) {
+        LOGGER.debug("update func role info of name: {}, desc: {}.", name, desc);
+        // TODO full file this: get creator from cookie
+        CookieUtils.getCookie(inv, "user");
+        try {
+            FuncRole frole = froleService.updateFuncRole(code, name, desc, corpId, deptId);
+            LOGGER.debug("update func role result: {}.", frole);
+            if (frole == null) {
+                return failResult(ApiStatus.INVALID_PARAMETER, "未检索导数据，请检查参数或联系管理员");
+            }
+            return successResult(frole.toJson());
+        } catch (ServiceException ex) {
+            LOGGER.error("add func role " + name + "|" + desc + " got exception!", ex);
+            return failResult(ApiStatus.DATA_INSERT_FAILED, "角色添加失败，请检查参数或联系管理员");
+        }
+    }
+    
+    /**
+     * 更新功能角色#code对应的功能和用户
+     * <p>
+     * 注意参数说明 TODO 参数支持list？
+     * 
+     * @param code
+     * @param funcsToDel
+     *            要从角色中删除的功能列表，列表为用逗号隔开的func-code，如"0012,0123"
+     * @param funcsToAdd
+     *            要添加到角色中的功能列表，列表为用逗号隔开的func-code，如"0012,0123"
+     * @param usersToDel
+     *            要从角色中删除的用户列表，列表为用逗号隔开的userId，如“111,222,333"
+     * @param usersToAdd
+     *            要添加到角色中的用户列表，列表为用逗号隔开的userId，如“111,222,333"
+     * @return
+     */
+    @SuppressWarnings("@Post")
+    @Get("up/list")
+    public String updateFroleList(@Param("code") int code,
+            @Param("funcsToDel") String funcsToDel, @Param("funcsToAdd") String funcsToAdd, 
+            @Param("usersToDel") String usersToDel, @Param("usersToAdd") String usersToAdd) {
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("updating func role: {}|fd:{}|fa:{}; ud:{}|ua:{}", 
+                    new Object[]{code, funcsToDel, funcsToAdd, usersToDel, usersToAdd});
+        }
+        List<Integer> fdel = Utils.parseArrayFromStrings(funcsToDel, ",");
+        List<Integer> fadd = Utils.parseArrayFromStrings(funcsToAdd, ",");
+        List<String> udel = Utils.split(usersToDel, ",");
+        List<String> uadd = Utils.split(usersToAdd, ",");
+        try {
+            FuncRole role = froleService.updateFuncRole(code, fdel, fadd, udel, uadd);
+            if (role == null) {
+                return failResult(ApiStatus.INVALID_PARAMETER, "未检索导数据，请检查参数或联系管理员");
+            }
+            return successResult(role.toJson());
+        } catch (ServiceException ex) {
+            LOGGER.error("update func role " + code + " funcs " + funcsToDel + "|" + funcsToAdd
+                    + " users " + usersToDel + "|" + usersToAdd + " got exception!", ex);
+            return failResult(ApiStatus.SERVICE_ERROR);
+        }
     }
 }

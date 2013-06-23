@@ -6,7 +6,6 @@
  */
 package com.wiselink.service;
 
-import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
 
@@ -56,55 +55,54 @@ public class DataRoleService {
     }
 
     /**
-     * 获取一个角色#roleCode 对应的所有功能信息
-     * 
-     * @param roleCode
+     * 获取一个数据角色的完整信息
+     * @param code
      * @return
      * @throws ServiceException
      */
-    public DataRole getDataRole(int roleCode) throws ServiceException {
+    public DataRole getDataRole(int code) throws ServiceException {
+        DataRole role = getDataRoleInfo(code);
+        if (role == null) {
+            return null;
+        }
+        return getDataRoleList(role);
+    }
+
+    /**
+     * 获取一个数据角色的基本信息
+     * @param code
+     * @return
+     * @throws ServiceException
+     */
+    public DataRole getDataRoleInfo(int code) throws ServiceException {
         try {
-            DataRoleInfo droleInfo = droleDao.find(roleCode);
-            List<String> userIds = droleUsersDao.getUsers(roleCode);
-            List<UserCard> users = userService.getUsers(userIds);
-            List<String> scopeIds = droleScopesDao.getScopes(roleCode);
-            List<Org> scopes = orgService.getOrgs(scopeIds);
-            DataRole drole = new DataRole(droleInfo).setScopes(scopes).setUsers(users);
-            LOGGER.debug("get Data role: {}", drole);
-            return drole;
-        } catch (SQLException ex) {
+            DataRoleInfo droleInfo = droleDao.find(code);
+            if (droleInfo == null) {
+                return null;
+            }
+            LOGGER.debug("get data role info: {}", droleInfo);
+            return new DataRole(droleInfo);
+        } catch (Exception ex) {
             throw new ServiceException(ex);
         }
     }
 
     /**
-     * 添加一个新的功能角色
-     * 
-     * @param name
-     * @param desc
-     * @param levelCode
-     * @param corpId
-     * @param deptId
-     * @param creatorId
+     * 获取一个角色#drole 对应的所有权限范围scope和用户信息
+     * @param drole
      * @return
-     * @throws ServiceException
+     * @throws ServiceException 
      */
-    public DataRoleInfo newDataRole(String name, String desc, int levelCode, String corpId, String deptId,
-            String creatorId) throws ServiceException {
-        boolean ok = false;
+    public DataRole getDataRoleList(DataRole drole) throws ServiceException {
         try {
-            ok = droleDao.add(name, desc, levelCode, corpId, deptId, creatorId);
-        } catch (SQLException ex) {
-            throw new ServiceException(ex);
-        }
-        if (!ok) {
-            throw new ServiceException("new Data role failed.");
-        }
-        try {
-            DataRoleInfo frole = droleDao.findByName(name);
-            LOGGER.debug("add Data role success: {}.", frole);
-            return frole;
-        } catch (SQLException ex) {
+            List<String> userIds = droleUsersDao.getUsers(drole.info.code);
+            List<UserCard> users = userService.getUsers(userIds);
+            List<String> scopeIds = droleScopesDao.getScopes(drole.info.code);
+            List<Org> scopes = orgService.getOrgs(scopeIds);
+            drole.setScopes(scopes).setUsers(users);
+            LOGGER.debug("get data role: {}", drole);
+            return drole;
+        } catch (Exception ex) {
             throw new ServiceException(ex);
         }
     }
@@ -119,7 +117,7 @@ public class DataRoleService {
     public List<DataRoleInfo> getDataRoles(int from, int num) throws ServiceException {
         try {
             return droleDao.list(from, num);
-        } catch (SQLException ex) {
+        } catch (Exception ex) {
             throw new ServiceException(ex);
         }
     }
@@ -133,6 +131,62 @@ public class DataRoleService {
     }
 
     /**
+     * 添加一个新的数据角色
+     * 
+     * @param name
+     * @param desc
+     * @param levelCode
+     * @param corpId
+     * @param deptId
+     * @param creatorId
+     * @return
+     * @throws ServiceException
+     */
+    public DataRole newDataRole(String name, String desc, int levelCode, String corpId, String deptId,
+            String creatorId) throws ServiceException {
+        boolean ok = false;
+        try {
+            ok = droleDao.add(name, desc, levelCode, corpId, deptId, creatorId);
+        } catch (Exception ex) {
+            throw new ServiceException(ex);
+        }
+        if (!ok) {
+            throw new ServiceException("new Data role failed.");
+        }
+        try {
+            DataRoleInfo droleInfo = droleDao.findByName(name);
+            LOGGER.debug("add Data role success: {}.", droleInfo);
+            return new DataRole(droleInfo);
+        } catch (Exception ex) {
+            throw new ServiceException(ex);
+        }
+    }
+
+    /**
+     * 修改一个数据角色对应的信息
+     * @param code
+     * @param name
+     * @param desc
+     * @param levelCode
+     * @param corpId
+     * @param deptId
+     * @return
+     * @throws ServiceException
+     */
+    public DataRole updateDataRole(int code, String name, String desc, int levelCode, String corpId, String deptId) throws ServiceException {
+        boolean ok = false;
+        try {
+            ok = droleDao.update(code, name, desc, levelCode, corpId, deptId);;
+        } catch (Exception ex) { // SQLException, DataAccessException
+            throw new ServiceException(ex);
+        }
+        if (!ok) {
+            throw new ServiceException("update data role failed.");
+        }
+        return getDataRole(code);
+    }
+
+    /**
      * 设置一个数据角色#code对应的权限范围和用户。
      * <p>TODO 性能：rose.dao框架似乎不能批量插入、删除
      * @param code
@@ -140,10 +194,15 @@ public class DataRoleService {
      * @param scopesToAdd
      * @param usersToDel
      * @param usersToAdd
+     * @return 
      * @throws ServiceException
      */
-    public void updateDataRole(int roleCode, List<String> scopesToDel, List<String> scopesToAdd,
+    public DataRole updateDataRole(int roleCode, List<String> scopesToDel, List<String> scopesToAdd,
             List<String> usersToDel, List<String> usersToAdd) throws ServiceException {
+        DataRole role = getDataRoleInfo(roleCode);
+        if (role == null) {
+            return null;
+        }
         try {
             for (String orgId: scopesToDel) {
                 droleScopesDao.delete(roleCode, orgId);
@@ -157,8 +216,9 @@ public class DataRoleService {
             for (String userId: usersToDel) {
                 droleUsersDao.addUserToRole(roleCode, userId);
             }
-        } catch (SQLException ex) {
+        } catch (Exception ex) {
             throw new ServiceException(ex);
         }
+        return getDataRoleList(role);
     }
 }

@@ -9,10 +9,10 @@ package com.wiselink.controllers;
 import java.util.Collection;
 import java.util.List;
 
+import net.paoding.rose.web.Invocation;
 import net.paoding.rose.web.annotation.Param;
 import net.paoding.rose.web.annotation.Path;
 import net.paoding.rose.web.annotation.rest.Get;
-import net.paoding.rose.web.annotation.rest.Post;
 import net.sf.json.JSONArray;
 
 import org.slf4j.Logger;
@@ -27,6 +27,7 @@ import com.wiselink.model.role.DataRole;
 import com.wiselink.model.role.DataRoleInfo;
 import com.wiselink.service.DataRoleService;
 import com.wiselink.service.UserService;
+import com.wiselink.utils.CookieUtils;
 import com.wiselink.utils.Utils;
 
 /**
@@ -51,28 +52,18 @@ public class DataRoleController extends BaseController {
      */
     @Get("1")
     public String getDrole(@Param("code") int code) {
+        if (code < 0) {
+            return allDroles();
+        }
         try {
             DataRole drole = droleService.getDataRole(code);
+            if (drole == null) {
+                return failResult(ApiStatus.INVALID_PARAMETER, "未检索导数据，请检查参数或联系管理员");
+            }
             return successResult(drole.toJson());
         } catch (ServiceException ex) {
-            LOGGER.error("add func role " + code + " got exception!", ex);
+            LOGGER.error("get data role " + code + " got exception!", ex);
             return failResult(ApiStatus.DATA_QUERY_FAILED);
-        }
-    }
-
-    @SuppressWarnings("@Post")
-    @Get("new")
-    public String newDrole(@Param("name") String name, @Param("desc") String desc, @Param("levelCode") int levelCode,
-        @Param("corpId") String corpId, @Param("deptId") String deptId, @Param("creatorId") String creatorId) {
-        LOGGER.debug("add data role of name: {}, desc: {}.", name, desc);
-        // TODO full file this: get creator from cookie
-        try {
-            DataRoleInfo drole = droleService.newDataRole(name, desc, levelCode, corpId, deptId, creatorId);
-            LOGGER.debug("add data role success: {}.", drole);
-            return successResult(drole.toJson());
-        } catch (ServiceException ex) {
-            LOGGER.error("add func role " + name + "|" + desc + " got exception!", ex);
-            return failResult(ApiStatus.DATA_INSERT_FAILED, "角色添加失败，请确认角色名不重复，或联系系统管理员");
         }
     }
 
@@ -119,7 +110,7 @@ public class DataRoleController extends BaseController {
     }
 
     /**
-     * 获取系统所有的功能模块
+     * 获取系统所有的数据level
      * @return
      */
     @Get("levels")
@@ -129,6 +120,67 @@ public class DataRoleController extends BaseController {
         return successResult(allLevels);
     }
 
+    /**
+     * 新建一个数据角色
+     * @param name
+     * @param desc
+     * @param levelCode
+     * @param corpId
+     * @param deptId
+     * @param creatorId
+     * @return
+     */
+    @SuppressWarnings("@Post")
+    @Get("new")
+    public String newDrole(@Param("name") String name, @Param("desc") String desc, @Param("levelCode") int levelCode,
+        @Param("corpId") String corpId, @Param("deptId") String deptId, @Param("creatorId") String creatorId) {
+        LOGGER.debug("add data role of name: {}, desc: {}.", name, desc);
+        // TODO full file this: get creator from cookie
+        try {
+            DataRole drole = droleService.newDataRole(name, desc, levelCode, corpId, deptId, creatorId);
+            LOGGER.debug("add data role result: {}.", drole);
+            if (drole == null) {
+                return failResult(ApiStatus.INVALID_PARAMETER, "未检索导数据，请检查参数或联系管理员");
+            }
+            return successResult(drole.toJson());
+        } catch (ServiceException ex) {
+            LOGGER.error("add func role " + name + "|" + desc + " got exception!", ex);
+            return failResult(ApiStatus.DATA_INSERT_FAILED, "角色添加失败，请确认角色名不重复，或联系系统管理员");
+        }
+    }
+
+    /**
+     * 修改一个数据角色的信息
+     * @param inv
+     * @param code
+     * @param name
+     * @param desc
+     * @param levelCode
+     * @param corpId
+     * @param deptId
+     * @return
+     */
+    @SuppressWarnings("not completed|post|验证sequence！")
+    @Get("up/info")
+    public String updateDroleInfo(Invocation inv, @Param("code") int code, @Param("name") String name, 
+            @Param("desc") String desc, @Param("levelCode") int levelCode, 
+            @Param("corpId") String corpId, @Param("deptId") String deptId) {
+        LOGGER.debug("update data role info of name: {}, desc: {}.", name, desc);
+        // TODO full file this: get creator from cookie
+        CookieUtils.getCookie(inv, "user");
+        try {
+            DataRole drole = droleService.updateDataRole(code, name, desc, levelCode, corpId, deptId);
+            LOGGER.debug("update data role result: {}.", drole);
+            if (drole == null) {
+                return failResult(ApiStatus.INVALID_PARAMETER, "未检索导数据，请检查参数或联系管理员");
+            }
+            return successResult(drole.toJson());
+        } catch (ServiceException ex) {
+            LOGGER.error("add func role " + name + "|" + desc + " got exception!", ex);
+            return failResult(ApiStatus.DATA_INSERT_FAILED, "角色添加失败，请检查参数或联系管理员");
+        }
+    }
+    
     /**
      * 更新数据角色#code对应的权限范围和用户
      * <p>
@@ -147,8 +199,8 @@ public class DataRoleController extends BaseController {
      * @return
      */
     @SuppressWarnings("@Post")
-    @Get("update")
-    public String updateFrole(@Param("code") int code,
+    @Get("up/list")
+    public String updateDroleList(@Param("code") int code,
             @Param("scopesToDel") String scopesToDel, @Param("scopesToAdd") String scopesToAdd, 
             @Param("usersToDel") String usersToDel, @Param("usersToAdd") String usersToAdd) {
         if (LOGGER.isDebugEnabled()) {
@@ -160,12 +212,15 @@ public class DataRoleController extends BaseController {
         List<String> udel = Utils.split(usersToDel, ",");
         List<String> uadd = Utils.split(usersToAdd, ",");
         try {
-            droleService.updateDataRole(code, sdel, sadd, udel, uadd);
+            DataRole drole = droleService.updateDataRole(code, sdel, sadd, udel, uadd);
+            if (drole == null) {
+                return failResult(ApiStatus.INVALID_PARAMETER, "未检索导数据，请检查参数或联系管理员");
+            }
+            return successResult(drole.toJson());
         } catch (ServiceException ex) {
             LOGGER.error("update data role " + code + " scopes " + scopesToDel + "|" + scopesToAdd
                     + " users " + usersToDel + "|" + usersToAdd + " got exception!", ex);
             return failResult(ApiStatus.SERVICE_ERROR);
         }
-        return successResult("设置角色成功");
     }
 }

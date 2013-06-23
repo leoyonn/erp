@@ -53,6 +53,7 @@ CREATE TRIGGER PICC."data_role_info"
    BEFORE INSERT
    ON PICC."data_role_info"
    FOR EACH ROW
+   WHEN (New."code" IS NULL)
 BEGIN
    SELECT PICC."data_role_indexer".NEXTVAL INTO :New."code" FROM DUAL;
 END;
