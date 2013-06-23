@@ -2,7 +2,7 @@
 CREATE TABLE PICC."func_role_funcs"
 (
   "roleCode"      NUMBER(8) NOT NULL,
-  "funcCode"      NUNBER(6) NOT NULL,
+  "funcCode"      NUMBER(6) NOT NULL
 )
 TABLESPACE PICCTABLE
 RESULT_CACHE (MODE DEFAULT)

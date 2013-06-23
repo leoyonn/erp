@@ -10,12 +10,18 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import net.paoding.rose.web.Invocation;
+
 import com.wiselink.base.Constants;
 
 /**
  * @author leo
  */
 public class CookieUtils {
+    public static String getCookie(Invocation inv, String key) {
+        return getCookie(inv.getRequest(), key);
+    }
+
     public static String getCookie(HttpServletRequest request, String key) {
         Cookie[] cookies = request.getCookies();
         if (cookies == null || cookies.length == 0)

@@ -93,7 +93,7 @@ public class DataRoleService {
             String creatorId) throws ServiceException {
         boolean ok = false;
         try {
-            ok = droleDao.add(0, name, desc, levelCode, corpId, deptId, creatorId);
+            ok = droleDao.add(name, desc, levelCode, corpId, deptId, creatorId);
         } catch (SQLException ex) {
             throw new ServiceException(ex);
         }
@@ -155,7 +155,7 @@ public class DataRoleService {
                 droleUsersDao.delete(roleCode, userId);
             }
             for (String userId: usersToDel) {
-                droleUsersDao.addDataToRole(roleCode, userId);
+                droleUsersDao.addUserToRole(roleCode, userId);
             }
         } catch (SQLException ex) {
             throw new ServiceException(ex);

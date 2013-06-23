@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.wiselink.base.Constants;
-import com.wiselink.dao.UserDAO;
+import com.wiselink.dao.UserInfoDAO;
 import com.wiselink.utils.AuthUtils;
 import com.wiselink.utils.CookieUtils;
 
@@ -29,7 +29,7 @@ public class LoginRequiredChecker {
     private static final Logger LOGGER = LoggerFactory.getLogger(LoginRequiredInterceptor.class);
 
     @Autowired
-    private UserDAO userDao;
+    private UserInfoDAO userDao;
 
     public static class LoginRequiredCheckResult {
         public boolean success = false;

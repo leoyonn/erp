@@ -1,11 +1,13 @@
+-- dept table
+-- @author leo
+-- @data 2013-05-15
 
-CREATE TABLE PICC."user_role"
+CREATE TABLE PICC."dept"
 (
-  "id"      VARCHAR2(64 CHAR)   NOT NULL,
-  "cat"     VARCHAR2(64 CHAR),
-  "drole"   VARCHAR2(64 CHAR),
-  "frole"   VARCHAR2(64 CHAR),
-  "stat"    VARCHAR2(64 CHAR)
+  "id"          VARCHAR2(64 CHAR)   NOT NULL,
+  "name"        VARCHAR2(64 CHAR)   NOT NULL,
+  "deptType"    VARCHAR2(32 CHAR),
+  "corpId"      VARCHAR2(32 CHAR)
 )
 TABLESPACE PICCTABLE
 RESULT_CACHE (MODE DEFAULT)
@@ -31,8 +33,7 @@ NOCACHE
 NOPARALLEL
 MONITORING;
 
-ALTER TABLE PICC."user_role"
- ADD CONSTRAINT "user_role_PK"
-  PRIMARY KEY
-  ("id")
+ALTER TABLE PICC."dept"
+ ADD CONSTRAINT "dept_PK"
+  PRIMARY KEY ("id")
   ENABLE VALIDATE;

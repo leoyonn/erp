@@ -9,7 +9,7 @@ CREATE TABLE PICC."corp"
   "name"        VARCHAR2(64 CHAR)   UNIQUE NOT NULL,
   "address"     VARCHAR2(128 CHAR),
   "contact"     VARCHAR2(32 CHAR),
-  "tel"         VARCHAR2(32 CHAR),
+  "tel"         VARCHAR2(32 CHAR)
 )
 TABLESPACE PICCTABLE
 RESULT_CACHE (MODE DEFAULT)

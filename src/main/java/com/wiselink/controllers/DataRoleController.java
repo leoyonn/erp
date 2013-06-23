@@ -60,11 +60,12 @@ public class DataRoleController extends BaseController {
         }
     }
 
-    @Post("new")
-    public String newDrole(@Param("name") String name, @Param("desc") String desc, @Param("levelCode") int levelCode) {
+    @SuppressWarnings("@Post")
+    @Get("new")
+    public String newDrole(@Param("name") String name, @Param("desc") String desc, @Param("levelCode") int levelCode,
+        @Param("corpId") String corpId, @Param("deptId") String deptId, @Param("creatorId") String creatorId) {
         LOGGER.debug("add data role of name: {}, desc: {}.", name, desc);
         // TODO full file this: get creator from cookie
-        String corpId = "", deptId = "", creatorId = "";
         try {
             DataRoleInfo drole = droleService.newDataRole(name, desc, levelCode, corpId, deptId, creatorId);
             LOGGER.debug("add data role success: {}.", drole);
@@ -145,7 +146,8 @@ public class DataRoleController extends BaseController {
      *            要添加到角色中的用户列表，列表为用逗号隔开的userId，如“111,222,333"
      * @return
      */
-    @Post("update")
+    @SuppressWarnings("@Post")
+    @Get("update")
     public String updateFrole(@Param("code") int code,
             @Param("scopesToDel") String scopesToDel, @Param("scopesToAdd") String scopesToAdd, 
             @Param("usersToDel") String usersToDel, @Param("usersToAdd") String usersToAdd) {
@@ -166,6 +168,4 @@ public class DataRoleController extends BaseController {
         }
         return successResult("设置角色成功");
     }
-
-    
 }

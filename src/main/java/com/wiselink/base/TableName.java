@@ -11,13 +11,13 @@ package com.wiselink.base;
  * @author leo
  */
 public interface TableName {
-    String User = "PICC.\"user\"";
+    String UserInfo = "PICC.\"user_info\"";
     String UserRole = "PICC.\"user_role\"";
     String FuncRoleInfo = "PICC.\"func_role_info\"";
     String FuncRoleFuncs = "PICC.\"func_role_funcs\"";
     String FuncRoleUsers = "PICC.\"func_role_users\"";
     String DataRoleInfo = "PICC.\"data_role_info\"";
-    String DataRoleFuncs = "PICC.\"data_role_scopes\"";
+    String DataRoleScopes = "PICC.\"data_role_scopes\"";
     String DataRoleUsers = "PICC.\"data_role_users\"";
     String Corp = "PICC.\"corp\"";
     String Dept = "PICC.\"dept\"";

@@ -6,25 +6,46 @@
  */
 package com.wiselink.base;
 
-import java.util.Properties;
+import java.io.File;
+import java.io.IOException;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLConfiguration;
-
-import com.wiselink.utils.PropertyUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 /**
  * @author leo
  */
-public final class Config {
-    private static Configuration conf;
-    private static final Properties prop;
-    private static final String WEB_HOME;
+public class Config {
+    private static final Logger LOGGER = LoggerFactory.getLogger(Config.class);
+    private Configuration conf;
+    private String appHome;
+    private final static Config instance;
     static {
-        prop = PropertyUtils.getPropertiesFromResource(Config.class, "/erp.properties");
-        WEB_HOME = prop.getProperty("web.home");
-        System.out.println("got prop:" + prop);
+        ApplicationContext ctx = new ClassPathXmlApplicationContext("classpath:applicationContext.xml");
+        instance = ((Config)ctx.getBean("config"));
+        System.out.println(Config.class.getResource("/").getPath());
+        LOGGER.info("got config: appHome:" + instance.appHome);
+    }
+
+    public static Config getInstance() {
+        return instance;
+    }
+    
+    public void setAppHome(String appHome) {
+        this.appHome = appHome;
+    }
+
+    static {
+//        appHome = System.getProperty("webapp.root") + "/WEB-INF/";
+//        LOGGER.debug("{DEBUG} got WEB_HOME:" + WEB_HOME);
+//        LOGGER.info("{INFO} got WEB_HOME:" + WEB_HOME);
+//        LOGGER.warn("{WARN} got WEB_HOME:" + WEB_HOME);
+//        LOGGER.error("{ERROR} got WEB_HOME:" + WEB_HOME);
     }
     
     /**
@@ -33,7 +54,7 @@ public final class Config {
      * @param xmlConfigFileName
      * @throws ConfigurationException
      */
-    public static void init(String xmlConfigFileName) throws ConfigurationException {
+    public void init(String xmlConfigFileName) throws ConfigurationException {
         init(new XMLConfiguration(xmlConfigFileName));
     }
 
@@ -42,13 +63,13 @@ public final class Config {
      * 
      * @param conf
      */
-    public static void init(Configuration conf) {
-        Config.conf = conf;
+    public void init(Configuration conf) {
+        this.conf = conf;
 //        dataSourceName = conf.getString("service.dataSource");
 //        tableSpaceName = conf.getString("service.tableSpace");
     }
     
-    public static Configuration getConf() {
+    public Configuration getConf() {
         return conf;
     }
 
@@ -56,8 +77,8 @@ public final class Config {
      * 当前运行环境根目录
      * @return
      */
-    public static final String appHome() {
-        return WEB_HOME;
+    public final String appHome() {
+        return appHome;
     }
 
     /**
@@ -65,7 +86,7 @@ public final class Config {
      * @param file
      * @return
      */
-    public static String path(String file) {
-        return WEB_HOME + "/" + file;
+    public String path(String file) {
+        return appHome + "" + file;
     }
 }

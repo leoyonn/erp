@@ -12,14 +12,18 @@
         <project_path>/home/leo/codes/erp/target</project_path>
         <web.home>G:/j4/erp/target/erp-0.0.1-SNAPSHOT/WEB-INF</web.home>
         <jvm.paramters>-Xms256m -Xmx512m</jvm.paramters>
-        <log4j_maxfilesize>500MB</log4j_maxfilesize>
-        <log4j_maxbackupindex>300</log4j_maxbackupindex>
         <log4j_level>DEBUG</log4j_level>
         <log4j_root>F</log4j_root>
-        <log4j_path>logs/erp.log</log4j_path>
+        <log4j_maxfilesize>500MB</log4j_maxfilesize>
+        <log4j_maxbackupindex>300</log4j_maxbackupindex>
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>1.6.0</version>
+        </dependency>
         <dependency>
             <groupId>com.54chen</groupId>
             <artifactId>paoding-rose-scanning</artifactId>
@@ -61,16 +65,6 @@
             <version>5.1.10</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-1.2-api</artifactId>
-            <version>2.0-beta5</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <version>1.6.0</version>
-        </dependency>
         <dependency>
             <groupId>net.sf.json-lib</groupId>
             <artifactId>json-lib</artifactId>
@@ -158,10 +152,10 @@
                             <filtering>true</filtering>
                             <directory>src/main/resources</directory>
                             <includes>
+                                <include>conf/*</include>
                                 <include>**/*.xml</include>
                                 <include>**/*.properties</include>
                             </includes>
-                            <targetPath>WEB-INF</targetPath>
                         </resource>
                     </webResources>
                 </configuration>

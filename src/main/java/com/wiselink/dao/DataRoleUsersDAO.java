@@ -9,11 +9,13 @@ package com.wiselink.dao;
 import java.sql.SQLException;
 import java.util.List;
 
-import com.wiselink.base.TableName;
-
 import net.paoding.rose.jade.annotation.DAO;
 import net.paoding.rose.jade.annotation.SQL;
 import net.paoding.rose.jade.annotation.SQLParam;
+
+import org.springframework.dao.DataAccessException;
+
+import com.wiselink.base.TableName;
 
 /**
  * <roleCode, userId>
@@ -24,21 +26,21 @@ public interface DataRoleUsersDAO  {
     /**
      * get list of users' codes which are assigned to according data-role-code
      * @param roleCode
-     * @throws SQLException
+     * @throws SQLException, DataAccessException
      * @return
      */
     @SQL("SELECT \"userId\" from " + TableName.DataRoleUsers + " WHERE \"roleCode\" = :roleCode")
-    public List<String> getUsers(@SQLParam("roleCode") int DataRoleCode) throws SQLException;
+    public List<String> getUsers(@SQLParam("roleCode") int DataRoleCode) throws SQLException, DataAccessException;
 
     /**
      * 添加一个用户到指定的role
      * @param roleCode
      * @param userId
-     * @throws SQLException
+     * @throws SQLException, DataAccessException
      * @return
      */
     @SQL("INSERT INTO " + TableName.DataRoleUsers + "(\"roleCode\", \"userId\")" + " VALUES (:roleCode,:userId)")
-    public boolean addDataToRole(@SQLParam("roleCode") int roleCode, @SQLParam("userId") String userId) throws SQLException;
+    public boolean addUserToRole(@SQLParam("roleCode") int roleCode, @SQLParam("userId") String userId) throws SQLException, DataAccessException;
 
     /**
      * 删除角色中的一个用户
@@ -47,12 +49,12 @@ public interface DataRoleUsersDAO  {
      * @return
      */
     @SQL("DELETE FROM " + TableName.DataRoleUsers + " WHERE \"userId\" = :userId AND \"roleCode\" = :roleCode")
-    public boolean delete(@SQLParam("roleCode") int roleCode, @SQLParam("userId") String userId) throws SQLException;
+    public boolean delete(@SQLParam("roleCode") int roleCode, @SQLParam("userId") String userId) throws SQLException, DataAccessException;
 
     /**
      * 清除表中数据，慎用
      * @return
      */
     @SQL("DELETE FROM " + TableName.DataRoleUsers)
-    public boolean clear() throws SQLException;
+    public boolean clear() throws SQLException, DataAccessException;
 }

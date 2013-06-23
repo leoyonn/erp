@@ -13,6 +13,8 @@ import net.paoding.rose.jade.annotation.DAO;
 import net.paoding.rose.jade.annotation.SQL;
 import net.paoding.rose.jade.annotation.SQLParam;
 
+import org.springframework.dao.DataAccessException;
+
 import com.wiselink.base.TableName;
 
 /**
@@ -25,21 +27,21 @@ public interface FuncRoleUsersDAO  {
     /**
      * get list of users' codes which are assigned to according func-role-code
      * @param roleCode
-     * @throws SQLException
+     * @throws SQLException, DataAccessException
      * @return
      */
     @SQL("SELECT \"userId\" from " + TableName.FuncRoleUsers + " WHERE \"roleCode\" = :roleCode")
-    public List<String> getUsers(@SQLParam("roleCode") int funcRoleCode) throws SQLException;
+    public List<String> getUsers(@SQLParam("roleCode") int funcRoleCode) throws SQLException, DataAccessException;
 
     /**
      * 添加一个用户到指定的role
      * @param roleCode
      * @param useId
-     * @throws SQLException
+     * @throws SQLException, DataAccessException
      * @return
      */
     @SQL("INSERT INTO " + TableName.FuncRoleUsers + "(\"roleCode\", \"userId\")" + " VALUES (:roleCode,:userId)")
-    public boolean addFuncToRole(@SQLParam("roleCode") int roleCode, @SQLParam("userId") String userId) throws SQLException;
+    public boolean addUserToRole(@SQLParam("roleCode") int roleCode, @SQLParam("userId") String userId) throws SQLException, DataAccessException;
 
     /**
      * 删除角色中的一个用户
@@ -48,12 +50,12 @@ public interface FuncRoleUsersDAO  {
      * @return
      */
     @SQL("DELETE FROM " + TableName.FuncRoleUsers + " WHERE \"userId\" = :userId AND \"roleCode\" = :roleCode")
-    public boolean delete(@SQLParam("roleCode") int roleCode, @SQLParam("userId") String userId) throws SQLException;
+    public boolean delete(@SQLParam("roleCode") int roleCode, @SQLParam("userId") String userId) throws SQLException, DataAccessException;
 
     /**
      * 清除表中数据，慎用
      * @return
      */
     @SQL("DELETE FROM " + TableName.FuncRoleUsers)
-    public boolean clear() throws SQLException;
+    public boolean clear() throws SQLException, DataAccessException;
 }

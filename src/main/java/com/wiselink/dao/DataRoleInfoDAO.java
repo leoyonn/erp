@@ -13,6 +13,8 @@ import net.paoding.rose.jade.annotation.DAO;
 import net.paoding.rose.jade.annotation.SQL;
 import net.paoding.rose.jade.annotation.SQLParam;
 
+import org.springframework.dao.DataAccessException;
+
 import com.wiselink.base.TableName;
 import com.wiselink.model.role.DataRole;
 import com.wiselink.model.role.DataRoleInfo;
@@ -23,9 +25,12 @@ import com.wiselink.model.role.DataRoleInfo;
  */
 @DAO
 public interface DataRoleInfoDAO {
+
     /**
      * 添加一条data-role-info到database
-     * @param code
+     * <li>code为自增PK字段；
+     * <li>name为unique字段；
+     * <li>createTime/updateTime为database系统时间戳
      * @param name
      * @param desc
      * @param levelCode
@@ -34,13 +39,14 @@ public interface DataRoleInfoDAO {
      * @param creatorId
      * @return
      * @throws SQLException
+     * @throws DataAccessException
      */
     @SQL("INSERT INTO " + TableName.DataRoleInfo 
-            + "(\"code\", \"name\", \"desc\", \"levelCode\", \"corpId\", \"deptId\", \"createTime\", \"creator\")"
-            + " VALUES (:code,:name,:desc,:levelCode,:corpId,:deptId,systime,:creatorId)")
-    public boolean add(@SQLParam("code") int code, @SQLParam("name") String name, @SQLParam("desc") String desc,
+            + "(\"name\", \"desc\", \"levelCode\", \"corpId\", \"deptId\", \"creatorId\", \"createTime\", \"updateTime\")"
+            + " VALUES (:name,:desc,:levelCode,:corpId,:deptId,:creatorId,sysdate,sysdate)")
+    public boolean add(@SQLParam("name") String name, @SQLParam("desc") String desc,
             @SQLParam("levelCode") int levelCode, @SQLParam("corpId") String corpId, @SQLParam("deptId") String deptId,
-            @SQLParam("creatorId") String creatorId) throws SQLException;
+            @SQLParam("creatorId") String creatorId) throws SQLException, DataAccessException;
 
     /**
      * 修改一条level-role-info
@@ -51,31 +57,31 @@ public interface DataRoleInfoDAO {
      * @param corpId
      * @param deptId
      * @return
-     * @throws SQLException
+     * @throws SQLException, DataAccessException
      */
     @SQL("UPDATE " + TableName.DataRoleInfo
-            + " SET (\"name\", \"desc\", \"levelCode\", \"corpId\", \"deptId\")"
-            + " = (:name,:desc,:corpId,:deptId) WHERE \"code\" = :code")
-    public boolean modify(@SQLParam("code") int code, @SQLParam("name") String name, @SQLParam("desc") String desc,
-            @SQLParam("levelCode") int levelCode, @SQLParam("corpId") String corpId, @SQLParam("deptId") String deptId) throws SQLException;
+            + " SET \"name\"=:name, \"desc\"=:desc, \"levelCode\"=:levelCode, \"corpId\"=:corpId, \"deptId\"=:deptId"
+            + " WHERE \"code\" = :code")
+    public boolean update(@SQLParam("code") int code, @SQLParam("name") String name, @SQLParam("desc") String desc,
+            @SQLParam("levelCode") int levelCode, @SQLParam("corpId") String corpId, @SQLParam("deptId") String deptId) throws SQLException, DataAccessException;
 
     /**
      * find data-role-info using code
      * @param code
      * @return
-     * @throws SQLException
+     * @throws SQLException, DataAccessException
      */
-    @SQL("SELECT * FROM " + TableName.DataRoleInfo + " WHERE \"code\" = ':code'")
-    public DataRoleInfo find(@SQLParam("code") int code) throws SQLException;
+    @SQL("SELECT * FROM " + TableName.DataRoleInfo + " WHERE \"code\" = :code")
+    public DataRoleInfo find(@SQLParam("code") int code) throws SQLException, DataAccessException;
 
     /**
      * find data-role-info using name
      * @param name
      * @return
-     * @throws SQLException
+     * @throws SQLException, DataAccessException
      */
-    @SQL("SELECT * FROM " + TableName.DataRoleInfo + " WHERE \"name\" = ':name'")
-    public DataRoleInfo findByName(@SQLParam("name") String name) throws SQLException;
+    @SQL("SELECT * FROM " + TableName.DataRoleInfo + " WHERE \"name\" = :name")
+    public DataRoleInfo findByName(@SQLParam("name") String name) throws SQLException, DataAccessException;
 
     /**
      * list all #num data-roles sorted by {@link DataRole#code} from #from 
@@ -83,8 +89,24 @@ public interface DataRoleInfoDAO {
      * @param from
      * @param num
      * @return
+     * @throws SQLException, DataAccessException
      */
-    // config:mysql @SQL("SELECT * FROM " + TABLE_NAME_FROLE + " WHERE \"code\" >= ':from' LIMIT 0,:num")
-    @SQL("SELECT * FROM " + TableName.DataRoleInfo + " WHERE \"code\" >= ':from' AND ROWNUM <=:num")
-    public List<DataRoleInfo> list(@SQLParam("from") int from, @SQLParam("num") int num) throws SQLException;
+    @SQL("SELECT * FROM " + TableName.DataRoleInfo + " WHERE \"code\" >= :from AND ROWNUM <=:num ORDER BY \"code\"")
+    public List<DataRoleInfo> list(@SQLParam("from") int from, @SQLParam("num") int num) throws SQLException, DataAccessException;
+
+    /**
+     * WARNING: only for unittest and debug!
+     * @return
+     * @throws SQLException, DataAccessException
+     */
+    @SQL("DELETE FROM " + TableName.DataRoleInfo + " WHERE \"code\" = :code")
+    public boolean delete(@SQLParam("code") int code) throws SQLException, DataAccessException;
+
+    /**
+     * WARNING: only for unittest and debug!
+     * @return
+     * @throws SQLException, DataAccessException
+     */
+    @SQL("DELETE FROM " + TableName.DataRoleInfo)
+    public int clear() throws SQLException, DataAccessException;
 }

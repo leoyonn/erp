@@ -14,12 +14,32 @@ import java.util.List;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.StringUtils;
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.io.SAXReader;
 
 /**
  * 
  * @author leo
  */
 public class Utils {
+
+    /**
+     * load a xml conf file from classpath:path
+     * @param path
+     * @return 
+     */
+    public static Document loadXmlDoc(String path) {
+        if (!path.startsWith("/")) {
+            path = "/" + path;
+        }
+        SAXReader saxReader = new SAXReader();
+        try {
+            return saxReader.read(Utils.class.getResourceAsStream(path));
+        } catch (DocumentException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
 
     /**
      * split string to list.

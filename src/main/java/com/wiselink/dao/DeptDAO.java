@@ -12,6 +12,8 @@ import net.paoding.rose.jade.annotation.DAO;
 import net.paoding.rose.jade.annotation.SQL;
 import net.paoding.rose.jade.annotation.SQLParam;
 
+import org.springframework.dao.DataAccessException;
+
 import com.wiselink.base.TableName;
 import com.wiselink.model.org.Dept;
 
@@ -21,7 +23,7 @@ import com.wiselink.model.org.Dept;
 @DAO
 public interface DeptDAO {
     String KEYS =" (\"id\", \"name\", \"deptType\", \"corpId\")";
-    String VALUES = " VALUES (:id, :name, :tel, :contact)";
+    String VALUES = " VALUES (:id, :name, :deptType, :corpId)";
 
     /**
      * 添加一个新的部门
@@ -30,20 +32,20 @@ public interface DeptDAO {
      * @param corpId
      * @param deptType
      * @return
-     * @throws SQLException
+     * @throws SQLException, DataAccessException
      */
     @SQL("INSERT INTO " + TableName.Dept + KEYS + VALUES)
     public boolean addDept(@SQLParam("id") String id,
             @SQLParam("name") String name,
-            @SQLParam("corpId") String corpId,
-            @SQLParam("deptType") String deptType) throws SQLException;
+            @SQLParam("deptType") String deptType,
+            @SQLParam("corpId") String corpId) throws SQLException, DataAccessException;
 
     /**
      * 获取一个部门信息
      * @param id
      * @return
-     * @throws SQLException
+     * @throws SQLException, DataAccessException
      */
     @SQL("SELECT * FROM " + TableName.Dept + " WHERE \"id\" = :id")
-    public Dept find(@SQLParam("id") String id) throws SQLException;
+    public Dept find(@SQLParam("id") String id) throws SQLException, DataAccessException;
 }

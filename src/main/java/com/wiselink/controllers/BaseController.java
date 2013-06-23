@@ -35,7 +35,7 @@ public abstract class BaseController {
         for (Jsonable j: all) {
             arr.add(j.toJson());
         }
-        return arr.toString();
+        return "@json:" + new ApiResult(ApiStatus.SUCCESS, arr.toString());
     }
 
     protected String failResult(ApiStatus status, String result) {

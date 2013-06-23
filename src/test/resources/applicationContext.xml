@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
     xsi:schemaLocation="http://www.springframework.org/schema/beans  
     http://www.springframework.org/schema/beans/spring-beans-2.5.xsd  
     http://www.springframework.org/schema/context  
@@ -11,15 +11,18 @@
     <context:component-scan base-package="com.wiselink">
     </context:component-scan>
 
-    <!-- 
-	<context:component-scan base-package="com.wiselink.controllers.annotations">
-		<context:include-filter type="regex" expression=".*Interceptor" />
-    </context:component-scan>
-    -->
-    
-    <context:property-placeholder location="var.properties" />
-     <!-- 数据源配置 dbcp -->
-    <bean id="jade.dataSource.com.wiselink.dao" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+    <!-- <context:component-scan base-package="com.wiselink.controllers.annotations"> <context:include-filter 
+        type="regex" expression=".*Interceptor" /> </context:component-scan> -->
+
+    <bean id="config" class="com.wiselink.base.Config">
+        <property name="appHome" value="" />
+    </bean>
+    <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="location" value="jdbc.properties" />
+    </bean>
+    <!-- 数据源配置 dbcp -->
+    <bean id="jade.dataSource.com.wiselink.dao" class="org.apache.commons.dbcp.BasicDataSource"
+        destroy-method="close">
         <property name="driverClassName" value="${wstp.jdbc.driver}" />
         <property name="url" value="${wstp.jdbc.url}" />
         <property name="username" value="${wstp.jdbc.username}" />
@@ -30,35 +33,32 @@
         <property name="minIdle" value="${wstp.jdbc.minIdle}" />
         <property name="validationQuery" value="${wstp.jdbc.validationQuery}" />
     </bean>
-     
+
     <!-- 数据源配置 dbcp -->
     <bean id="jade.dataSource.com.wiselink.dao2" class="org.apache.commons.dbcp.BasicDataSource"
         destroy-method="close">
         <property name="driverClassName" value="com.mysql.jdbc.Driver"></property>
         <property name="url"
             value="jdbc:mysql://127.0.0.1:3306/j4erp?useUnicode=true&amp;characterEncoding=utf-8"></property>
-        <!-- 
-        <property name="url"
-            value="jdbc:mysql://127.0.0.1:3306/j4erp?useUnicode=true&amp;characterEncoding=utf-8"></property>
-        -->
+        <!-- <property name="url" value="jdbc:mysql://127.0.0.1:3306/j4erp?useUnicode=true&amp;characterEncoding=utf-8"></property> -->
         <property name="username" value="j4"></property>
         <property name="password" value="j4pass"></property>
         <!-- 运行判断连接超时任务的时间间隔，单位为毫秒，默认为-1，即不执行任务。 -->
         <property name="timeBetweenEvictionRunsMillis" value="3600000"></property>
         <!-- 连接的超时时间，默认为半小时。 -->
         <property name="minEvictableIdleTimeMillis" value="3600000"></property>
-    </bean> 
-    
-     <!-- 以下配置为分表设置 -->
-     <bean id="jade.routerInterpreter" class="com.xiaomi.common.service.dal.routing.RewriteSQLInterpreter">
-             <property name="routingConfigurator" ref="jade.routingConfigurator" />
-     </bean>
-     <bean id="jade.routingConfigurator" class="com.xiaomi.common.service.dal.routing.RoutingConfigurator">
-             <property name="partitions">
-                   <list> 
-                        <value>hash:test:id:test_{0}:100</value> 
-                   </list>
-             </property>
-     </bean>
-     <bean class="net.paoding.rose.jade.context.spring.JadeBeanFactoryPostProcessor" />
+    </bean>
+
+    <!-- 以下配置为分表设置 -->
+    <bean id="jade.routerInterpreter" class="com.xiaomi.common.service.dal.routing.RewriteSQLInterpreter">
+        <property name="routingConfigurator" ref="jade.routingConfigurator" />
+    </bean>
+    <bean id="jade.routingConfigurator" class="com.xiaomi.common.service.dal.routing.RoutingConfigurator">
+        <property name="partitions">
+            <list>
+                <value>hash:test:id:test_{0}:100</value>
+            </list>
+        </property>
+    </bean>
+    <bean class="net.paoding.rose.jade.context.spring.JadeBeanFactoryPostProcessor" />
 </beans>

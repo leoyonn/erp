@@ -9,7 +9,7 @@ package com.wiselink.controllers;
 import net.paoding.rose.web.Invocation;
 import net.paoding.rose.web.annotation.Param;
 import net.paoding.rose.web.annotation.Path;
-import net.paoding.rose.web.annotation.rest.Post;
+import net.paoding.rose.web.annotation.rest.Get;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,8 +36,8 @@ public class AuthController extends BaseController {
     @Autowired
     private UserService userService;
     
-    // TODO return ApiResult?
-    @Post("login")
+    @SuppressWarnings("@Post")
+    @Get("login")
     public String login(Invocation inv, @Trimmed @Param("user") String user, @Param("password") String password) {
         LOGGER.error("login: {}:{}", user, password);
         // 1. get user id from user

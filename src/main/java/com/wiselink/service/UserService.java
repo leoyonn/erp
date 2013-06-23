@@ -16,7 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.wiselink.base.AuthResult;
-import com.wiselink.dao.UserDAO;
+import com.wiselink.dao.UserInfoDAO;
+import com.wiselink.dao.UserRoleDAO;
 import com.wiselink.exception.ServiceException;
 import com.wiselink.model.user.User;
 import com.wiselink.model.user.UserCard;
@@ -28,18 +29,20 @@ import com.wiselink.model.user.UserCard;
 public class UserService {
     private static final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
     @Autowired
-    private UserDAO userDao;
+    private UserInfoDAO userInfoDao;
+    @Autowired
+    private UserRoleDAO userRoleDao;
 
     /**
      * @param userId
      * @param password
      * @return
-     * @throws SQLException 
+     * @throws SQLException, DataAccessException 
      */
     public AuthResult checkPassword(String userId, String password) {
         String real = null;
         try {
-            real = userDao.getPassword(userId);
+            real = userInfoDao.getPassword(userId);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -60,7 +63,7 @@ public class UserService {
      */
     public User getUser(String userId) throws ServiceException {
         try {
-            return userDao.getUserById(userId);
+            return userInfoDao.getUserById(userId);
         } catch (SQLException ex) {
             throw new ServiceException(ex);
         }
@@ -73,7 +76,7 @@ public class UserService {
      */
     public List<UserCard> getUsers(List<String> userIds) throws ServiceException {
         try {
-            return userDao.getUserCardsById(userIds);
+            return userInfoDao.getUserCardsById(userIds);
         } catch (SQLException ex) {
             throw new ServiceException(ex);
         }

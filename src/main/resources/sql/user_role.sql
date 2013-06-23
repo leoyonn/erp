@@ -3,10 +3,10 @@ CREATE TABLE PICC."user_role"
 (
   "id"          VARCHAR2(64 CHAR)   NOT NULL,
   "catCode"     NUMBER(6),
-  "posCode"     NUNBER(6),
-  "froleCode"   NUNBER(6),
-  "droleCode"   NUNBER(6),
-  "statCode"    NUNBER(6),
+  "posCode"     NUMBER(6),
+  "froleCode"   NUMBER(6),
+  "droleCode"   NUMBER(6),
+  "statCode"    NUMBER(6),
   "corpId"      VARCHAR2(32 CHAR),
   "deptId"      VARCHAR2(32 CHAR)
 )

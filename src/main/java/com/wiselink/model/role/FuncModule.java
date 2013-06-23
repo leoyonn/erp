@@ -59,9 +59,9 @@ public class FuncModule implements Jsonable {
         if (funcs != null) {
             JSONArray farr = new JSONArray();
             for (Func f: funcs) {
-                farr.add(f);
+                farr.add(f.toJson());
             }
-            json.put(funcs, farr);
+            json.put("funcs", farr);
         }
         return json.toString();
     }

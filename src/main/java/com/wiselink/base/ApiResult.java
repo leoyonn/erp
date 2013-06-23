@@ -30,9 +30,12 @@ public class ApiResult {
         this.status = status;
        this.result = result;
     }
-    
+
     public String toJson() {
-        return "{\"status\":" + status.toJson() + ",\"result\":\"" + result + "\"}";
+        if (!result.startsWith("[") && !result.startsWith("{")) {
+            result = "\"" + result + "\"";
+        }
+        return "{\"status\":" + status.toJson() + ",\"result\":" + result + "}";
     }
     
     public String toString() {

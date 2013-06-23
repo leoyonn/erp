@@ -14,6 +14,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.DataAccessException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -27,7 +28,7 @@ import com.wiselink.model.user.UserRole;
 public class TestUserDao {
 
     @Autowired
-    private UserDAO userDao;
+    private UserInfoDAO userDao;
 
     @Qualifier("jade.dataSource.com.wiselink.dao")
     @Autowired
@@ -36,6 +37,7 @@ public class TestUserDao {
 
     @Before
     public void init() {
+        userDao.getClass();
         /*
         try {
             Connection conn = dataSource.getConnection();
@@ -54,7 +56,7 @@ public class TestUserDao {
     }
 
     @Test
-    public void test() throws SQLException {
+    public void test() throws SQLException, DataAccessException {
 /*        User user = new User();
         String account = "account-" + 3; 
         user.setAccount(account)

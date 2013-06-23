@@ -9,7 +9,7 @@ package com.wiselink.controllers;
 import net.paoding.rose.web.Invocation;
 import net.paoding.rose.web.annotation.Param;
 import net.paoding.rose.web.annotation.Path;
-import net.paoding.rose.web.annotation.rest.Post;
+import net.paoding.rose.web.annotation.rest.Get;
 
 import com.wiselink.controllers.annotations.Trimmed;
 
@@ -28,7 +28,8 @@ public class UserController extends BaseController {
      * @param password
      * @return
      */
-    @Post("new")
+    @SuppressWarnings("@Post")
+    @Get("new")
     public String newUser(Invocation inv, @Trimmed @Param("user") String user, @Param("password") String password) {
         return "@json:" + "";
     }

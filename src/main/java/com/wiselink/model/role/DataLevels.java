@@ -6,19 +6,16 @@
  */
 package com.wiselink.model.role;
 
-import java.io.File;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.dom4j.Document;
-import org.dom4j.DocumentException;
 import org.dom4j.Element;
-import org.dom4j.io.SAXReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.wiselink.base.Config;
+import com.wiselink.utils.Utils;
 
 /**
  * 加载和维护所有的数据角色级别
@@ -26,20 +23,14 @@ import com.wiselink.base.Config;
  */
 public class DataLevels {
     private static final Logger LOGGER = LoggerFactory.getLogger(DataLevel.class);
-    private static final String DATA_ROLE_PATH = Config.path("conf/data-role.xml");
+    private static final String DATA_ROLE_PATH = "conf/data-role.xml";
 
     /**
      * 从配置文件中加载所有功能模块
      */
     private void load() {
         LOGGER.debug("loading data-levels from {}...", DATA_ROLE_PATH);
-        SAXReader saxReader = new SAXReader();
-        Document document = null;
-        try {
-            document = saxReader.read(new File(DATA_ROLE_PATH));
-        } catch (DocumentException ex) {
-            throw new RuntimeException(ex);
-        }
+        Document document = Utils.loadXmlDoc(DATA_ROLE_PATH);
         // data-role >> levels >> level
         Element levelsEle = document.getRootElement().element("levels");
         for (Object levelEle: levelsEle.elements()) {

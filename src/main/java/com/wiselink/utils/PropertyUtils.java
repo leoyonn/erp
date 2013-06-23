@@ -101,10 +101,13 @@ public class PropertyUtils {
             LOGGER.error("Could not open properties.", e);
             return null;
         } finally {
-            try {
-                stream.close();
-            } catch (IOException e) {
-                e.printStackTrace();
+            if (stream != null) {
+                try {
+                    
+                    stream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }

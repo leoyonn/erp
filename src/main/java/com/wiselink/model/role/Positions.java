@@ -26,7 +26,7 @@ import com.wiselink.base.Config;
  */
 public class Positions {
     private static final Logger LOGGER = LoggerFactory.getLogger(Positions.class);
-    private static final String POSITION_PATH = Config.path("conf/positions.xml");
+    private static final String POSITION_PATH = Config.getInstance().path("conf/positions.xml");
 
     /**
      * 从配置文件中加载所有岗位

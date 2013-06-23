@@ -5,7 +5,7 @@
 CREATE TABLE PICC."user_info"
 (
   "id"          VARCHAR2(64 CHAR)   NOT NULL,
-  "account"     VARCHAR2(64 CHAR)   NOT NULL,
+  "account"     VARCHAR2(64 CHAR)   UNIQUE NOT NULL,
   "name"        VARCHAR2(64 CHAR)   NOT NULL,
   "password"    VARCHAR2(64 CHAR)   NOT NULL,
   "avatar"      VARCHAR2(128 CHAR),
@@ -19,6 +19,7 @@ CREATE TABLE PICC."user_info"
   "updateTime"  TIMESTAMP(6),
   "createTime"  TIMESTAMP(6)
 )
+
 TABLESPACE PICCTABLE
 RESULT_CACHE (MODE DEFAULT)
 PCTUSED    40
@@ -43,8 +44,8 @@ NOCACHE
 NOPARALLEL
 MONITORING;
 
-ALTER TABLE PICC."user"
- ADD CONSTRAINT "user_PK"
+ALTER TABLE PICC."user_info"
+ ADD CONSTRAINT "user_info_PK"
   PRIMARY KEY
   ("id")
   ENABLE VALIDATE;

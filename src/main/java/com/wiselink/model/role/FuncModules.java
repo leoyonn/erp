@@ -6,19 +6,16 @@
  */
 package com.wiselink.model.role;
 
-import java.io.File;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.dom4j.Document;
-import org.dom4j.DocumentException;
 import org.dom4j.Element;
-import org.dom4j.io.SAXReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.wiselink.base.Config;
+import com.wiselink.utils.Utils;
 
 /**
  * 管理系统中所有的功能模块
@@ -26,21 +23,14 @@ import com.wiselink.base.Config;
  */
 public class FuncModules {
     private static final Logger LOGGER = LoggerFactory.getLogger(FuncModules.class);
-    private static final String FUNC_ROLE_FILE = Config.path("conf/func-role.xml");
+    private static final String FUNC_ROLE_PATH = "conf/func-role.xml";
 
     /**
      * 从配置文件中加载所有功能模块
      */
     private void load() {
-        LOGGER.debug("loading modules from {}...", FUNC_ROLE_FILE);
-        SAXReader saxReader = new SAXReader();
-        Document document = null;
-        try {
-            document = saxReader.read(new File(FUNC_ROLE_FILE));
-        } catch (DocumentException ex) {
-            throw new RuntimeException(ex);
-        }
-        
+        LOGGER.debug("loading modules from {}...", FUNC_ROLE_PATH);
+        Document document = Utils.loadXmlDoc(FUNC_ROLE_PATH);
         Element root = document.getRootElement();
         for (Object moduleEle: root.elements()) {
             Element me = ((Element) moduleEle);

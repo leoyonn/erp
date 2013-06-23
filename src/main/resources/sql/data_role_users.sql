@@ -2,7 +2,7 @@
 CREATE TABLE PICC."data_role_users"
 (
   "roleCode"      NUMBER(8) NOT NULL,
-  "userId"        VARCHAR2(32 CHAR)   NOT NULL,
+  "userId"        VARCHAR2(32 CHAR)   NOT NULL
 )
 TABLESPACE PICCTABLE
 RESULT_CACHE (MODE DEFAULT)

@@ -1,36 +1,34 @@
-
+/* Formatted on 06/23/2013 10:16:21 (QP5 v5.240.12305.39446) */
 CREATE TABLE PICC."data_role_info"
 (
-  "code"        NUMBER(8) NOT NULL,
-  "name"        VARCHAR2(64 CHAR) UNIQUE NOT NULL,
-  "desc"        VARCHAR2(256 CHAR),
-  "levelCode"   NUMBER(8) NOT NULL,
-  "corpId"      VARCHAR2(32 CHAR),
-  "deptId"      VARCHAR2(32 CHAR),
-  "creatorId"   VARCHAR2(32 CHAR),
-  "createTime"  TIMESTAMP(6)
-  "updateTime"  TIMESTAMP(6),
+   "code"         NUMBER (8) NOT NULL,
+   "name"         VARCHAR2 (64 CHAR) UNIQUE NOT NULL,
+   "desc"         VARCHAR2 (256 CHAR),
+   "levelCode"    NUMBER (8) NOT NULL,
+   "corpId"       VARCHAR2 (32 CHAR),
+   "deptId"       VARCHAR2 (32 CHAR),
+   "creatorId"    VARCHAR2 (32 CHAR),
+   "createTime"   TIMESTAMP (6),
+   "updateTime"   TIMESTAMP (6)
 )
 TABLESPACE PICCTABLE
 RESULT_CACHE (MODE DEFAULT)
-PCTUSED    40
-PCTFREE    10
-INITRANS   1
-MAXTRANS   255
-STORAGE    (
-            INITIAL          64K
-            NEXT             1M
-            MINEXTENTS       1
-            MAXEXTENTS       UNLIMITED
-            PCTINCREASE      0
-            FREELISTS        1
-            FREELIST GROUPS  1
-            BUFFER_POOL      DEFAULT
-            FLASH_CACHE      DEFAULT
-            CELL_FLASH_CACHE DEFAULT
-           )
-LOGGING 
-NOCOMPRESS 
+PCTUSED 40
+PCTFREE 10
+INITRANS 1
+MAXTRANS 255
+STORAGE (INITIAL 64 K
+         NEXT 1 M
+         MINEXTENTS 1
+         MAXEXTENTS UNLIMITED
+         PCTINCREASE 0
+         FREELISTS 1
+         FREELIST GROUPS 1
+         BUFFER_POOL DEFAULT
+         FLASH_CACHE DEFAULT
+         CELL_FLASH_CACHE DEFAULT)
+LOGGING
+NOCOMPRESS
 NOCACHE
 NOPARALLEL
 MONITORING;
@@ -39,3 +37,22 @@ ALTER TABLE PICC."data_role_info"
     ADD CONSTRAINT "data_role_info_PK"
     PRIMARY KEY ("code")
     ENABLE VALIDATE;
+
+DROP SEQUENCE PICC."data_role_indexer";
+
+CREATE SEQUENCE PICC."data_role_indexer"
+   INCREMENT BY 1
+   START WITH 102000
+   NOMAXVALUE
+   NOCYCLE
+   NOCACHE;
+
+DROP TRIGGER PICC."data_role_info";
+
+CREATE TRIGGER PICC."data_role_info"
+   BEFORE INSERT
+   ON PICC."data_role_info"
+   FOR EACH ROW
+BEGIN
+   SELECT PICC."data_role_indexer".NEXTVAL INTO :New."code" FROM DUAL;
+END;
