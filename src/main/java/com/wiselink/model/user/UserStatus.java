@@ -45,14 +45,17 @@ public enum UserStatus implements Jsonable {
         return fromJsonStatic(json);
     }
 
-    public static Jsonable fromJsonStatic(String json) {
-        JSONObject j = JSONObject.fromObject(json);
-        switch (j.optInt("code", -1)) {
+    public static UserStatus fromCode(int code) {
+        switch (code) {
             case 0: return Active;
             case 1: return Blocked;
             case 2: return Invalid;
             default: throw new IllegalArgumentException("invalid code in parameter");
         }
+    }
+
+    public static Jsonable fromJsonStatic(String json) {
+        return fromCode(JSONObject.fromObject(json).optInt("code", -1));
     }
 }
 

@@ -29,8 +29,8 @@ public class TestUserService {
     
     @Test
     public void test() {
-        UserService service = new UserService();
-        System.out.println(service.checkPassword("1", "111"));
+        // UserService service = new UserService();
+        // System.out.println(service.checkPassword("1", "111"));
     }
 
     @Test

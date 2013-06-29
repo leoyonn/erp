@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<positions>
+    <position code="0" name="技术部领导" desc="技术部领导"></position>
+    <position code="1" name="耗材管理员" desc="耗材管理员"></position>
+    <position code="2" name="采购管理员" desc="采购管理员"></position>
+    <position code="3" name="耗材使用人" desc="耗材使用人"></position>
+    <position code="4" name="供货商经办人" desc="供货商经办人"></position>
+    <position code="5" name="系统管理员" desc="系统管理员"></position>
+</positions>

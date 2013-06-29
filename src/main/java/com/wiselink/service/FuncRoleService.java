@@ -83,7 +83,7 @@ public class FuncRoleService {
             }
             LOGGER.debug("get func role info: {}", froleInfo);
             return new FuncRole(froleInfo);
-        } catch (SQLException ex) {
+        } catch (Exception ex) {
             throw new ServiceException(ex);
         }
     }
@@ -97,13 +97,13 @@ public class FuncRoleService {
     public FuncRole getFuncRoleList(FuncRole frole) throws ServiceException {
         try {
             List<String> userIds = froleUsersDao.getUsers(frole.info.code);
-            List<UserCard> users = userService.getUsers(userIds);
+            List<UserCard> users = userService.getUserCards(userIds);
             List<Integer> funcCodes = froleFuncsDao.getFuncs(frole.info.code);
             List<Func> funcs = getFuncs(funcCodes);
             frole.setFuncs(funcs).setUsers(users);
             LOGGER.debug("get func role: {}", frole);
             return frole;
-        } catch (SQLException ex) {
+        } catch (Exception ex) {
             throw new ServiceException(ex);
         }
     }
@@ -118,7 +118,7 @@ public class FuncRoleService {
     public List<FuncRoleInfo> getFuncRoles(int from, int num) throws ServiceException {
         try {
             return froleDao.list(from, num);
-        } catch (SQLException ex) {
+        } catch (Exception ex) {
             throw new ServiceException(ex);
         }
     }
@@ -180,7 +180,7 @@ public class FuncRoleService {
             FuncRoleInfo frole = froleDao.findByName(name);
             LOGGER.debug("add func role success: {}.", frole);
             return new FuncRole(frole);
-        } catch (SQLException ex) {
+        } catch (Exception ex) {
             throw new ServiceException(ex);
         }
     }

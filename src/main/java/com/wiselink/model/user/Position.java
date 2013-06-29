@@ -4,7 +4,7 @@
  * @author leo [leoyonn@gmail.com]
  * @date 2013-6-17 下午1:50:27
  */
-package com.wiselink.model.role;
+package com.wiselink.model.user;
 
 import com.google.gson.Gson;
 import com.wiselink.base.jsonable.Jsonable;

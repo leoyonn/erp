@@ -29,7 +29,7 @@ public interface DataRoleScopesDAO {
      * @return
      * @throws SQLException, DataAccessException
      */
-    @SQL("SELECT \"orgId\" from " + TableName.DataRoleScopes + " WHERE \"roleCode\" = :roleCode")
+    @SQL("SELECT \"orgId\" from " + TableName.DataRoleScopes + " WHERE \"roleCode\" = :roleCode ORDER BY \"orgId\"")
     public List<String> getScopes(@SQLParam("roleCode") int roleCode) throws SQLException, DataAccessException;;
 
     /**

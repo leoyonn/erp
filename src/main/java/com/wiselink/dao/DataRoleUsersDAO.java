@@ -29,7 +29,7 @@ public interface DataRoleUsersDAO  {
      * @throws SQLException, DataAccessException
      * @return
      */
-    @SQL("SELECT \"userId\" from " + TableName.DataRoleUsers + " WHERE \"roleCode\" = :roleCode")
+    @SQL("SELECT \"userId\" from " + TableName.DataRoleUsers + " WHERE \"roleCode\" = :roleCode ORDER BY \"userId\"")
     public List<String> getUsers(@SQLParam("roleCode") int DataRoleCode) throws SQLException, DataAccessException;
 
     /**

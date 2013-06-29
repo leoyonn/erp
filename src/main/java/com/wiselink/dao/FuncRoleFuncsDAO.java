@@ -29,7 +29,7 @@ public interface FuncRoleFuncsDAO {
      * @return
      * @throws SQLException, DataAccessException
      */
-    @SQL("SELECT \"funcCode\" from " + TableName.FuncRoleFuncs + " WHERE \"roleCode\" = :roleCode")
+    @SQL("SELECT \"funcCode\" from " + TableName.FuncRoleFuncs + " WHERE \"roleCode\" = :roleCode ORDER BY \"funcCode\"")
     public List<Integer> getFuncs(@SQLParam("roleCode") int roleCode) throws SQLException, DataAccessException;;
 
     /**

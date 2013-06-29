@@ -6,9 +6,6 @@
  */
 package com.wiselink.base;
 
-import java.io.File;
-import java.io.IOException;
-
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLConfiguration;

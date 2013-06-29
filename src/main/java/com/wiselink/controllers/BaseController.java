@@ -22,9 +22,13 @@ public abstract class BaseController {
     protected String apiResult(ApiResult res) {
         return "@json:" + res.toJson();
     }
-    
+
     protected String successResult(String result) {
         return "@json:" + new ApiResult(ApiStatus.SUCCESS, result);    
+    }
+
+    protected String successResult(Jsonable result) {
+        return "@json:" + new ApiResult(ApiStatus.SUCCESS, result.toJson());    
     }
 
     protected String successResult(Collection<? extends Jsonable> all) {

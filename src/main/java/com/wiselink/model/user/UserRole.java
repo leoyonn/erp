@@ -13,7 +13,6 @@ import com.wiselink.model.org.Corp;
 import com.wiselink.model.org.Dept;
 import com.wiselink.model.role.DataRoleInfo;
 import com.wiselink.model.role.FuncRoleInfo;
-import com.wiselink.model.role.Position;
 
 /**
  * 用户角色属性，包括类别、状态、功能角色、数据角色
@@ -28,6 +27,12 @@ public class UserRole implements Jsonable {
     public DataRoleInfo drole;
     public Corp corp;
     public Dept dept;
+
+    public UserRole() {}
+
+    public UserRole(String id) {
+        this.id = id;
+    }
 
     public UserRole setId(String id) {
         this.id = id;
@@ -95,5 +100,10 @@ public class UserRole implements Jsonable {
         this.corp = (Corp) new Corp().fromJson(j.getString("corp"));
         this.dept = (Dept) new Dept().fromJson(j.getString("dept"));
         return this;
+    }
+    
+    @Override
+    public String toString() {
+        return toJson();
     }
 }

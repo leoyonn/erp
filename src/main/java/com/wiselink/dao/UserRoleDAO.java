@@ -7,6 +7,8 @@
 package com.wiselink.dao;
 
 import java.sql.SQLException;
+import java.util.Collection;
+import java.util.List;
 
 import net.paoding.rose.jade.annotation.DAO;
 import net.paoding.rose.jade.annotation.SQL;
@@ -15,7 +17,7 @@ import net.paoding.rose.jade.annotation.SQLParam;
 import org.springframework.dao.DataAccessException;
 
 import com.wiselink.base.TableName;
-import com.wiselink.model.user.UserRole;
+import com.wiselink.model.user.UserRoleC;
 
 /**
  * 
@@ -24,10 +26,14 @@ import com.wiselink.model.user.UserRole;
 @DAO
 public interface UserRoleDAO {
 
-    String USER_ROLE_KEYS ="(\"id\",\"catCode\",\"posCode\"," +
-    		"\"froleCode\",\"droleCode\",\"statCode\",\"corpId\",\"deptId\")";
+    String USER_ROLE_KEYS = "(\"id\",\"catCode\",\"posCode\"," +
+            "\"froleCode\",\"droleCode\",\"statCode\",\"corpId\",\"deptId\")";
+
     String USER_ROLE_VALUES = " VALUES (:id,:catCode,:posCode,:froleCode,"
             + ":droleCode,:statCode,:corpId,:deptId)";
+
+    String USER_ROLE_UP_KVS = "\"catCode\"=:catCode,\"posCode\"=:posCode," +
+            "\"froleCode\"=:froleCode,\"droleCode\"=:droleCode,\"statCode\"=:statCode,\"corpId\"=:corpId,\"deptId\"=:deptId";
 
     /**
      * add an user into database
@@ -36,12 +42,22 @@ public interface UserRoleDAO {
      * @throws SQLException, DataAccessException
      */
     @SQL("INSERT INTO " + TableName.UserRole + USER_ROLE_KEYS + USER_ROLE_VALUES)
-    public boolean addUser(@SQLParam("id") String userId,
-            @SQLParam("catCode") String catCode,
-            @SQLParam("posCode") String posCode,
-            @SQLParam("froleCode") String froleCode,
-            @SQLParam("droleCode") String droleCode,
-            @SQLParam("statCode") String statCode,
+    public boolean addUserRole(@SQLParam("id") String userId,
+            @SQLParam("catCode") int catCode,
+            @SQLParam("posCode") int posCode,
+            @SQLParam("froleCode") int froleCode,
+            @SQLParam("droleCode") int droleCode,
+            @SQLParam("statCode") int statCode,
+            @SQLParam("corpId") String corpId,
+            @SQLParam("deptId") String deptId) throws SQLException, DataAccessException;
+
+    @SQL("UPDATE " + TableName.UserRole + " SET " + USER_ROLE_UP_KVS + " WHERE \"id\"=:id")
+    public boolean updateUserRole(@SQLParam("id") String userId,
+            @SQLParam("catCode") int catCode,
+            @SQLParam("posCode") int posCode,
+            @SQLParam("froleCode") int froleCode,
+            @SQLParam("droleCode") int droleCode,
+            @SQLParam("statCode") int statCode,
             @SQLParam("corpId") String corpId,
             @SQLParam("deptId") String deptId) throws SQLException, DataAccessException;
 
@@ -52,6 +68,28 @@ public interface UserRoleDAO {
      * @throws SQLException, DataAccessException
      */
     @SQL("SELECT * FROM " + TableName.UserRole + " WHERE \"id\" = :id")
-    public UserRole find(@SQLParam("id") String userId) throws SQLException, DataAccessException;
+    public UserRoleC find(@SQLParam("id") String userId) throws SQLException, DataAccessException;
 
+    /**
+     * @param userIds
+     * @return
+     */
+    @SQL("SELECT * FROM " + TableName.UserRole + " WHERE \"id\" IN (:ids) ORDER BY \"id\"")
+    public List<UserRoleC> getRoles(@SQLParam("ids") Collection<String> userIds) throws SQLException, DataAccessException;
+
+    /**
+     * WARNING: only for unittest and debug!
+     * @return
+     * @throws SQLException, DataAccessException
+     */
+    @SQL("DELETE FROM " + TableName.UserRole + " WHERE \"id\" = :id")
+    public boolean delete(@SQLParam("id") String id) throws SQLException, DataAccessException;
+
+    /**
+     * WARNING: only for unittest and debug!
+     * @return
+     * @throws SQLException, DataAccessException
+     */
+    @SQL("DELETE FROM " + TableName.UserRole)
+    public int clear() throws SQLException, DataAccessException;
 }

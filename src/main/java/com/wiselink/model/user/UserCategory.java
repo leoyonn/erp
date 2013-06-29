@@ -44,12 +44,15 @@ public enum UserCategory implements Jsonable {
         return fromJsonStatic(json);
     }
 
-    public static Jsonable fromJsonStatic(String json) {
-        JSONObject j = JSONObject.fromObject(json);
-        switch (j.optInt("code", -1)) {
+    public static UserCategory fromCode(int code) {
+        switch(code) {
             case 0: return Corp;
             case 1: return Supplier;
             default: throw new IllegalArgumentException("invalid code in parameter");
         }
+    }
+
+    public static Jsonable fromJsonStatic(String json) {
+        return fromCode(JSONObject.fromObject(json).optInt("code", -1));
     }
 }

@@ -17,6 +17,7 @@ import org.apache.commons.codec.DecoderException;
 import org.apache.commons.lang.StringUtils;
 
 import com.wiselink.base.Constants;
+import com.wiselink.model.user.UserPass;
 import com.wiselink.security.Encrypter;
 
 /**
@@ -38,18 +39,17 @@ public class AuthUtils {
     }
 
     /**
-     * @param userId
-     * @param password
+     * @param pass
      * @param sessionCode
      * @param userIp
      * @return
+     * @throws SecurityException
      */
-    public static String genPassToken(String userId, String password, String sessionCode,
-            String userIp) throws SecurityException {
+    public static String genPassToken(UserPass pass, String sessionCode, String userIp) throws SecurityException {
         JSONObject json = new JSONObject();
-        json.put("p", sha1HMAC(password));
+        json.put("p", sha1HMAC(pass.password));
         json.put("ip", userIp);
-        json.put("u", String.valueOf(userId));
+        json.put("u", pass.id);
         json.put("s", sessionCode);
         json.put("t", System.currentTimeMillis() + "");
         json.put("v", "1.0");
@@ -102,18 +102,21 @@ public class AuthUtils {
      * validate user's id and password from token. 
      * @param passToken
      * @param userId
-     * @param pwdMd5
+     * @param pass
      * @return
      * @throws SecurityException
      */
-    public static JSONObject validateToken(String passToken, String userId, String pwdMd5) throws SecurityException {
+    public static JSONObject validateToken(String passToken, String userId, UserPass pass) throws SecurityException {
+        if (pass == null || StringUtils.isEmpty(pass.password)) {
+            return null;
+        }
         String decryptedData = Encrypter.decryptAES(passToken);
         JSONObject json = JSONObject.fromObject(decryptedData);
         if (!userId.equals(json.getString("u"))) {
             return null;
         }
         String pwdSign = json.getString("p");
-        if (!sha1HMAC(pwdMd5).equals(pwdSign)) {
+        if (!sha1HMAC(pass.password).equals(pwdSign)) {
             return null;
         }
         return json;

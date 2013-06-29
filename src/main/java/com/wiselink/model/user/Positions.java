@@ -4,21 +4,18 @@
  * @author leo [leoyonn@gmail.com]
  * @date 2013-6-17 下午2:52:49
  */
-package com.wiselink.model.role;
+package com.wiselink.model.user;
 
-import java.io.File;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.dom4j.Document;
-import org.dom4j.DocumentException;
 import org.dom4j.Element;
-import org.dom4j.io.SAXReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.wiselink.base.Config;
+import com.wiselink.utils.Utils;
 
 /**
  * 加载和维护所有岗位/职位列表
@@ -26,20 +23,14 @@ import com.wiselink.base.Config;
  */
 public class Positions {
     private static final Logger LOGGER = LoggerFactory.getLogger(Positions.class);
-    private static final String POSITION_PATH = Config.getInstance().path("conf/positions.xml");
+    private static final String POSITION_PATH = "conf/positions.xml";
 
     /**
      * 从配置文件中加载所有岗位
      */
     private void load() {
         LOGGER.debug("loading positions from {}...", POSITION_PATH);
-        SAXReader saxReader = new SAXReader();
-        Document document = null;
-        try {
-            document = saxReader.read(new File(POSITION_PATH));
-        } catch (DocumentException ex) {
-            throw new RuntimeException(ex);
-        }
+        Document document = Utils.loadXmlDoc(POSITION_PATH);
         // positions -> postion
         Element rootEle = document.getRootElement();
         for (Object posEle: rootEle.elements()) {
@@ -77,7 +68,7 @@ public class Positions {
      * @param code
      * @return
      */
-    public Position getPositions(int code) {
+    public Position getPosition(int code) {
         return positions.get(code);
     }
 }

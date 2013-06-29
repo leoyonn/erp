@@ -15,7 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.wiselink.base.ApiResult;
-import com.wiselink.base.AuthResult;
+import com.wiselink.base.AuthStatus;
 import com.wiselink.base.Constants;
 import com.wiselink.controllers.LoginRequiredChecker.LoginRequiredCheckResult;
 import com.wiselink.controllers.annotations.LoginRequired;
@@ -54,7 +54,7 @@ public class LoginRequiredInterceptor extends ControllerInterceptorAdapter {
             inv.addModel("ssecurity", result.ssecurity);
             return true;
         } else {
-            return ApiResult.authFailed(AuthResult.LOGIN_REQUIRED);
+            return ApiResult.authFailed(AuthStatus.LOGIN_REQUIRED);
         }
     }
 }

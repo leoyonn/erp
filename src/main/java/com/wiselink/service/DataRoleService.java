@@ -48,7 +48,7 @@ public class DataRoleService {
     private UserService userService;
 
     @Autowired
-    private OrgService orgService;
+    private CorpService corpService;
     
     public DataRoleService() {
         LOGGER.info("Data role service init...");
@@ -96,9 +96,9 @@ public class DataRoleService {
     public DataRole getDataRoleList(DataRole drole) throws ServiceException {
         try {
             List<String> userIds = droleUsersDao.getUsers(drole.info.code);
-            List<UserCard> users = userService.getUsers(userIds);
+            List<UserCard> users = userService.getUserCards(userIds);
             List<String> scopeIds = droleScopesDao.getScopes(drole.info.code);
-            List<Org> scopes = orgService.getOrgs(scopeIds);
+            List<Org> scopes = corpService.getOrgs(scopeIds);
             drole.setScopes(scopes).setUsers(users);
             LOGGER.debug("get data role: {}", drole);
             return drole;

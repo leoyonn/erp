@@ -1,54 +1,34 @@
 /**
  * AuthResult.java
  * [CopyRight]
- * @author leo leoyonn@gmail.com
- * @date May 14, 2013 7:58:09 PM
+ * @author leo [leoyonn@gmail.com]
+ * @date 2013-6-29 上午10:08:08
  */
 package com.wiselink.base;
 
+
 /**
- * should map to {@link ApiStatus}
  * @author leo
  */
-public enum AuthResult {
-    SUCCESS(0, "认证成功"),
-    INVALID_USER(1, "无效用户"),
-    WRONG_PASSWORD(2, "密码错误"),
+public class AuthResult {
+    public static final AuthResult INVALID_USER = new AuthResult(AuthStatus.INVALID_USER);
+    public static final AuthResult WRONG_PASSWORD = new AuthResult(AuthStatus.WRONG_PASSWORD);
+    public AuthStatus stat;
+    public String passToken;
+    public String userId;
 
-    BLOCKED(10, "用户已被禁用"),
-    DENIED(11, "访问被拒绝"),
-    LOGIN_REQUIRED(12, "接口需要登录才能访问"),
-    
-    SERVER_ERROR(20, "服务出现错误"),
-    DB_ERROR(30, "数据库出现错误"),
-    ;
-    
-    AuthResult(int code, String desc) {
-        this.code = code;
-        this.desc = desc;
+    public AuthResult(AuthStatus status) {
+        this.stat = status;
     }
-    private int code;
-    private String desc;
-    
-    public int getCode() {
-        return code;
+
+    public AuthResult(AuthStatus status, String userId) {
+        this.stat = status;
+        this.userId = userId;
     }
-    public void setCode(int code) {
-        this.code = code;
+
+    public AuthResult(AuthStatus status, String userId, String passToken) {
+        this.stat = status;
+        this.userId = userId;
+        this.passToken = passToken;
     }
-    public String getDesc() {
-        return desc;
-    }
-    public void setDesc(String desc) {
-        this.desc = desc;
-    }
-    
-    public String toString() {
-        return toJson();
-    }
-    
-    public String toJson() {
-        return String.format("{\"code\":%d,\"desc\":\"%s\"}", code, desc);
-    }
-    
 }

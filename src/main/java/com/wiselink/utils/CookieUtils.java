@@ -82,4 +82,12 @@ public class CookieUtils {
         }
         return cookie;
     }
+
+    /**
+     * @param inv
+     * @return
+     */
+    public static String getUserId(Invocation inv) {
+        return getCookie(inv, Constants.COOKIE_KEY_USER_ID);
+    }
 }

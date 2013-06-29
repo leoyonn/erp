@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.wiselink.base.Constants;
 import com.wiselink.dao.UserInfoDAO;
+import com.wiselink.model.user.UserPass;
 import com.wiselink.utils.AuthUtils;
 import com.wiselink.utils.CookieUtils;
 
@@ -95,8 +96,8 @@ public class LoginRequiredChecker {
         try {
             JSONObject tokenJson = AuthUtils.checkPassToken(token);
             String userId = AuthUtils.getUserIdFromPassToken(tokenJson);
-            String realPass = userDao.getPassword(userId);
-            return AuthUtils.validateToken(token, userId, realPass);
+            UserPass pass = userDao.getPasswordById(userId);
+            return AuthUtils.validateToken(token, userId, pass);
         } catch (Exception ex) {
             // SQLException, SecurityException, JSONException
             LOGGER.error("check pass token got exeption!", ex);

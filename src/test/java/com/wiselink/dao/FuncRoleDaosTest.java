@@ -7,6 +7,7 @@
 package com.wiselink.dao;
 
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Assert;
@@ -155,6 +156,13 @@ public class FuncRoleDaosTest {
         l = infoDao.list(code[2] + 1, 10);
         p("list: " + l);
         Assert.assertEquals(0, l.size());
+        // list by collections
+        l = infoDao.list(Arrays.asList(new Integer[]{1323232, code[0], code[2], code[1], 1212}));
+        p("listc: " + l);
+        Assert.assertEquals(3, l.size());
+        Assert.assertEquals(name[0], l.get(0).name);
+        Assert.assertEquals(name[1], l.get(1).name);
+        Assert.assertEquals(name[2], l.get(2).name);
         // delete
         Assert.assertTrue(infoDao.delete(code[1]));
         l = (infoDao.list(0, 100));

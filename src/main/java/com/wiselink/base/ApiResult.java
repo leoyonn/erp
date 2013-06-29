@@ -13,10 +13,10 @@ import java.util.Map;
  * @author leo
  */
 public class ApiResult {
-    private static final Map<AuthResult, ApiResult> AUTH_FAIL = new HashMap<AuthResult, ApiResult>();
+    private static final Map<AuthStatus, ApiResult> AUTH_FAIL = new HashMap<AuthStatus, ApiResult>();
     static {
-        for (AuthResult authResult: AuthResult.values()) {
-            if (authResult != AuthResult.SUCCESS) {
+        for (AuthStatus authResult: AuthStatus.values()) {
+            if (authResult != AuthStatus.SUCCESS) {
                 AUTH_FAIL.put(authResult, new ApiResult(ApiStatus.fromAuthResult(authResult), null));
             }
         }
@@ -62,7 +62,7 @@ public class ApiResult {
      * @param authResult
      * @return
      */
-    public static ApiResult authFailed(AuthResult authResult) {
+    public static ApiResult authFailed(AuthStatus authResult) {
         return AUTH_FAIL.get(authResult);
     }
 }

@@ -65,7 +65,7 @@ public enum ApiStatus {
         this.msg = msg;
     }
 
-    public static ApiStatus fromAuthResult(AuthResult authResult) {
+    public static ApiStatus fromAuthResult(AuthStatus authResult) {
         ApiStatus status = ApiStatus.valueOf("AUTH_" + authResult.name());
         return status == null ? INVALID : status;
     }

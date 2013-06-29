@@ -23,6 +23,63 @@ public class UserRoleC implements Jsonable {
     public int statCode;
     public String corpId;
     public String deptId;
+    
+    public UserRoleC() {}
+
+    /**
+     * constructor
+     * @param id
+     * @param catCode
+     * @param posCode
+     * @param froleCode
+     * @param droleCode
+     * @param statCode
+     * @param corpId
+     * @param deptId
+     */
+    public UserRoleC(String id, int catCode, int posCode, int froleCode, int droleCode, int statCode, String corpId,
+            String deptId) {
+        this.id = id;
+        this.catCode = catCode;
+        this.posCode = posCode;
+        this.froleCode = froleCode;
+        this.droleCode = droleCode;
+        this.statCode = statCode;
+        this.corpId = corpId;
+        this.deptId = deptId;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public int getCatCode() {
+        return catCode;
+    }
+
+    public int getPosCode() {
+        return posCode;
+    }
+
+    public int getFroleCode() {
+        return froleCode;
+    }
+
+    public int getDroleCode() {
+        return droleCode;
+    }
+
+    public int getStatCode() {
+        return statCode;
+    }
+
+    public String getCorpId() {
+        return corpId;
+    }
+
+    public String getDeptId() {
+        return deptId;
+    }
 
     public UserRoleC setId(String id) {
         this.id = id;

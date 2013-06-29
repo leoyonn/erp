@@ -7,15 +7,16 @@
 package com.wiselink.dao;
 
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.List;
 
 import javax.management.relation.Role;
 
-import org.springframework.dao.DataAccessException;
-
 import net.paoding.rose.jade.annotation.DAO;
 import net.paoding.rose.jade.annotation.SQL;
 import net.paoding.rose.jade.annotation.SQLParam;
+
+import org.springframework.dao.DataAccessException;
 
 import com.wiselink.base.TableName;
 import com.wiselink.model.role.FuncRoleInfo;
@@ -79,6 +80,16 @@ public interface FuncRoleInfoDAO {
      */
     @SQL("SELECT * FROM " + TableName.FuncRoleInfo + " WHERE \"code\" >= :from AND ROWNUM <=:num ORDER BY \"code\"")
     public List<FuncRoleInfo> list(@SQLParam("from") int from, @SQLParam("num") int num) throws SQLException, DataAccessException;
+
+    /**
+     * list all func-roles in :codes sorted by {@link Role#code}  
+     * 
+     * @param from
+     * @param num
+     * @return
+     */
+    @SQL("SELECT * FROM " + TableName.FuncRoleInfo + " WHERE \"code\" IN (:codes) ORDER BY \"code\"")
+    public List<FuncRoleInfo> list(@SQLParam("codes") Collection<Integer>codes) throws SQLException, DataAccessException;
 
     /**
      * WARNING: only for unittest and debug!

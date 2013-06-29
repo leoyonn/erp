@@ -18,14 +18,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.wiselink.base.ApiResult;
 import com.wiselink.base.ApiStatus;
 import com.wiselink.base.AuthResult;
+import com.wiselink.base.AuthStatus;
 import com.wiselink.base.Constants;
 import com.wiselink.controllers.annotations.Trimmed;
 import com.wiselink.exception.ServiceException;
 import com.wiselink.service.UserService;
-import com.wiselink.utils.AuthUtils;
 import com.wiselink.utils.CookieUtils;
 import com.wiselink.utils.HttpUtils;
-import com.wiselink.utils.IdUtils;
 
 /**
  * @author leo
@@ -40,35 +39,26 @@ public class AuthController extends BaseController {
     @Get("login")
     public String login(Invocation inv, @Trimmed @Param("user") String user, @Param("password") String password) {
         LOGGER.error("login: {}:{}", user, password);
-        // 1. get user id from user
-        String userId = IdUtils.genUserId(user);
-        // 2. permission check
-        // TODO
-        // 3. check password
-        AuthResult authResult = userService.checkPassword(userId, password);
-        if (AuthResult.SUCCESS != authResult) {
-            return apiResult(ApiResult.authFailed(authResult));
+        // TODO: permission check
+        AuthResult authResult = userService.checkPassword(user, password, inv.getRequest().getRemoteAddr());
+        if (AuthStatus.SUCCESS != authResult.stat) {
+            return apiResult(ApiResult.authFailed(authResult.stat));
         }
-        // 4. save cookie
-        setCookie(inv, userId, password);
+        setCookie(inv, authResult);
         try {
-            return successResult(userService.getUser(userId).toJson());
+            return successResult(userService.getUser(user).toJson());
         } catch (ServiceException e) {
             return failResult(ApiStatus.DATA_QUERY_FAILED, "读取用户数据失败");
         }
     }
 
-    private boolean setCookie(Invocation inv, String userId, String password) {
+    private boolean setCookie(Invocation inv, AuthResult auth) {
         int expire = Constants.COOKIE_EXPIRE_SECONDS_2WEEK;
-        String sessionCode = AuthUtils.generateRandomAESKey();
-        CookieUtils.saveCookie(inv.getResponse(), Constants.COOKIE_KEY_USER_ID, userId, expire, "/",
+        CookieUtils.saveCookie(inv.getResponse(), Constants.COOKIE_KEY_USER_ID, auth.userId, expire, "/",
                 HttpUtils.getRootDomain(inv.getRequest()));
-        CookieUtils.saveCookie(inv.getResponse(), Constants.COOKIE_KEY_USER_ID, userId, expire, "/", "");
+        CookieUtils.saveCookie(inv.getResponse(), Constants.COOKIE_KEY_USER_ID, auth.userId, expire, "/", "");
         CookieUtils.saveCookie(inv.getResponse(), Constants.COOKIE_KEY_EXPIRE_TIME, String.valueOf(expire), expire, "/", "");
-        String userIp = inv.getRequest().getRemoteAddr();
-        String passToken = AuthUtils.genPassToken(userId, password, sessionCode, userIp);
-        CookieUtils.saveCookie(inv.getResponse(), Constants.COOKIE_KEY_PASS_TOKEN, passToken, expire, "/", "");
+        CookieUtils.saveCookie(inv.getResponse(), Constants.COOKIE_KEY_PASS_TOKEN, auth.passToken, expire, "/", "");
         return true;
     }
-
 }

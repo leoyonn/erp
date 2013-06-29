@@ -15,9 +15,10 @@ CREATE TABLE PICC."user_info"
   "desc"        VARCHAR2(256 CHAR),
   "province"    VARCHAR2(64 CHAR),
   "city"        VARCHAR2(64 CHAR),
-  "opUserId"    VARCHAR2(64 CHAR),
+  "createTime"  TIMESTAMP(6),
+  "creatorId"   VARCHAR2(64 CHAR),
   "updateTime"  TIMESTAMP(6),
-  "createTime"  TIMESTAMP(6)
+  "operId"      VARCHAR2(64 CHAR)
 )
 
 TABLESPACE PICCTABLE
@@ -49,3 +50,8 @@ ALTER TABLE PICC."user_info"
   PRIMARY KEY
   ("id")
   ENABLE VALIDATE;
+
+CREATE INDEX PICC."user_info_index" ON PICC."user_info"("account");  
+
+SELECT INDEX_NAME FROM ALL_INDEXES WHERE TABLE_NAME = 'PICC."user_info"';
+

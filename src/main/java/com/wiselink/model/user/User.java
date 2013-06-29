@@ -18,6 +18,44 @@ public class User implements Jsonable {
     public UserInfo info;
     public UserRole role;
 
+    /**
+     * constructor
+     * @param id
+     * @param info
+     * @param role
+     */
+    public User(String id, UserInfo info, UserRole role) {
+        this.id = id;
+        this.info = info;
+        this.role = role;
+    }
+
+    public User() {}
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public UserInfo getInfo() {
+        return info;
+    }
+
+    public void setInfo(UserInfo info) {
+        this.info = info;
+    }
+
+    public UserRole getRole() {
+        return role;
+    }
+
+    public void setRole(UserRole role) {
+        this.role = role;
+    }
+
     @Override
     public String toJson() {
         JSONObject json = new JSONObject();

@@ -7,6 +7,8 @@
 package com.wiselink.dao;
 
 import java.sql.SQLException;
+import java.util.Collection;
+import java.util.List;
 
 import net.paoding.rose.jade.annotation.DAO;
 import net.paoding.rose.jade.annotation.SQL;
@@ -47,4 +49,14 @@ public interface CorpDAO {
      */
     @SQL("SELECT * FROM " + TableName.Corp + " WHERE \"id\" = :id")
     public Corp find(@SQLParam("id") String id) throws SQLException, DataAccessException;
+
+    /**
+     * list all corps in :ids  
+     * 
+     * @param from
+     * @param num
+     * @return
+     */
+    @SQL("SELECT * FROM " + TableName.Corp + " WHERE \"id\" IN (:ids) ORDER BY \"id\"")
+    public List<Corp> list(@SQLParam("ids") Collection<String> ids) throws SQLException, DataAccessException;
 }
