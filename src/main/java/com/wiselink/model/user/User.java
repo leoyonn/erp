@@ -60,8 +60,12 @@ public class User implements Jsonable {
     public String toJson() {
         JSONObject json = new JSONObject();
         json.put("id", id);
-        json.put("info", info.toJson());
-        json.put("role", role.toJson());
+        if (info != null) {
+            json.put("info", info.toJson());
+        }
+        if (role != null) {
+            json.put("role", role.toJson());
+        }
         return json.toString();
     }
 

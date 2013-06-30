@@ -52,6 +52,13 @@ public interface DataRoleScopesDAO {
     public boolean delete(@SQLParam("roleCode") int roleCode, @SQLParam("orgId") String orgId) throws SQLException, DataAccessException;
 
     /**
+     * 删除角色对应的所有权限范围
+     * @return
+     */
+    @SQL("DELETE FROM " + TableName.DataRoleScopes + " WHERE \"roleCode\" = :roleCode")
+    public boolean deleteAll(@SQLParam("roleCode") int roleCode) throws SQLException, DataAccessException;
+
+    /**
      * 清除表中数据，慎用
      * @return
      */

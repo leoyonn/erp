@@ -171,6 +171,14 @@ public interface UserInfoDAO {
     public List<UserInfo> getUsersById(@SQLParam("ids") List<String> userIds) throws SQLException, DataAccessException;
 
     /**
+     * 获取所有的用户，调试使用
+     * @param userIds
+     * @return
+     */
+    @SQL("SELECT " + KEYS_NO_PASS + " FROM " + TableName.UserInfo + " ORDER BY \"id\"")
+    public List<UserInfo> all() throws SQLException, DataAccessException;
+
+    /**
      * WARNING: only for unittest and debug!
      * @return
      * @throws SQLException, DataAccessException

@@ -78,13 +78,27 @@ public class UserRole implements Jsonable {
     public String toJson() {
         JSONObject json = new JSONObject();
         json.put("id", id);
-        json.put("cat", cat.json);
-        json.put("stat", stat.json);
-        json.put("pos", pos.toJson());
-        json.put("frole", frole.toJson());
-        json.put("drole", drole.toJson());
-        json.put("corp", corp.toJson());
-        json.put("dept", dept.toJson());
+        if (cat != null) {
+            json.put("cat", cat.json);
+        }
+        if (stat != null) {
+            json.put("stat", stat.json);
+        }
+        if (pos != null) {
+            json.put("pos", pos.toJson());
+        }
+        if (frole != null) {
+            json.put("frole", frole.toJson());
+        }
+        if (drole != null) {
+            json.put("drole", drole.toJson());
+        }
+        if (corp != null) {
+            json.put("corp", corp.toJson());
+        }
+        if (dept != null) {
+            json.put("dept", dept.toJson());
+        }
         return json.toString();
     }
 

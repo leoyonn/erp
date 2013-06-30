@@ -24,7 +24,11 @@ public class ApiResult {
 
     private ApiStatus status;
 
-    private String result;
+    private String result = "";
+
+    public ApiResult(ApiStatus status) {
+        this.status = status;
+    }
 
     public ApiResult(ApiStatus status, String result) {
         this.status = status;

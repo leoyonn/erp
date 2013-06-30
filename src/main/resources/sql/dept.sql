@@ -6,6 +6,7 @@ CREATE TABLE PICC."dept"
 (
   "id"          VARCHAR2(64 CHAR)   NOT NULL,
   "name"        VARCHAR2(64 CHAR)   NOT NULL,
+  "desc"        VARCHAR2(128 CHAR),
   "deptType"    VARCHAR2(32 CHAR),
   "corpId"      VARCHAR2(32 CHAR)
 )

@@ -42,6 +42,7 @@ public class CorpService {
      * 新建一个公司
      * 
      * @param id
+     * @param type
      * @param name
      * @param desc
      * @param address
@@ -50,14 +51,36 @@ public class CorpService {
      * @return
      * @throws ServiceException
      */
-    public boolean newCorp(String id, String name, String desc, String address, String tel, String contact)
+    public boolean newCorp(String id, String type, String name, String desc, String address, String tel, String contact)
             throws ServiceException {
         try {
-            return corpDao.addCorp(id, name, desc, address, tel, contact);
+            return corpDao.addCorp(id, type, name, desc, address, tel, contact);
         } catch (Exception ex) {
             throw new ServiceException(ex);
         }
     }
+
+    /**
+     * 修改一个公司的信息
+     * @param id
+     * @param type
+     * @param name
+     * @param desc
+     * @param address
+     * @param tel
+     * @param contact
+     * @return
+     * @throws ServiceException
+     */
+    public boolean updateCorp(String id, String type, String name, String desc, String address, String tel, String contact)
+            throws ServiceException {
+        try {
+            return corpDao.updateCorp(id, type, name, desc, address, tel, contact);
+        } catch (Exception ex) {
+            throw new ServiceException(ex);
+        }
+    }
+
 
     /**
      * 查询一个公司
@@ -90,19 +113,52 @@ public class CorpService {
         }
     }
 
+    /**
+     * 获取所有的公司
+     * @return
+     * @throws ServiceException
+     */
+    public List<Corp> allCorps() throws ServiceException {
+        try {
+            return corpDao.all();
+        } catch (Exception ex) {
+            throw new ServiceException(ex);
+        }
+    }
+
 
     /**
      * 添加一个新的部门
+     * 
      * @param id
      * @param name
+     * @param desc
      * @param corpId
      * @param deptType
      * @return
-     * @throws ServiceException 
+     * @throws ServiceException
      */
-    public boolean newDept(String id,String name,String deptType,String corpId) throws ServiceException {
+    public boolean newDept(String id, String name, String desc, String deptType,String corpId) throws ServiceException {
         try {
-            return deptDao.addDept(id, name, deptType, corpId);
+            return deptDao.addDept(id, name, desc, deptType, corpId);
+        } catch (Exception ex) {
+            throw new ServiceException(ex);
+        }
+    }
+
+    /**
+     * 修改一个部门的信息
+     * @param id
+     * @param name
+     * @param desc
+     * @param deptType
+     * @param corpId
+     * @return
+     * @throws ServiceException
+     */
+    public boolean updateDept(String id, String name, String desc, String deptType,String corpId) throws ServiceException {
+        try {
+            return deptDao.updateDept(id, name, desc, deptType, corpId);
         } catch (Exception ex) {
             throw new ServiceException(ex);
         }
@@ -133,6 +189,32 @@ public class CorpService {
     public List<Dept> getDepts(Collection<String> ids) throws ServiceException {
         try {
             return deptDao.list(ids);
+        } catch (Exception ex) {
+            throw new ServiceException(ex);
+        }
+    }
+
+    /**
+     * 获取一个公司所有的部门列表
+     * @return
+     * @throws ServiceException
+     */
+    public List<Dept> allDepts(String corpId) throws ServiceException {
+        try {
+            return deptDao.all(corpId);
+        } catch (Exception ex) {
+            throw new ServiceException(ex);
+        }
+    }
+
+    /**
+     * 获取所有的部门列表
+     * @return
+     * @throws ServiceException
+     */
+    public List<Dept> allDepts() throws ServiceException {
+        try {
+            return deptDao.all();
         } catch (Exception ex) {
             throw new ServiceException(ex);
         }

@@ -27,7 +27,9 @@ public enum ApiStatus {
     INVALID_PARAMETER(00100, "无效参数"),
     
     DATA_INSERT_FAILED(00200, "添加数据失败"),
-    DATA_QUERY_FAILED(00201, "数据检索失败"),
+    DATA_UPDATE_FAILED(00201, "更新数据失败"),
+    DATA_DELETE_FAILED(00202, "删除数据失败"),
+    DATA_QUERY_FAILED(00203, "数据检索失败"),
     DATA_EMPTY(00203, "没有更多数据"),
     
     SERVICE_ERROR(00300, "数据读写或服务出现错误，请联系管理员"),

@@ -142,6 +142,7 @@ public class UserService {
     }
 
     /**
+     * 添加一个用户的角色信息
      * @param userId
      * @param catCode
      * @param posCode
@@ -153,10 +154,32 @@ public class UserService {
      * @return
      * @throws ServiceException
      */
-    public boolean addUserRole(String userId,int catCode,int posCode,int froleCode,int droleCode,
-            int statCode,String corpId,String deptId) throws ServiceException {
+    public boolean addUserRole(String userId, int catCode, int posCode, int froleCode, int droleCode,
+            int statCode, String corpId, String deptId) throws ServiceException {
         try {
             return userRoleDao.addUserRole(userId, catCode, posCode, froleCode, droleCode, statCode, corpId, deptId);
+        } catch (Exception ex) {
+            throw new ServiceException(ex);
+        }
+    }
+
+    /**
+     * 更新用户的所有角色信息
+     * @param userId
+     * @param catCode
+     * @param posCode
+     * @param froleCode
+     * @param droleCode
+     * @param statCode
+     * @param corpId
+     * @param deptId
+     * @return
+     * @throws ServiceException
+     */
+    public boolean updateUserRole(String userId, int catCode, int posCode, int froleCode, int droleCode,
+            int statCode, String corpId, String deptId) throws ServiceException {
+        try {
+            return userRoleDao.updateUserRole(userId, catCode, posCode, froleCode, droleCode, statCode, corpId, deptId);
         } catch (Exception ex) {
             throw new ServiceException(ex);
         }
@@ -217,6 +240,10 @@ public class UserService {
      */
     public User getUser(String id) throws ServiceException {
         UserInfo info = getUserInfo(id);
+        if (info == null) {
+            LOGGER.warn("no such user: {}", id);
+            return null;
+        }
         UserRole role = getUserRole(id);
         LOGGER.debug("got user: info:{}, role:{}, ", info, role);
         return new User(id, info, role);
@@ -292,14 +319,7 @@ public class UserService {
         }
     }
 
-    /**
-     * 非常重量级的函数
-     * @param userIds
-     * @return
-     * @throws ServiceException 
-     */
-    public Map<String, UserRole> getUserRoles(List<String> userIds) throws ServiceException {
-        // 1. read all user roleCs
+    public List<UserRoleC> getUserRoleCs(List<String> userIds) throws ServiceException {
         List<UserRoleC> rolecs = null;
         try {
             rolecs = userRoleDao.getRoles(userIds);
@@ -307,6 +327,17 @@ public class UserService {
             throw new ServiceException(ex);
         }
         LOGGER.debug("userids:{} got rolecs:{}", userIds, rolecs);
+        return rolecs;
+    }
+
+    /**
+     * 非常重量级的函数
+     * @param userIds
+     * @return
+     * @throws ServiceException 
+     */
+    public Map<String, UserRole> getUserRoles(List<UserRoleC> rolecs) throws ServiceException {
+        // 1. read all user roleCs
         // 2. init roles and code/ids of attributes
         Map<String, UserRole> roles = new HashMap<String, UserRole>();
         Map<Integer, FuncRoleInfo> froles = new HashMap<Integer, FuncRoleInfo>();
@@ -363,7 +394,8 @@ public class UserService {
      */
     public List<UserCard> getUserCards(List<String> userIds) throws ServiceException {
         List<UserInfo> infos = getUserInfos(userIds);
-        Map<String, UserRole> roles = getUserRoles(userIds);
+        List<UserRoleC> rolecs = getUserRoleCs(userIds);
+        Map<String, UserRole> roles = getUserRoles(rolecs);
         List<UserCard> cards = new ArrayList<UserCard>(infos.size()); 
         for (UserInfo info: infos) {
             UserRole role = roles.get(info.id);
@@ -379,20 +411,51 @@ public class UserService {
     }
 
     /**
-     * 
      * @param userIds
      * @return
      * @throws ServiceException
      */
     public List<User> getUsers(List<String> userIds) throws ServiceException {
         List<UserInfo> infos = getUserInfos(userIds);
-        Map<String, UserRole> roles = getUserRoles(userIds);
+        LOGGER.debug("got user infos:{}", infos);
+        List<UserRoleC> rolecs = getUserRoleCs(userIds);
+        Map<String, UserRole> roles = getUserRoles(rolecs);
+        LOGGER.debug("got user roles:{}", roles);
         List<User> users = new ArrayList<User>(infos.size()); 
         for (UserInfo info: infos) {
             UserRole role = roles.get(info.id);
             LOGGER.debug("filling user: from info:{}, role:{}...", info, role);
             users.add(new User(info.id, info, role));
         }
+        LOGGER.debug("got users:{}, ", users);
+        return users;
+    }
+    
+    /**
+     * 获取所有的用户，仅用于调试
+     * @return
+     * @throws ServiceException 
+     */
+    public List<User> all() throws ServiceException {
+        List<UserInfo> infos = Collections.emptyList();
+        List<UserRoleC> rolecs = Collections.emptyList();
+        try {
+            infos = userInfoDao.all();
+            LOGGER.debug("all user infos:{}", infos);
+            rolecs = userRoleDao.all();
+            LOGGER.debug("all user rolecs:{}", rolecs);
+        } catch (Exception ex) {
+            throw new ServiceException(ex);
+        }
+        Map<String, UserRole> roles = getUserRoles(rolecs);
+        LOGGER.debug("all user roles:{}", roles);
+        List<User> users = new ArrayList<User>(infos.size()); 
+        for (UserInfo info: infos) {
+            UserRole role = roles.get(info.id);
+            LOGGER.debug("filling user: from info:{}, role:{}...", info, role);
+            users.add(new User(info.id, info, role));
+        }
+        LOGGER.debug("all users:{}, ", users);
         return users;
     }
 }

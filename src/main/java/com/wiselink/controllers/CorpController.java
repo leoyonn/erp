@@ -6,8 +6,7 @@
  */
 package com.wiselink.controllers;
 
-import java.sql.SQLException;
-import java.util.Collection;
+import java.util.Arrays;
 import java.util.List;
 
 import net.paoding.rose.web.Invocation;
@@ -15,6 +14,7 @@ import net.paoding.rose.web.annotation.Param;
 import net.paoding.rose.web.annotation.Path;
 import net.paoding.rose.web.annotation.rest.Get;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,8 +23,6 @@ import com.wiselink.base.ApiStatus;
 import com.wiselink.controllers.annotations.Trimmed;
 import com.wiselink.exception.ServiceException;
 import com.wiselink.model.org.Corp;
-import com.wiselink.model.org.Dept;
-import com.wiselink.model.org.DeptType;
 import com.wiselink.model.org.OrgType;
 import com.wiselink.service.CorpService;
 
@@ -61,22 +59,54 @@ public class CorpController extends BaseController {
      */
     @SuppressWarnings("@Post")
     @Get("new")
-    public String newCorp(Invocation inv, @Trimmed @Param("id") String id, @Param("name") String name,
-            @Param("desc") String desc, @Param("address") String address, @Param("tel") String tel,
-            @Param("contact") String contact) {
+    public String newCorp(Invocation inv, @Trimmed @Param("id") String id, @Param("type") String type,
+            @Param("name") String name, @Param("desc") String desc, @Param("address") String address,
+            @Param("tel") String tel, @Param("contact") String contact) {
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("adding corp: {}|{}|{}|{}|{}|{}", new Object[]{id, name, desc, address, tel, contact});
+            LOGGER.debug("adding corp: {}|{}|{}|{}|{}|{}|{}", new Object[]{id, type, name, desc, address, tel, contact});
         }
         // TODO: id 检测，添加id util
         try {
-            if (corpService.newCorp(id, name, desc, address, tel, contact)) {
+            if (corpService.newCorp(id, type, name, desc, address, tel, contact)) {
                 LOGGER.debug("adding corp: {} success.", id);
-                return successResult(new Corp(id, name, desc, address, tel, contact).toJson());
+                return successResult();
             }
         } catch (ServiceException ex) {
             LOGGER.error("adding corp " + id + " got exception:", ex);
         }
         return failResult(ApiStatus.DATA_INSERT_FAILED);
+    }
+
+    /**
+     * 更新一个公司信息
+     * @param inv
+     * @param id
+     * @param type
+     * @param name
+     * @param desc
+     * @param address
+     * @param tel
+     * @param contact
+     * @return
+     */
+    @SuppressWarnings("@Post")
+    @Get("up")
+    public String updateCorp(Invocation inv, @Trimmed @Param("id") String id, @Param("type") String type,
+            @Param("name") String name, @Param("desc") String desc, @Param("address") String address,
+            @Param("tel") String tel, @Param("contact") String contact) {
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("updating corp: {}|{}|{}|{}|{}|{}|{}", new Object[]{id, type, name, desc, address, tel, contact});
+        }
+        // TODO: id 检测，添加id util
+        try {
+            if (corpService.updateCorp(id, type, name, desc, address, tel, contact)) {
+                LOGGER.debug("updating corp: {} success.", id);
+                return successResult();
+            }
+        } catch (ServiceException ex) {
+            LOGGER.error("updating corp " + id + " got exception:", ex);
+        }
+        return failResult(ApiStatus.DATA_UPDATE_FAILED);
     }
 
     /**
@@ -94,17 +124,24 @@ public class CorpController extends BaseController {
         } catch (ServiceException ex) {
             LOGGER.error("get corp " + id + " got exception:", ex);
         }
-        return failResult(ApiStatus.DATA_INSERT_FAILED);
+        return failResult(ApiStatus.DATA_QUERY_FAILED);
     }
 
     /**
+     * 获取一批公司
      * @param ids
      * @return
      */
     @Get("list")
-    public String getCorps(@Param("ids") Collection<String> ids) {
+    public String getCorps(@Param("ids") String ids) {
+        // TODO @NotBlank
+        if (StringUtils.isEmpty(ids)) {
+            return failResult(ApiStatus.INVALID_PARAMETER);
+        }
+        List<String> idlist = Arrays.asList(ids.split(","));
+        LOGGER.debug("getting corps:{}", idlist);
         try {
-            List<Corp> corps = corpService.getCorps(ids);
+            List<Corp> corps = corpService.getCorps(idlist);
             LOGGER.debug("get corps: {}.", corps);
             if (corps != null && corps.size() > 0) {
                 return successResult(corps);
@@ -112,76 +149,24 @@ public class CorpController extends BaseController {
         } catch (ServiceException ex) {
             LOGGER.error("get corp " + ids + " got exception:", ex);
         }
-        return failResult(ApiStatus.DATA_INSERT_FAILED);
-    }
-
-
-    /**
-     * 创建一个新的部门，name/id一旦设置不可更改
-     * @param inv
-     * @param id
-     * @param name
-     * @param deptType
-     * @param corpId
-     * @return
-     */
-    @SuppressWarnings("@Post")
-    @Get("new/dept")
-    public String newDept(Invocation inv, @Trimmed @Param("id") String id, @Param("name") String name,
-            @Param("deptType") String deptType, @Param("corpId") String corpId) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("adding corp: {}|{}|{}|{}|{}|{}", new Object[]{id, name, deptType, corpId});
-        }
-        // TODO 检查id合法性
-        try {
-            if (corpService.newDept(id, name, deptType, corpId)) {
-                LOGGER.debug("adding dept: {} success.", id);
-                return successResult(new Dept(id, name, deptType, corpId).toJson());
-            }
-        } catch (ServiceException ex) {
-            LOGGER.error("adding corp " + id + " got exception:", ex);
-        }
-        return failResult(ApiStatus.DATA_INSERT_FAILED);
+        return failResult(ApiStatus.DATA_QUERY_FAILED);
     }
     
     /**
-     * 获取一个部门信息
-     * @param id
-     * @return
-     * @throws SQLException, DataAccessException
-     */
-    @Get("dept/1")
-    public String getDept(String id) {
-        try {
-            Dept dept = corpService.getDept(id);
-            LOGGER.debug("get dept: {}.", dept);
-            if (dept != null) {
-                return successResult(dept);
-            }
-        } catch (ServiceException ex) {
-            LOGGER.error("get dept " + id + " got exception:", ex);
-        }
-        return failResult(ApiStatus.DATA_INSERT_FAILED);
-    }
-
-    /**
-     * list all depts in :ids  
-     * 
-     * @param from
-     * @param num
+     * 获取所有的公司
      * @return
      */
-    @Get("dept/list")
-    public String getDepts(Collection<String> ids) {
+    @Get("all")
+    public String allCorps() {
         try {
-            List<Dept> depts = corpService.getDepts(ids);
-            LOGGER.debug("get depts: {}.", depts);
-            if (depts != null && depts.size() > 0) {
-                return successResult(depts);
+            List<Corp> corps = corpService.allCorps();
+            LOGGER.debug("get corps: {}.", corps);
+            if (corps != null && corps.size() > 0) {
+                return successResult(corps);
             }
         } catch (ServiceException ex) {
-            LOGGER.error("get depts " + ids + " got exception:", ex);
+            LOGGER.error("get all corps got exception:", ex);
         }
-        return failResult(ApiStatus.DATA_INSERT_FAILED);
+        return failResult(ApiStatus.DATA_QUERY_FAILED);
     }
 }

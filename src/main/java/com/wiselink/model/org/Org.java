@@ -18,13 +18,47 @@ public class Org implements Jsonable {
     /** use {@link OrgType#cname} */
     public String type;
     public String name;
+    public String desc;
     
     public Org() {}
 
-    public Org(String orgId, String orgType, String orgName) {
+    public Org(String orgId, String orgType, String orgName, String desc) {
         this.id = orgId;
         this.type = orgType;
         this.name = orgName;
+        this.desc = desc;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDesc() {
+        return desc;
+    }
+
+    public void setDesc(String desc) {
+        this.desc = desc;
     }
 
     @Override

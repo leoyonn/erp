@@ -6,6 +6,7 @@
  */
 package com.wiselink.controllers;
 
+import java.util.Arrays;
 import java.util.List;
 
 import net.paoding.rose.web.Invocation;
@@ -31,7 +32,7 @@ import com.wiselink.utils.CookieUtils;
  */
 @Path("user")
 public class UserController extends BaseController {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AuthController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
 
     @Autowired
     private UserService userService;
@@ -182,6 +183,29 @@ public class UserController extends BaseController {
         return failResult(ApiStatus.DATA_INSERT_FAILED);
     }
 
+    @SuppressWarnings("@Post")
+    @Get("up/role")
+    public String updateUserRole(@Param("id") String userId,
+            @Param("catCode") int catCode,
+            @Param("posCode") int posCode,
+            @Param("froleCode") int froleCode,
+            @Param("droleCode") int droleCode,
+            @Param("statCode") int statCode,
+            @Param("corpId") String corpId,
+            @Param("deptId") String deptId) {
+        try {
+            boolean ok = userService.updateUserRole(userId, catCode, posCode, froleCode, droleCode,
+                    statCode, corpId, deptId);
+            if (ok) {
+                return successResult("修改用户角色属性成功");
+            }
+        } catch (ServiceException ex) {
+            LOGGER.error("update user role failed:" + userId, ex);
+            return failResult(ApiStatus.DATA_UPDATE_FAILED);
+        }
+        return failResult(ApiStatus.DATA_UPDATE_FAILED);
+    }
+
     /**
      * 获取一个用户，包括info和role
      * @param id
@@ -207,17 +231,43 @@ public class UserController extends BaseController {
      * @return
      */
     @Get("list")
-    public String getUsers(List<String> ids) {
+    public String getUsers(@Trimmed @Param("ids") String ids) {
+        // TODO @NotBlank
+        if (StringUtils.isEmpty(ids)) {
+            return failResult(ApiStatus.INVALID_PARAMETER);
+        }
+        List<String> idlist = Arrays.asList(ids.split(","));
+        LOGGER.debug("getting users:{}", idlist);
         try {
-            List<User> users = userService.getUsers(ids);
+            List<User> users = userService.getUsers(idlist);
+            LOGGER.debug("got users:{}", users);
             if (users != null && users.size() > 0) {
                 return successResult(users);
             }
         } catch (ServiceException ex) {
-            LOGGER.error("get users failed:" + ids, ex);
+            LOGGER.error("get users failed: " + idlist, ex);
             return failResult(ApiStatus.DATA_QUERY_FAILED);
         }
-        return failResult(ApiStatus.DATA_QUERY_FAILED);
+        return failResult(ApiStatus.DATA_EMPTY);
+    }
+
+    /**
+     * 获取所有用户，仅用于调试
+     * @return
+     */
+    @Get("all")
+    public String allUsers() {
+        try {
+            List<User> users = userService.all();
+            LOGGER.debug("got all users:{}", users);
+            if (users != null && users.size() > 0) {
+                return successResult(users);
+            }
+        } catch (ServiceException ex) {
+            LOGGER.error("get all users failed!", ex);
+            return failResult(ApiStatus.DATA_QUERY_FAILED);
+        }
+        return failResult(ApiStatus.DATA_EMPTY);
     }
 
     /**
@@ -225,7 +275,7 @@ public class UserController extends BaseController {
      * @return
      */
     @SuppressWarnings("@Post")
-    @Get("delete")
+    @Get("del")
     public String deleteUser(@Param("id") String userId) {
         // TODO permission check
         try {
@@ -235,8 +285,8 @@ public class UserController extends BaseController {
             }
         } catch (ServiceException ex) {
             LOGGER.error("delete user failed:" + userId, ex);
-            return failResult(ApiStatus.DATA_INSERT_FAILED);
+            return failResult(ApiStatus.DATA_DELETE_FAILED);
         }
-        return failResult(ApiStatus.DATA_INSERT_FAILED);
+        return failResult(ApiStatus.DATA_DELETE_FAILED);
     }
 }

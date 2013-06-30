@@ -245,6 +245,27 @@ public class FuncRoleService {
     }
 
     /**
+     * @param code
+     * @throws ServiceException
+     */
+    public boolean delete(int code) throws ServiceException {
+        try {
+            boolean ok = froleDao.delete(code);
+            LOGGER.debug("deleted func fole:{}: {}", code, ok);
+            if (!ok) {
+                return false;
+            }
+            ok = froleFuncsDao.deleteAll(code);
+            LOGGER.debug("deleted func fole funcs:{}: {}", code, ok);
+            ok = froleUsersDao.deleteAll(code);
+            LOGGER.debug("deleted func fole users:{}: {}", code, ok);
+        } catch (Exception ex) {
+            throw new ServiceException(ex);
+        }
+        return true;
+    }
+
+    /**
      * WARNING: only for unittest or debug.
      * @throws SQLException 
      * @throws DataAccessException 

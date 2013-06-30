@@ -221,4 +221,25 @@ public class DataRoleService {
         }
         return getDataRoleList(role);
     }
+
+    /**
+     * @param code
+     * @throws ServiceException
+     */
+    public boolean delete(int code) throws ServiceException {
+        try {
+            boolean ok = droleDao.delete(code);
+            LOGGER.debug("deleted data fole:{}: {}", code, ok);
+            if (!ok) {
+                return false;
+            }
+            ok = droleScopesDao.deleteAll(code);
+            LOGGER.debug("deleted data fole funcs:{}: {}", code, ok);
+            ok = droleUsersDao.deleteAll(code);
+            LOGGER.debug("deleted data fole users:{}: {}", code, ok);
+        } catch (Exception ex) {
+            throw new ServiceException(ex);
+        }
+        return true;
+    }
 }

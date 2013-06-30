@@ -17,6 +17,7 @@ import net.paoding.rose.jade.annotation.SQLParam;
 import org.springframework.dao.DataAccessException;
 
 import com.wiselink.base.TableName;
+import com.wiselink.model.user.UserInfo;
 import com.wiselink.model.user.UserRoleC;
 
 /**
@@ -71,11 +72,21 @@ public interface UserRoleDAO {
     public UserRoleC find(@SQLParam("id") String userId) throws SQLException, DataAccessException;
 
     /**
+     * 获取指定id列表中的所有用户角色信息
      * @param userIds
      * @return
      */
     @SQL("SELECT * FROM " + TableName.UserRole + " WHERE \"id\" IN (:ids) ORDER BY \"id\"")
     public List<UserRoleC> getRoles(@SQLParam("ids") Collection<String> userIds) throws SQLException, DataAccessException;
+
+    /**
+     * 获取所有用户，近
+     * @return
+     * @throws SQLException
+     * @throws DataAccessException
+     */
+    @SQL("SELECT * FROM " + TableName.UserRole + " ORDER BY \"id\"")
+    public List<UserRoleC> all() throws SQLException, DataAccessException;
 
     /**
      * WARNING: only for unittest and debug!

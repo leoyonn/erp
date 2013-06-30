@@ -26,11 +26,13 @@ import com.wiselink.model.org.Dept;
 public interface DeptDAO {
     String KEYS =" (\"id\", \"name\", \"deptType\", \"corpId\")";
     String VALUES = " VALUES (:id, :name, :deptType, :corpId)";
+    String KVS =" \"name\"=:name, \"deptType\"=:deptType, \"corpId\"=:corpId";
 
     /**
      * 添加一个新的部门
      * @param id
      * @param name
+     * @param desc
      * @param corpId
      * @param deptType
      * @return
@@ -39,6 +41,25 @@ public interface DeptDAO {
     @SQL("INSERT INTO " + TableName.Dept + KEYS + VALUES)
     public boolean addDept(@SQLParam("id") String id,
             @SQLParam("name") String name,
+            @SQLParam("desc") String desc,
+            @SQLParam("deptType") String deptType,
+            @SQLParam("corpId") String corpId) throws SQLException, DataAccessException;
+
+    /**
+     * 更新一个部门的信息
+     * @param id
+     * @param name
+     * @param desc
+     * @param deptType
+     * @param corpId
+     * @return
+     * @throws SQLException
+     * @throws DataAccessException
+     */
+    @SQL("UPDATE " + TableName.Dept + " SET " + KVS + " WHERE \"id\" = :id")
+    public boolean updateDept(@SQLParam("id") String id,
+            @SQLParam("name") String name,
+            @SQLParam("desc") String desc,
             @SQLParam("deptType") String deptType,
             @SQLParam("corpId") String corpId) throws SQLException, DataAccessException;
 
@@ -60,4 +81,23 @@ public interface DeptDAO {
      */
     @SQL("SELECT * FROM " + TableName.Dept + " WHERE \"id\" IN (:ids) ORDER BY \"id\"")
     public List<Dept> list(@SQLParam("ids") Collection<String> ids) throws SQLException, DataAccessException;
+
+    /**
+     * 获取一个公司所有的部门
+     * @return
+     * @throws SQLException
+     * @throws DataAccessException
+     */
+    @SQL("SELECT * FROM " + TableName.Dept + " WHERE \"corpId\"=:corpId ORDER BY \"id\"")
+    public List<Dept> all(@SQLParam("corpId") String corpId) throws SQLException, DataAccessException;
+
+    /**
+     * 获取所有部门列表
+     * @param ids
+     * @return
+     * @throws SQLException
+     * @throws DataAccessException
+     */
+    @SQL("SELECT * FROM " + TableName.Dept + " ORDER BY \"id\"")
+    public List<Dept> all() throws SQLException, DataAccessException;
 }

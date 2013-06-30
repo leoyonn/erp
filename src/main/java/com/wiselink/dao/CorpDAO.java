@@ -24,8 +24,10 @@ import com.wiselink.model.org.Corp;
  */
 @DAO
 public interface CorpDAO {
-    String KEYS =" (\"id\", \"name\", \"desc\", \"address\", \"tel\", \"contact\")";
-    String VALUES = " VALUES (:id, :name, :desc, :address, :tel, :contact)";
+    String KEYS =" (\"id\", \"type\", \"name\", \"desc\", \"address\", \"tel\", \"contact\")";
+    String VALUES = " VALUES (:id, :type, :name, :desc, :address, :tel, :contact)";
+    String KVS = " \"type\"=:type, \"name\"=:name, \"desc\"=:desc, \"address\"=:address, "
+            + "\"tel\"=:tel, \"contact\"=:contact";
 
     /**
      * add an corp into database
@@ -35,6 +37,23 @@ public interface CorpDAO {
      */
     @SQL("INSERT INTO " + TableName.Corp + KEYS + VALUES)
     public boolean addCorp(@SQLParam("id") String id,
+            @SQLParam("type") String type,
+            @SQLParam("name") String name,
+            @SQLParam("desc") String desc,
+            @SQLParam("address") String address,
+            @SQLParam("tel") String tel,
+            @SQLParam("contact") String contact) throws SQLException, DataAccessException;
+
+
+    /**
+     * update an corp into database
+     * @param corp
+     * @return
+     * @throws SQLException, DataAccessException
+     */
+    @SQL("UPDATE " + TableName.Corp + " SET " + KVS + " WHERE \"id\"=:id")
+    public boolean updateCorp(@SQLParam("id") String id,
+            @SQLParam("type") String type,
             @SQLParam("name") String name,
             @SQLParam("desc") String desc,
             @SQLParam("address") String address,
@@ -59,4 +78,13 @@ public interface CorpDAO {
      */
     @SQL("SELECT * FROM " + TableName.Corp + " WHERE \"id\" IN (:ids) ORDER BY \"id\"")
     public List<Corp> list(@SQLParam("ids") Collection<String> ids) throws SQLException, DataAccessException;
+
+    /**
+     * 获取所有的公司列表
+     * @return
+     * @throws SQLException
+     * @throws DataAccessException
+     */
+    @SQL("SELECT * FROM " + TableName.Corp + " ORDER BY \"id\"")
+    public List<Corp> all() throws SQLException, DataAccessException;
 }

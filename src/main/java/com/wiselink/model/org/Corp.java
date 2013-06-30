@@ -20,10 +20,34 @@ public class Corp extends Org {
 
     public Corp() {}
 
-    public Corp(String id, String type, String name, String address, String tel, String contact) {
-        super(id, type, name);
+    public Corp(String id, String type, String name, String desc, String address, String tel, String contact) {
+        super(id, type, name, desc);
         this.address = address;
         this.tel = tel;
+        this.contact = contact;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getTel() {
+        return tel;
+    }
+
+    public void setTel(String tel) {
+        this.tel = tel;
+    }
+
+    public String getContact() {
+        return contact;
+    }
+
+    public void setContact(String contact) {
         this.contact = contact;
     }
 

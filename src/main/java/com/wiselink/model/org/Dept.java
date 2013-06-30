@@ -21,9 +21,25 @@ public class Dept extends Org {
         super.type = OrgType.Dept.cname;
     }
 
-    public Dept(String id, String name, String deptType, String corpId) {
-        super(id, OrgType.Dept.cname, name);
+    public Dept(String id, String name, String desc, String deptType, String corpId) {
+        super(id, OrgType.Dept.cname, name, desc);
         this.deptType = deptType;
+        this.corpId = corpId;
+    }
+
+    public String getDeptType() {
+        return deptType;
+    }
+
+    public void setDeptType(String deptType) {
+        this.deptType = deptType;
+    }
+
+    public String getCorpId() {
+        return corpId;
+    }
+
+    public void setCorpId(String corpId) {
         this.corpId = corpId;
     }
 
@@ -43,6 +59,6 @@ public class Dept extends Org {
     }
     
     public static void main(String[] args) {
-        System.out.println(new Dept("1", "3", "4", "5").toJson());
+        System.out.println(new Dept("1", "3", "4", "5", "6").toJson());
     }
 }

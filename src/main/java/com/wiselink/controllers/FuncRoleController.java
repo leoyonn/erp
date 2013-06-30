@@ -243,4 +243,25 @@ public class FuncRoleController extends BaseController {
             return failResult(ApiStatus.SERVICE_ERROR);
         }
     }
+
+    /**
+     * 删除指定功能角色
+     * @param code
+     * @return
+     */
+    @SuppressWarnings("@Post")
+    @Get("del")
+    public String delete(@Param("code") int code) {
+        LOGGER.debug("deleting func role: {}", code);
+        try {
+            boolean ok = froleService.delete(code);
+            if (!ok) {
+                return failResult(ApiStatus.DATA_DELETE_FAILED);
+            }
+            return successResult();
+        } catch (ServiceException ex) {
+            LOGGER.error("delete func role " + code + " got exception!", ex);
+            return failResult(ApiStatus.SERVICE_ERROR);
+        }
+    }
 }

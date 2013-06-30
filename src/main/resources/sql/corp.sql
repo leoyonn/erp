@@ -7,6 +7,7 @@ CREATE TABLE PICC."corp"
   "id"          VARCHAR2(64 CHAR)   NOT NULL,
   "type"        VARCHAR2(16 CHAR)   NOT NULL,
   "name"        VARCHAR2(64 CHAR)   UNIQUE NOT NULL,
+  "desc"        VARCHAR2(128 CHAR),
   "address"     VARCHAR2(128 CHAR),
   "contact"     VARCHAR2(32 CHAR),
   "tel"         VARCHAR2(32 CHAR)

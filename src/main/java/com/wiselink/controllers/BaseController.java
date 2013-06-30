@@ -23,6 +23,10 @@ public abstract class BaseController {
         return "@json:" + res.toJson();
     }
 
+    protected String successResult() {
+        return "@json:" + new ApiResult(ApiStatus.SUCCESS);    
+    }
+
     protected String successResult(String result) {
         return "@json:" + new ApiResult(ApiStatus.SUCCESS, result);    
     }
