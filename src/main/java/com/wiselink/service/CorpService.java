@@ -165,6 +165,20 @@ public class CorpService {
     }
 
     /**
+     * 删除指定部门
+     * @param id
+     * @return
+     * @throws ServiceException
+     */
+    public boolean deleteDept(String id) throws ServiceException {
+        try {
+            return deptDao.delete(id);
+        } catch (Exception ex) {
+            throw new ServiceException(ex);
+        }
+    }
+
+    /**
      * 获取一个部门信息
      * @param id
      * @return

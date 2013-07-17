@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.wiselink.base.ApiStatus;
 import com.wiselink.base.Constants;
+import com.wiselink.controllers.annotations.LoginRequired;
 import com.wiselink.exception.ServiceException;
 import com.wiselink.model.role.DataLevel;
 import com.wiselink.model.role.DataRole;
@@ -35,6 +36,7 @@ import com.wiselink.utils.Utils;
  * @author leo
  */
 @Path("drole")
+@LoginRequired
 public class DataRoleController extends BaseController {
     private static final Logger LOGGER = LoggerFactory.getLogger(FuncRoleController.class);
 

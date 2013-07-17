@@ -11,8 +11,6 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 /**
  * @author leo
@@ -23,10 +21,14 @@ public class Config {
     private String appHome;
     private final static Config instance;
     static {
-        ApplicationContext ctx = new ClassPathXmlApplicationContext("classpath:applicationContext.xml");
-        instance = ((Config)ctx.getBean("config"));
-        System.out.println(Config.class.getResource("/").getPath());
-        LOGGER.info("got config: appHome:" + instance.appHome);
+        System.out.println(Config.class.getResource("/"));
+        // ApplicationContext ctx = new
+        // ClassPathXmlApplicationContext("classpath:applicationContext.xml");
+        instance = new Config();
+        instance.appHome = "G:/j4/erp/target/erp-0.0.1-SNAPSHOT/";
+        // instance = ((Config)ctx.getBean("config"));
+        // System.out.println(Config.class.getResource("/").getPath());
+        LOGGER.info("got config: home:{}, appHome{}:", Config.class.getResource("/"), instance.appHome);
     }
 
     public static Config getInstance() {
@@ -35,14 +37,6 @@ public class Config {
     
     public void setAppHome(String appHome) {
         this.appHome = appHome;
-    }
-
-    static {
-//        appHome = System.getProperty("webapp.root") + "/WEB-INF/";
-//        LOGGER.debug("{DEBUG} got WEB_HOME:" + WEB_HOME);
-//        LOGGER.info("{INFO} got WEB_HOME:" + WEB_HOME);
-//        LOGGER.warn("{WARN} got WEB_HOME:" + WEB_HOME);
-//        LOGGER.error("{ERROR} got WEB_HOME:" + WEB_HOME);
     }
     
     /**
@@ -85,5 +79,15 @@ public class Config {
      */
     public String path(String file) {
         return appHome + "" + file;
+    }
+
+    /**
+     * 用户的头像地址
+     * 
+     * @param uid
+     * @return
+     */
+    public String avatarUrl(String uid) {
+        return "avatar/u." + uid + ".jpg";
     }
 }

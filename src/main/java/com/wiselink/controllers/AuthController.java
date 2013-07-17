@@ -20,8 +20,8 @@ import com.wiselink.base.ApiStatus;
 import com.wiselink.base.AuthResult;
 import com.wiselink.base.AuthStatus;
 import com.wiselink.base.Constants;
-import com.wiselink.controllers.annotations.Trimmed;
 import com.wiselink.exception.ServiceException;
+import com.wiselink.model.user.User;
 import com.wiselink.service.UserService;
 import com.wiselink.utils.CookieUtils;
 import com.wiselink.utils.HttpUtils;
@@ -37,7 +37,7 @@ public class AuthController extends BaseController {
     
     @SuppressWarnings("@Post")
     @Get("login")
-    public String login(Invocation inv, @Trimmed @Param("user") String user, @Param("password") String password) {
+    public String login(Invocation inv, @NotBlank @Param("user") String user, @NotBlank @Param("password") String password) {
         LOGGER.error("login: {}:{}", user, password);
         // TODO: permission check
         AuthResult authResult = userService.checkPassword(user, password, inv.getRequest().getRemoteAddr());
@@ -45,11 +45,29 @@ public class AuthController extends BaseController {
             return apiResult(ApiResult.authFailed(authResult.stat));
         }
         setCookie(inv, authResult);
+        User u = null;
         try {
-            return successResult(userService.getUser(user).toJson());
+            u = userService.getUserById(authResult.userId);
         } catch (ServiceException e) {
             return failResult(ApiStatus.DATA_QUERY_FAILED, "读取用户数据失败");
         }
+        if (u == null) {
+            return failResult(ApiStatus.DATA_QUERY_FAILED, "读取用户数据失败");
+        }
+        return successResult(u.toJson());
+    }
+
+    /**
+     * 退出登录
+     * @param inv
+     * @return
+     */
+    @SuppressWarnings("@Post")
+    @Get("logout")
+    public String logout(Invocation inv) {
+        LOGGER.error("logout: {}", inv);
+        CookieUtils.clearCookies(inv);
+        return successResult("退出登录成功");
     }
 
     private boolean setCookie(Invocation inv, AuthResult auth) {
@@ -60,5 +78,22 @@ public class AuthController extends BaseController {
         CookieUtils.saveCookie(inv.getResponse(), Constants.COOKIE_KEY_EXPIRE_TIME, String.valueOf(expire), expire, "/", "");
         CookieUtils.saveCookie(inv.getResponse(), Constants.COOKIE_KEY_PASS_TOKEN, auth.passToken, expire, "/", "");
         return true;
+    }
+
+    @Get("check")
+    public String check(Invocation inv) {
+        String userId = CookieUtils.getUserId(inv);
+        LOGGER.info("got user from cookie: {}", userId);
+        User u = null;
+        try {
+            u = userService.getUserById(userId);
+        } catch (ServiceException ex) {
+            LOGGER.error("got user from cookie: " + userId, ex);
+            return failResult(ApiStatus.DATA_QUERY_FAILED, "读取用户数据失败");
+        }
+        if (u == null) {
+            return failResult(ApiStatus.DATA_QUERY_FAILED, "读取用户数据失败");
+        }
+        return successResult(u);
     }
 }

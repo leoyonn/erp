@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.wiselink.base.ApiStatus;
+import com.wiselink.controllers.annotations.LoginRequired;
 import com.wiselink.controllers.annotations.Trimmed;
 import com.wiselink.exception.ServiceException;
 import com.wiselink.model.org.Corp;
@@ -31,6 +32,7 @@ import com.wiselink.service.CorpService;
  * @author leo
  */
 @Path("corp")
+@LoginRequired
 public class CorpController extends BaseController {
     private static final Logger LOGGER = LoggerFactory.getLogger(CorpController.class);
     @Autowired

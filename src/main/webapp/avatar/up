@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>上传用户头像</title>
+        <link rel="stylesheet" href="/css/styles.css" />
+        <link rel="stylesheet" href="/css/scroll.css" />
+        <link rel="stylesheet" href="/css/falls.css" />
+        <!--[if lt IE 9]>
+            <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+    </head>
+
+    <body>
+        <header>
+            <h1>上传用户头像</h1>
+        </header>
+        <div>
+            <a class="btn_addPic" href="javascript:void(0);">
+                <span><em>+</em>点击上传用户头像图片(可输入网址)</span>
+                <input class="filePrew" tabindex="3" type="file" name="imageFile" id="imageFile" size="3" onchange="up(this)">
+            </a>
+        </div>
+        <div id="dropbox">
+            <span class="message">或直接拖动头像图片扔在此处<br/></span>
+        </div>
+
+        <footer>
+            <h2>PICC耗材管理系统</h2>
+            <a class="footlogo" href="http://erp.picc.com"></a>
+        </footer>
+
+        <!-- Including The jQuery Library -->
+        <script src="http://code.jquery.com/jquery-latest.js"></script>
+
+        <!-- Including the HTML5 Uploader plugin -->
+        <script src="/js/jquery.filedrop.js"></script>
+
+        <!-- The main script file -->
+        <script src="/js/script.js"></script>
+        <script src="/js/upfile.js"></script>
+        <script src="/js/delimage.js"></script>
+        <script src="/js/falls.js"></script>
+
+    </body>
+</html>
+

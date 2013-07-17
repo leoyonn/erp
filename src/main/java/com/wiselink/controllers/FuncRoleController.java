@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.wiselink.base.ApiStatus;
 import com.wiselink.base.Constants;
+import com.wiselink.controllers.annotations.LoginRequired;
 import com.wiselink.exception.ServiceException;
 import com.wiselink.model.role.FuncModule;
 import com.wiselink.model.role.FuncRole;
@@ -37,6 +38,7 @@ import com.wiselink.utils.Utils;
  * @author leo
  */
 @Path("frole")
+@LoginRequired
 public class FuncRoleController extends BaseController {
     private static final Logger LOGGER = LoggerFactory.getLogger(FuncRoleController.class);
 

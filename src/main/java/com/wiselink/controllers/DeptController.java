@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.wiselink.base.ApiStatus;
+import com.wiselink.controllers.annotations.LoginRequired;
 import com.wiselink.controllers.annotations.Trimmed;
 import com.wiselink.exception.ServiceException;
 import com.wiselink.model.org.Dept;
@@ -33,6 +34,7 @@ import com.wiselink.service.CorpService;
  * @author leo
  */
 @Path("dept")
+@LoginRequired
 public class DeptController  extends BaseController {
     private static final Logger LOGGER = LoggerFactory.getLogger(DeptController.class);
     @Autowired
@@ -72,7 +74,7 @@ public class DeptController  extends BaseController {
     public String newDept(Invocation inv, @Trimmed @Param("id") String id, @Param("name") String name,
             @Param("desc") String desc, @Param("deptType") String deptType, @Param("corpId") String corpId) {
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("adding corp: {}|{}|{}|{}", new Object[]{id, name, deptType, corpId});
+            LOGGER.debug("adding dept: {}|{}|{}|{}", new Object[]{id, name, deptType, corpId});
         }
         // TODO 检查id合法性
         try {
@@ -116,13 +118,33 @@ public class DeptController  extends BaseController {
     }
     
     /**
+     * @param id
+     * @return
+     */
+    @SuppressWarnings("@Post")
+    @Get("del")
+    public String deleteDept(@Param("id") String deptId) {
+        // TODO permission check
+        try {
+            boolean ok = corpService.deleteDept(deptId);
+            if (ok) {
+                return successResult("删除部门成功");
+            }
+        } catch (ServiceException ex) {
+            LOGGER.error("delete dept failed:" + deptId, ex);
+            return failResult(ApiStatus.DATA_DELETE_FAILED);
+        }
+        return failResult(ApiStatus.DATA_DELETE_FAILED);
+    }
+
+    /**
      * 获取一个部门信息
      * @param id
      * @return
      * @throws SQLException, DataAccessException
      */
     @Get("1")
-    public String getDept(String id) {
+    public String getDept(@Param("id") String id) {
         try {
             Dept dept = corpService.getDept(id);
             LOGGER.debug("get dept: {}.", dept);

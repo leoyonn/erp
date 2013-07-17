@@ -200,6 +200,15 @@ public class UserService {
         }
     }
 
+    public UserPass getPasswordById(String userId) {
+        try {
+            return userInfoDao.getPasswordById(userId);
+        } catch (Exception ex) {
+            LOGGER.error("get pass [" + userId + "] got exception:", ex);
+            return null;
+        }
+    }
+
     /**
      * user可以是account或id，都支持。account中必须包含字幕，id中必须全为数字。
      * @param user
@@ -229,7 +238,7 @@ public class UserService {
         }
         String sessionCode = AuthUtils.generateRandomAESKey();
         String passToken = AuthUtils.genPassToken(pass, sessionCode, userIp);
-        return new AuthResult(AuthStatus.SUCCESS, user, passToken);
+        return new AuthResult(AuthStatus.SUCCESS, pass.id, passToken);
     }
 
     /**
@@ -238,8 +247,8 @@ public class UserService {
      * @return
      * @throws ServiceException
      */
-    public User getUser(String id) throws ServiceException {
-        UserInfo info = getUserInfo(id);
+    public User getUserById(String id) throws ServiceException {
+        UserInfo info = getUserInfoById(id);
         if (info == null) {
             LOGGER.warn("no such user: {}", id);
             return null;
@@ -250,13 +259,45 @@ public class UserService {
     }
 
     /**
-     * @param userId
+     * 获取一个用户，包括info和role
+     * 
+     * @param id
      * @return
      * @throws ServiceException
      */
-    public UserInfo getUserInfo(String userId) throws ServiceException {
+    public User getUserByAccount(String account) throws ServiceException {
+        UserInfo info = getUserInfoByAccount(account);
+        if (info == null) {
+            LOGGER.warn("no such user: {}", account);
+            return null;
+        }
+        UserRole role = getUserRole(info.id);
+        LOGGER.debug("got user: info:{}, role:{}, ", info, role);
+        return new User(info.id, info, role);
+    }
+
+    /**
+     * @param id
+     * @return
+     * @throws ServiceException
+     */
+    public UserInfo getUserInfoById(String id) throws ServiceException {
         try {
-            return userInfoDao.getUserById(userId);
+            return userInfoDao.getUserById(id);
+        } catch (Exception ex) {
+            throw new ServiceException(ex);
+        }
+    }
+
+    /**
+     * 
+     * @param account
+     * @return
+     * @throws ServiceException
+     */
+    public UserInfo getUserInfoByAccount(String account) throws ServiceException {
+        try {
+            return userInfoDao.getUserById(account);
         } catch (Exception ex) {
             throw new ServiceException(ex);
         }

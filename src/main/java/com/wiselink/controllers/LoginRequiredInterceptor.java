@@ -13,12 +13,14 @@ import net.paoding.rose.web.Invocation;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.wiselink.base.ApiResult;
 import com.wiselink.base.AuthStatus;
 import com.wiselink.base.Constants;
 import com.wiselink.controllers.LoginRequiredChecker.LoginRequiredCheckResult;
 import com.wiselink.controllers.annotations.LoginRequired;
+import com.wiselink.dao.UserInfoDAO;
 
 /**
  * @author leo
@@ -26,10 +28,14 @@ import com.wiselink.controllers.annotations.LoginRequired;
 public class LoginRequiredInterceptor extends ControllerInterceptorAdapter {
     private static final Logger LOGGER = LoggerFactory.getLogger(LoginRequiredInterceptor.class);
 
+    @Autowired
+    private UserInfoDAO userInfoDao;
+    
     private LoginRequiredChecker checker;
 
     public LoginRequiredInterceptor() {
-        checker = new LoginRequiredChecker();
+        LOGGER.info("userInfoDao: {}", userInfoDao);
+        checker = new LoginRequiredChecker(userInfoDao);
     }
 
     @Override
@@ -44,11 +50,9 @@ public class LoginRequiredInterceptor extends ControllerInterceptorAdapter {
 
     @Override
     public Object before(Invocation inv) throws Exception {
-        LOGGER.error("error: enter LoginRequiredInterceptor with invocation: {}...", inv);
-        LOGGER.warn("warn: enter LoginRequiredInterceptor with invocation: {}...", inv);
         LOGGER.debug("enter LoginRequiredInterceptor with invocation: {}...", inv);
         LoginRequiredCheckResult result = checker.doCheck(inv.getRequest(), null, true);
-        LOGGER.debug("exit ssorequired, result {}", result.success);
+        LOGGER.debug("exit sso required, result {}", result.success);
         if (result.success) {
             inv.addModel("uuid", result.uuid);
             inv.addModel("ssecurity", result.ssecurity);

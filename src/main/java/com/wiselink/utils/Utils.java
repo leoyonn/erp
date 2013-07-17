@@ -8,6 +8,7 @@ package com.wiselink.utils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -94,5 +95,69 @@ public class Utils {
         j.put("name", name);
         j.put("desc", desc);
         return j.toString();
+    }
+
+    /**
+     * 工厂方法, 由对象 Class 创建一个 {@link ThreadLocal} 对象
+     * 
+     * @param clazz
+     * @param initNum
+     * @param maxNum
+     * @return
+     */
+    public static <T> ThreadLocal<T> threadLocalFromClass(final Class<T> clazz) {
+        return new ThreadLocal<T>(){
+            @Override
+            protected T initialValue() {
+                try {
+                    return clazz.newInstance();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        };
+    }
+
+    /**
+     * 从文件路径中获取后缀名
+     * @param path
+     * @return
+     */
+    public static String getFileExtFromPath(String path) {
+        if (path == null || path.length() == 0) {
+            return null;
+        }
+        int idx = path.lastIndexOf('.');
+        if (idx < 0 || idx == path.length() - 1) {
+            return null;
+        }
+        String ext = path.substring(idx);
+        if (ext.length() > 5 || ext.length() < 2 || ext.contains("/") || ext.contains("\\")) {
+            return null;
+        }
+        return ext;
+    }
+
+    /**
+     * features can be single-obj or obj-arrays, sum-up all counts.
+     * 
+     * @param features
+     * @return
+     */
+    public static int fullSize(Object... features) {
+        if (features == null) {
+            return 0;
+        }
+        int size = 0;
+        for (Object feature: features) {
+            if (feature instanceof Object[]) {
+                size += ((Object[]) feature).length;
+            } else if (feature instanceof Collection) {
+                size += ((Collection<?>) feature).size();
+            } else {
+                size++;
+            }
+        }
+        return size;
     }
 }

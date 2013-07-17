@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import com.wiselink.base.ApiResult;
 import com.wiselink.base.ApiStatus;
+import com.wiselink.base.Config;
 import com.wiselink.controllers.annotations.LoginRequired;
 
 /**
@@ -27,6 +28,7 @@ public class HelloController {
     @Get("")
     public String index(Invocation inv) {
         LOGGER.debug("welcome to index");
+        LOGGER.debug("welcome to index, appHome is: " + Config.getInstance().appHome());
         return "@json:" + new ApiResult(ApiStatus.SUCCESS, "welcome to picc home page.!!").toJson();
     }
 

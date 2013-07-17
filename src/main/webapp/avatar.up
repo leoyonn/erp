@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>PICC耗材管理系统头像上传工具</title>
+	<link rel="stylesheet" media="screen" href="styles.css" >
+    <style>
+    .contact_form{padding-top:40px;}
+	.title {background-color:rgba(0,0,0,0.56); text-align:center; width:100%; position:fixed; top:0; left:0; padding:5px 0;}
+.title a {color:#FFF; text-decoration:none; font-size:16px; font-weight:bolder; line-height:24px;}
+    </style>
+</head>
+<body>
+<div class="title"><a href="">PICC耗材管理系统辅助工具</a></div>
+<form class="contact_form" action="avatar/up" method="post" enctype="MULTIPART/FORM-DATA"  name="contact_form">
+    <ul>
+        <li>
+             <h2>头像上传</h2>
+             <span class="required_notification">* 表示必填项</span>
+        </li>
+        <li>
+            <label for="name">用户ID：</label>
+            <input type="text"  name="userId" id="userId" placeholder="010203040506" required />
+        </li>
+        <li>
+            <label for="name">头像图片: </label>
+            <input type="file"  name="file" id="file" required />
+        </li>
+        <li>
+        	<button class="submit" type="submit">上传头像！</button>
+        </li>
+    </ul>
+</form>
+</body>
+</html>

@@ -24,9 +24,9 @@ import com.wiselink.model.org.Dept;
  */
 @DAO
 public interface DeptDAO {
-    String KEYS =" (\"id\", \"name\", \"deptType\", \"corpId\")";
-    String VALUES = " VALUES (:id, :name, :deptType, :corpId)";
-    String KVS =" \"name\"=:name, \"deptType\"=:deptType, \"corpId\"=:corpId";
+    String KEYS =" (\"id\", \"name\", \"desc\", \"deptType\", \"corpId\")";
+    String VALUES = " VALUES (:id, :name, :desc, :deptType, :corpId)";
+    String KVS =" \"name\"=:name, \"desc\"=:desc, \"deptType\"=:deptType, \"corpId\"=:corpId";
 
     /**
      * 添加一个新的部门
@@ -100,4 +100,14 @@ public interface DeptDAO {
      */
     @SQL("SELECT * FROM " + TableName.Dept + " ORDER BY \"id\"")
     public List<Dept> all() throws SQLException, DataAccessException;
+
+    /**
+     * 删除
+     * @param id
+     * @return
+     * @throws SQLException
+     * @throws DataAccessException
+     */
+    @SQL("DELETE FROM " + TableName.Dept + "WHERE \"id\"=:id")
+    public boolean delete(@SQLParam("id") String id) throws SQLException, DataAccessException;
 }

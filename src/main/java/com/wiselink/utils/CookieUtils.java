@@ -61,15 +61,29 @@ public class CookieUtils {
     }
 
     public static void clearCookie(HttpServletResponse response, String key, int second, String path, String domain) {
-        if (key.equals("xng")) {
-            new Throwable().printStackTrace(System.out);
-        }
         response.addCookie(createCookie(key, null, second, path, domain, false));
     }
 
     public static void expireCookie(HttpServletResponse response, String key, String path, String domain) {
         response.addCookie(createCookie(key, "EXPIRED", 0, path, domain, false));
     }
+
+    /**
+     * 清空cookie
+     * @param inv
+     */
+    public static void clearCookies(Invocation inv) {
+        Cookie[] cookies = inv.getRequest().getCookies();
+        if (cookies != null) {
+            for (Cookie cookie: cookies) {
+                cookie.setMaxAge(0);
+                cookie.setPath("/");
+                cookie.setValue(null);
+                inv.getResponse().addCookie(cookie);
+            }
+        }
+    }
+
 
     private static Cookie createCookie(String key, String value, int maxAge, String path, String domain, boolean secure) {
         Cookie cookie = new Cookie(key, value);

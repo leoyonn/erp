@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.wiselink.base.ApiStatus;
+import com.wiselink.controllers.annotations.LoginRequired;
 import com.wiselink.controllers.annotations.Trimmed;
 import com.wiselink.exception.ServiceException;
 import com.wiselink.model.user.User;
@@ -31,6 +32,7 @@ import com.wiselink.utils.CookieUtils;
  * @author leo
  */
 @Path("user")
+@LoginRequired
 public class UserController extends BaseController {
     private static final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
 
@@ -212,9 +214,14 @@ public class UserController extends BaseController {
      * @return
      */
     @Get("1")
-    public String getUser(@Param("id") String id) {
+    public String getUser(@Param("id") String id, @Param("account") String account) {
+        User user = null;
         try {
-            User user = userService.getUser(id);
+            if (StringUtils.isEmpty(id)) {
+                user = userService.getUserById(id);
+            } else {
+                user = userService.getUserByAccount(account);
+            }
             if (user != null) {
                 return successResult(user);
             }

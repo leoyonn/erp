@@ -9,6 +9,8 @@ package com.wiselink.base;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
  * @author leo
  */
@@ -36,12 +38,14 @@ public class ApiResult {
     }
 
     public String toJson() {
-        if (!result.startsWith("[") && !result.startsWith("{")) {
+        if (StringUtils.isEmpty(result)) {
+            result = "\"\"";
+        } else if (!result.startsWith("[") && !result.startsWith("{") && !result.startsWith("\"")) {
             result = "\"" + result + "\"";
         }
         return "{\"status\":" + status.toJson() + ",\"result\":" + result + "}";
     }
-    
+
     public String toString() {
         return toJson();
     }

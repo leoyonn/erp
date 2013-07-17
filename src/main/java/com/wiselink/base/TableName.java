@@ -21,4 +21,5 @@ public interface TableName {
     String DataRoleUsers = "PICC.\"data_role_users\"";
     String Corp = "PICC.\"corp\"";
     String Dept = "PICC.\"dept\"";
+    String Avatar = "PICC.\"avatar\"";
 }

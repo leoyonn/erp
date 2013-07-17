@@ -14,11 +14,11 @@ import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
+import com.google.gson.Gson;
 import com.wiselink.base.Constants;
-import com.wiselink.dao.UserInfoDAO;
 import com.wiselink.model.user.UserPass;
+import com.wiselink.service.UserService;
 import com.wiselink.utils.AuthUtils;
 import com.wiselink.utils.CookieUtils;
 
@@ -27,15 +27,26 @@ import com.wiselink.utils.CookieUtils;
  * @author leo
  */
 public class LoginRequiredChecker {
-    private static final Logger LOGGER = LoggerFactory.getLogger(LoginRequiredInterceptor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LoginRequiredChecker.class);
 
-    @Autowired
-    private UserInfoDAO userDao;
+    private UserService userService;
 
     public static class LoginRequiredCheckResult {
         public boolean success = false;
         public String ssecurity;
         public String uuid;
+
+        public String toString() {
+            return new Gson().toJson(this, getClass());
+        }
+    }
+
+    /**
+     * constructor
+     * @param userInfoDao
+     */
+    public LoginRequiredChecker() {
+        this.userService = new UserService();
     }
 
     /**
@@ -96,7 +107,7 @@ public class LoginRequiredChecker {
         try {
             JSONObject tokenJson = AuthUtils.checkPassToken(token);
             String userId = AuthUtils.getUserIdFromPassToken(tokenJson);
-            UserPass pass = userDao.getPasswordById(userId);
+            UserPass pass = userService.getPasswordById(userId);
             return AuthUtils.validateToken(token, userId, pass);
         } catch (Exception ex) {
             // SQLException, SecurityException, JSONException

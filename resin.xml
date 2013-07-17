@@ -86,6 +86,7 @@
       <jvm-arg>-Xmx1024M</jvm-arg>
       <jvm-arg>-Xms512M</jvm-arg>
       <jvm-arg>-Xmn80M</jvm-arg>
+      <jvm-classpath>G:\j4\erp\target\erp-0.0.1-SNAPSHOT\WEB-INF\classes</jvm-classpath>
     </server-default>
 
     <host-default>

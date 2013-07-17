@@ -19,23 +19,23 @@ import com.wiselink.base.jsonable.Jsonable;
  * @author leo
  */
 public abstract class BaseController {
-    protected String apiResult(ApiResult res) {
+    protected static String apiResult(ApiResult res) {
         return "@json:" + res.toJson();
     }
 
-    protected String successResult() {
+    protected static String successResult() {
         return "@json:" + new ApiResult(ApiStatus.SUCCESS);    
     }
 
-    protected String successResult(String result) {
+    protected static String successResult(String result) {
         return "@json:" + new ApiResult(ApiStatus.SUCCESS, result);    
     }
 
-    protected String successResult(Jsonable result) {
+    protected static String successResult(Jsonable result) {
         return "@json:" + new ApiResult(ApiStatus.SUCCESS, result.toJson());    
     }
 
-    protected String successResult(Collection<? extends Jsonable> all) {
+    protected static String successResult(Collection<? extends Jsonable> all) {
         if (all == null || all.size() == 0) {
             return failResult(ApiStatus.DATA_EMPTY);
         }
@@ -46,11 +46,11 @@ public abstract class BaseController {
         return "@json:" + new ApiResult(ApiStatus.SUCCESS, arr.toString());
     }
 
-    protected String failResult(ApiStatus status, String result) {
+    protected static String failResult(ApiStatus status, String result) {
         return "@json:" + new ApiResult(status, result);    
     }
 
-    protected String failResult(ApiStatus status) {
+    protected static String failResult(ApiStatus status) {
         return "@json:" + new ApiResult(status, "");    
     }
 }
