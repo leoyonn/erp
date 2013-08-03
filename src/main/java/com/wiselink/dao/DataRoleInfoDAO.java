@@ -49,7 +49,7 @@ public interface DataRoleInfoDAO {
     @SQL("INSERT INTO " + TableName.DataRoleInfo 
             + "(\"name\", \"desc\", \"levelCode\", \"corpId\", \"deptId\", \"creatorId\", \"createTime\", \"updateTime\")"
             + " VALUES (:name,:desc,:levelCode,:corpId,:deptId,:creatorId,sysdate,sysdate)")
-    public boolean add(@SQLParam("name") String name, @SQLParam("desc") String desc,
+    boolean add(@SQLParam("name") String name, @SQLParam("desc") String desc,
             @SQLParam("levelCode") int levelCode, @SQLParam("corpId") String corpId, @SQLParam("deptId") String deptId,
             @SQLParam("creatorId") String creatorId) throws SQLException, DataAccessException;
 
@@ -67,7 +67,7 @@ public interface DataRoleInfoDAO {
     @SQL("UPDATE " + TableName.DataRoleInfo
             + " SET \"name\"=:name, \"desc\"=:desc, \"levelCode\"=:levelCode, \"corpId\"=:corpId, \"deptId\"=:deptId"
             + " WHERE \"code\" = :code")
-    public boolean update(@SQLParam("code") int code, @SQLParam("name") String name, @SQLParam("desc") String desc,
+    boolean update(@SQLParam("code") int code, @SQLParam("name") String name, @SQLParam("desc") String desc,
             @SQLParam("levelCode") int levelCode, @SQLParam("corpId") String corpId, @SQLParam("deptId") String deptId) throws SQLException, DataAccessException;
 
     /**
@@ -77,7 +77,7 @@ public interface DataRoleInfoDAO {
      * @throws SQLException, DataAccessException
      */
     @SQL("SELECT * FROM " + TableName.DataRoleInfo + " WHERE \"code\" = :code")
-    public DataRoleInfo find(@SQLParam("code") int code) throws SQLException, DataAccessException;
+    DataRoleInfo find(@SQLParam("code") int code) throws SQLException, DataAccessException;
 
     /**
      * find data-role-info using name
@@ -86,7 +86,7 @@ public interface DataRoleInfoDAO {
      * @throws SQLException, DataAccessException
      */
     @SQL("SELECT * FROM " + TableName.DataRoleInfo + " WHERE \"name\" = :name")
-    public DataRoleInfo findByName(@SQLParam("name") String name) throws SQLException, DataAccessException;
+    DataRoleInfo findByName(@SQLParam("name") String name) throws SQLException, DataAccessException;
 
     /**
      * list all #num data-roles sorted by {@link DataRole#code} from #from 

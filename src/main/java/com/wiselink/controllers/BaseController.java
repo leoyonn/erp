@@ -8,11 +8,13 @@ package com.wiselink.controllers;
 
 import java.util.Collection;
 
+import net.paoding.rose.web.Invocation;
 import net.sf.json.JSONArray;
 
 import com.wiselink.base.ApiResult;
 import com.wiselink.base.ApiStatus;
 import com.wiselink.base.jsonable.Jsonable;
+import com.wiselink.utils.CookieUtils;
 
 /**
  * 
@@ -52,5 +54,9 @@ public abstract class BaseController {
 
     protected static String failResult(ApiStatus status) {
         return "@json:" + new ApiResult(status, "");    
+    }
+    
+    protected String getUserIdFromCookie(Invocation inv) {
+        return CookieUtils.getUserId(inv);
     }
 }

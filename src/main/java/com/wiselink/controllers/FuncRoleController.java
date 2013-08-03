@@ -44,7 +44,7 @@ public class FuncRoleController extends BaseController {
 
     @Autowired
     private UserService userService;
-    
+
     @Autowired
     private FuncRoleService froleService;
 

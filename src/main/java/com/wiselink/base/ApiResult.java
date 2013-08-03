@@ -26,7 +26,7 @@ public class ApiResult {
 
     private ApiStatus status;
 
-    private String result = "";
+    private String detail = "";
 
     public ApiResult(ApiStatus status) {
         this.status = status;
@@ -34,16 +34,16 @@ public class ApiResult {
 
     public ApiResult(ApiStatus status, String result) {
         this.status = status;
-       this.result = result;
+       this.detail = result;
     }
 
     public String toJson() {
-        if (StringUtils.isEmpty(result)) {
-            result = "\"\"";
-        } else if (!result.startsWith("[") && !result.startsWith("{") && !result.startsWith("\"")) {
-            result = "\"" + result + "\"";
+        if (StringUtils.isEmpty(detail)) {
+            detail = "\"\"";
+        } else if (!detail.startsWith("[") && !detail.startsWith("{") && !detail.startsWith("\"")) {
+            detail = "\"" + detail + "\"";
         }
-        return "{\"status\":" + status.toJson() + ",\"result\":" + result + "}";
+        return "{\"status\":" + status.toJson() + ",\"detail\":" + detail + "}";
     }
 
     public String toString() {
@@ -59,11 +59,11 @@ public class ApiResult {
     }
 
     public String getResult() {
-        return result;
+        return detail;
     }
 
     public void setResult(String result) {
-        this.result = result;
+        this.detail = result;
     }
 
     /**

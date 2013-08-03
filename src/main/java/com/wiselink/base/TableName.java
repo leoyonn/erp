@@ -22,4 +22,5 @@ public interface TableName {
     String Corp = "PICC.\"corp\"";
     String Dept = "PICC.\"dept\"";
     String Avatar = "PICC.\"avatar\"";
+    String Supplier = "PICC.\"supplier\"";
 }

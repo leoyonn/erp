@@ -13,14 +13,12 @@ import net.paoding.rose.web.Invocation;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import com.wiselink.base.ApiResult;
 import com.wiselink.base.AuthStatus;
 import com.wiselink.base.Constants;
 import com.wiselink.controllers.LoginRequiredChecker.LoginRequiredCheckResult;
 import com.wiselink.controllers.annotations.LoginRequired;
-import com.wiselink.dao.UserInfoDAO;
 
 /**
  * @author leo
@@ -28,14 +26,10 @@ import com.wiselink.dao.UserInfoDAO;
 public class LoginRequiredInterceptor extends ControllerInterceptorAdapter {
     private static final Logger LOGGER = LoggerFactory.getLogger(LoginRequiredInterceptor.class);
 
-    @Autowired
-    private UserInfoDAO userInfoDao;
-    
     private LoginRequiredChecker checker;
 
     public LoginRequiredInterceptor() {
-        LOGGER.info("userInfoDao: {}", userInfoDao);
-        checker = new LoginRequiredChecker(userInfoDao);
+        checker = new LoginRequiredChecker();
     }
 
     @Override
