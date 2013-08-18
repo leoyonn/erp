@@ -7,13 +7,13 @@
 package com.wiselink.controllers;
 
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.List;
 
 import net.paoding.rose.web.Invocation;
 import net.paoding.rose.web.annotation.Param;
 import net.paoding.rose.web.annotation.Path;
 import net.paoding.rose.web.annotation.rest.Get;
+import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -22,11 +22,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.wiselink.base.ApiStatus;
 import com.wiselink.controllers.annotations.LoginRequired;
-import com.wiselink.controllers.annotations.Trimmed;
 import com.wiselink.exception.ServiceException;
 import com.wiselink.model.org.Dept;
 import com.wiselink.model.org.DeptType;
 import com.wiselink.model.org.OrgType;
+import com.wiselink.model.param.QueryListParam;
 import com.wiselink.service.CorpService;
 
 /**
@@ -63,75 +63,72 @@ public class DeptController  extends BaseController {
     /**
      * 创建一个新的部门，name/id一旦设置不可更改
      * @param inv
-     * @param id
-     * @param name
-     * @param deptType
-     * @param corpId
+     * @param param
      * @return
      */
     @SuppressWarnings("@Post")
     @Get("new")
-    public String newDept(Invocation inv, @Trimmed @Param("id") String id, @Param("name") String name,
-            @Param("desc") String desc, @Param("deptType") String deptType, @Param("corpId") String corpId) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("adding dept: {}|{}|{}|{}", new Object[]{id, name, deptType, corpId});
-        }
+    public String newDept(Invocation inv, @NotBlank @Param("param") String param) {
+        LOGGER.info("new dept with param: {}...", param);
+        Dept dept = (Dept) new Dept().fromJson(param);
+        LOGGER.info("new dept: {}...", dept);
         // TODO 检查id合法性
         try {
-            if (corpService.newDept(id, name, desc, deptType, corpId)) {
-                LOGGER.debug("adding dept: {} success.", id);
-                return successResult();
-            }
+            dept = corpService.newDept(dept);
+            LOGGER.debug("adding dept: {} success.", dept);
+            return successResult(dept);
         } catch (ServiceException ex) {
-            LOGGER.error("adding corp " + id + " got exception:", ex);
+            LOGGER.error("adding corp " + dept + " got exception:", ex);
         }
         return failResult(ApiStatus.DATA_INSERT_FAILED);
     }
 
     /**
      * 更新一个部门信息
+     * 
      * @param inv
-     * @param id
-     * @param name
-     * @param desc
-     * @param deptType
-     * @param corpId
+     * @param param
      * @return
      */
     @SuppressWarnings("@Post")
     @Get("up")
-    public String updateDept(Invocation inv, @Trimmed @Param("id") String id, @Param("name") String name,
-            @Param("desc") String desc, @Param("deptType") String deptType, @Param("corpId") String corpId) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("updating corp: {}|{}|{}|{}", new Object[]{id, name, deptType, corpId});
-        }
+    public String updateDept(Invocation inv, @NotBlank @Param("param") String param) {
+        LOGGER.info("update dept with param: {}...", param);
+        Dept dept = (Dept) new Dept().fromJson(param);
+        LOGGER.info("update dept: {}", dept);
         // TODO 检查id合法性
         try {
-            if (corpService.updateDept(id, name, desc, deptType, corpId)) {
-                LOGGER.debug("updating dept: {} success.", id);
-                return successResult();
-            }
+            dept = corpService.updateDept(dept);
+            LOGGER.debug("updating dept: {} success.", dept);
+            return successResult();
         } catch (ServiceException ex) {
-            LOGGER.error("adding corp " + id + " got exception:", ex);
+            LOGGER.error("adding corp " + dept + " got exception:", ex);
         }
         return failResult(ApiStatus.DATA_UPDATE_FAILED);
     }
     
     /**
-     * @param id
+     * 删除一个部门信息
+     * 
+     * @param param
      * @return
      */
     @SuppressWarnings("@Post")
     @Get("del")
-    public String deleteDept(@Param("id") String deptId) {
+    public String deleteDept(@NotBlank @Param("param") String param) {
+        LOGGER.info("delete dept: {}...", param);
+        String id = JSONObject.fromObject(param).optString("id", "");
+        if (StringUtils.isBlank(id)) {
+            return failResult(ApiStatus.INVALID_PARAMETER, "参数中ID不可为空");
+        }
         // TODO permission check
         try {
-            boolean ok = corpService.deleteDept(deptId);
+            boolean ok = corpService.deleteDept(id);
             if (ok) {
                 return successResult("删除部门成功");
             }
         } catch (ServiceException ex) {
-            LOGGER.error("delete dept failed:" + deptId, ex);
+            LOGGER.error("delete dept failed:" + id, ex);
             return failResult(ApiStatus.DATA_DELETE_FAILED);
         }
         return failResult(ApiStatus.DATA_DELETE_FAILED);
@@ -139,12 +136,18 @@ public class DeptController  extends BaseController {
 
     /**
      * 获取一个部门信息
-     * @param id
+     * 
+     * @param param
      * @return
      * @throws SQLException, DataAccessException
      */
     @Get("1")
-    public String getDept(@Param("id") String id) {
+    public String getDept(@NotBlank @Param("param") String param) {
+        LOGGER.info("get dept: {}...", param);
+        String id = JSONObject.fromObject(param).optString("id", "");
+        if (StringUtils.isBlank(id)) {
+            return failResult(ApiStatus.INVALID_PARAMETER, "参数中ID不可为空");
+        }
         try {
             Dept dept = corpService.getDept(id);
             LOGGER.debug("get dept: {}.", dept);
@@ -165,21 +168,19 @@ public class DeptController  extends BaseController {
      * @return
      */
     @Get("list")
-    public String getDepts(@Param("ids") String ids) {
-        // TODO @NotBlank
-        if (StringUtils.isEmpty(ids)) {
-            return failResult(ApiStatus.INVALID_PARAMETER);
-        }
-        List<String> idlist = Arrays.asList(ids.split(","));
-        LOGGER.debug("getting depts:{}", idlist);
+    public String listDepts(@NotBlank @Param("param") String param) {
+        LOGGER.info("list depts: {}", param);
+        QueryListParam listParam = (QueryListParam) new QueryListParam().fromJson(param);
+        LOGGER.info("list depts with list param: {}", listParam);
         try {
-            List<Dept> depts = corpService.getDepts(idlist);
+            List<Dept> depts = corpService.listDepts(listParam);
+            int total = corpService.countDepts(listParam);
             LOGGER.debug("got depts: {}.", depts);
             if (depts != null && depts.size() > 0) {
-                return successResult(depts);
+                return successResult(depts, total);
             }
         } catch (ServiceException ex) {
-            LOGGER.error("get depts " + ids + " got exception:", ex);
+            LOGGER.error("get depts " + listParam + " got exception:", ex);
         }
         return failResult(ApiStatus.DATA_QUERY_FAILED);
     }
@@ -189,17 +190,20 @@ public class DeptController  extends BaseController {
      * @return
      */
     @Get("all/1corp")
-    public String allDepts(@Param("corpId") String corpId) {
+    public String allDepts(@NotBlank @Param("param") String param) {
+        LOGGER.info("all dept with param: {}...", param);
+        String corpId = JSONObject.fromObject(param).optString("corpId", "");
+        if (StringUtils.isBlank(corpId)) {
+            return failResult(ApiStatus.INVALID_PARAMETER, "参数中corpId为空");
+        }
         try {
             List<Dept> depts = corpService.allDepts(corpId);
             LOGGER.debug("get depts: {}.", depts);
-            if (depts != null && depts.size() > 0) {
-                return successResult(depts);
-            }
+            return successResult(depts);
         } catch (ServiceException ex) {
             LOGGER.error("get all depts of " + corpId + " got exception:", ex);
+            return failResult(ApiStatus.DATA_QUERY_FAILED);
         }
-        return failResult(ApiStatus.DATA_QUERY_FAILED);
     }
 
     /**
@@ -211,12 +215,10 @@ public class DeptController  extends BaseController {
         try {
             List<Dept> depts = corpService.allDepts();
             LOGGER.debug("get depts: {}.", depts);
-            if (depts != null && depts.size() > 0) {
-                return successResult(depts);
-            }
+            return successResult(depts);
         } catch (ServiceException ex) {
             LOGGER.error("get all depts got exception:", ex);
+            return failResult(ApiStatus.DATA_QUERY_FAILED);
         }
-        return failResult(ApiStatus.DATA_QUERY_FAILED);
     }
 }

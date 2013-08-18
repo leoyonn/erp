@@ -13,7 +13,7 @@ import com.wiselink.base.jsonable.Jsonable;
 /**
  * @author leo
  */
-public class User implements Jsonable {
+public class UserDeprecated implements Jsonable {
     public String id;
     public UserInfo info;
     public UserRole role;
@@ -24,13 +24,13 @@ public class User implements Jsonable {
      * @param info
      * @param role
      */
-    public User(String id, UserInfo info, UserRole role) {
+    public UserDeprecated(String id, UserInfo info, UserRole role) {
         this.id = id;
         this.info = info;
         this.role = role;
     }
 
-    public User() {}
+    public UserDeprecated() {}
 
     public String getId() {
         return id;

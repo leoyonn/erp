@@ -13,17 +13,22 @@ import net.paoding.rose.web.Invocation;
 import net.paoding.rose.web.annotation.Param;
 import net.paoding.rose.web.annotation.Path;
 import net.paoding.rose.web.annotation.rest.Get;
+import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.google.gson.Gson;
 import com.wiselink.base.ApiStatus;
 import com.wiselink.controllers.annotations.LoginRequired;
 import com.wiselink.controllers.annotations.Trimmed;
 import com.wiselink.exception.ServiceException;
-import com.wiselink.model.user.User;
+import com.wiselink.model.param.QueryListParam;
+import com.wiselink.model.user.UserDeprecated;
+import com.wiselink.model.user.UserInfo;
+import com.wiselink.model.user.UserRoleC;
 import com.wiselink.service.UserService;
 import com.wiselink.utils.CookieUtils;
 
@@ -39,88 +44,42 @@ public class UserController extends BaseController {
     @Autowired
     private UserService userService;
 
-    /**
-     * @param inv
-     * @param id
-     * @param account
-     * @param name
-     * @param password
-     * @param avatar
-     * @param email
-     * @param phone
-     * @param tel
-     * @param desc
-     * @param province
-     * @param city
-     * @param creatorId
-     * @param operId
-     * @return
-     */
     @SuppressWarnings("@Post")
     @Get("new")
-    public String newUser(Invocation inv, @Trimmed @Param("id") String id,
-            @Trimmed @Param("account") String account,
-            @Trimmed @Param("name") String name,
-            @Trimmed @Param("password") String password,
-            @Param("avatar") String avatar,
-            @Param("email") String email,
-            @Param("phone") String phone,
-            @Param("tel") String tel,
-            @Param("desc") String desc,
-            @Param("province") String province,
-            @Param("city") String city,
-            @Param("creatorId") String creatorId,
-            @Param("operId") String operId) {
+    public String newUser(Invocation inv, @Param("param") String param) {
+        UserInfo info = (UserInfo)new UserInfo().fromJson(param);
+        String password = JSONObject.fromObject(param).optString("password", "");
+        if (StringUtils.isBlank(password)) {
+            return failResult(ApiStatus.INVALID_PARAMETER, "用户密码为空");
+        }
+        new Gson().fromJson(param, UserInfo.class);
         try {
-            boolean ok = userService.addUser(id, account, name, password, avatar, email, phone, tel,
-                    desc, province, city, creatorId, operId);
+            boolean ok = userService.addUser(info, password);
             if (ok) {
                 return successResult("添加用户成功");
             }
         } catch (ServiceException ex) {
-            LOGGER.error("add user failed:" + id, ex);
+            LOGGER.error("add user failed:" + info, ex);
             return failResult(ApiStatus.DATA_INSERT_FAILED);
         }
         return failResult(ApiStatus.DATA_INSERT_FAILED);
     }
 
     /**
-     * @param id
-     * @param account
-     * @param name
-     * @param avatar
-     * @param email
-     * @param phone
-     * @param tel
-     * @param desc
-     * @param province
-     * @param city
-     * @param creatorId
-     * @param operId
+     * @param param
      * @return
      */
     @SuppressWarnings("@Post")
     @Get("up/info")
-    public String updateUserInfo(@Param("id") String id,
-            @Param("account") String account,
-            @Param("name") String name,
-            @Param("avatar") String avatar,
-            @Param("email") String email,
-            @Param("phone") String phone,
-            @Param("tel") String tel,
-            @Param("desc") String desc,
-            @Param("province") String province,
-            @Param("city") String city,
-            @Param("creatorId") String creatorId,
-            @Param("operId") String operId) {
+    public String updateUserInfo(@Param("param") String param) {
+        UserInfo info = (UserInfo)new UserInfo().fromJson(param);
         try {
-            boolean ok = userService.updateUserInfo(id, account, name, avatar, email, phone, tel,
-                    desc, province, city, creatorId, operId);
+            boolean ok = userService.updateUserInfo(info);
             if (ok) {
                 return successResult("修改用户信息成功");
             }
         } catch (ServiceException ex) {
-            LOGGER.error("update user info failed:" + id, ex);
+            LOGGER.error("update user info failed:" + info, ex);
             return failResult(ApiStatus.DATA_INSERT_FAILED);
         }
         return failResult(ApiStatus.DATA_INSERT_FAILED);
@@ -134,7 +93,10 @@ public class UserController extends BaseController {
      */
     @SuppressWarnings("@Post")
     @Get("up/pass")
-    public String updatePassword(Invocation inv, @Param("oldpass") String oldpass, @Param("newpass") String newpass) {
+    public String updatePassword(Invocation inv, @Param("param") String param) {
+        JSONObject json = JSONObject.fromObject(param);
+        String oldpass =json.optString("oldpass", "");
+        String newpass =json.optString("newpass", "");
         String userId = CookieUtils.getUserId(inv);
         if (StringUtils.isEmpty(userId)) {
             return failResult(ApiStatus.AUTH_INVALID_USER);
@@ -164,22 +126,15 @@ public class UserController extends BaseController {
      */
     @SuppressWarnings("@Post")
     @Get("new/role")
-    public String newUserRole(@Param("id") String userId,
-            @Param("catCode") int catCode,
-            @Param("posCode") int posCode,
-            @Param("froleCode") int froleCode,
-            @Param("droleCode") int droleCode,
-            @Param("statCode") int statCode,
-            @Param("corpId") String corpId,
-            @Param("deptId") String deptId) {
+    public String newUserRole(@Param("param") String param) {
+        UserRoleC rolec = (UserRoleC) new UserRoleC().fromJson(param);
         try {
-            boolean ok = userService.addUserRole(userId, catCode, posCode, froleCode, droleCode,
-                    statCode, corpId, deptId);
+            boolean ok = userService.addUserRole(rolec);
             if (ok) {
                 return successResult("添加用户角色属性成功");
             }
         } catch (ServiceException ex) {
-            LOGGER.error("new user role failed:" + userId, ex);
+            LOGGER.error("new user role failed:" + rolec, ex);
             return failResult(ApiStatus.DATA_INSERT_FAILED);
         }
         return failResult(ApiStatus.DATA_INSERT_FAILED);
@@ -187,22 +142,15 @@ public class UserController extends BaseController {
 
     @SuppressWarnings("@Post")
     @Get("up/role")
-    public String updateUserRole(@Param("id") String userId,
-            @Param("catCode") int catCode,
-            @Param("posCode") int posCode,
-            @Param("froleCode") int froleCode,
-            @Param("droleCode") int droleCode,
-            @Param("statCode") int statCode,
-            @Param("corpId") String corpId,
-            @Param("deptId") String deptId) {
+    public String updateUserRole(@Param("param") String param) {
+        UserRoleC rolec = (UserRoleC) new UserRoleC().fromJson(param);
         try {
-            boolean ok = userService.updateUserRole(userId, catCode, posCode, froleCode, droleCode,
-                    statCode, corpId, deptId);
+            boolean ok = userService.updateUserRole(rolec);
             if (ok) {
                 return successResult("修改用户角色属性成功");
             }
         } catch (ServiceException ex) {
-            LOGGER.error("update user role failed:" + userId, ex);
+            LOGGER.error("update user role failed:" + rolec, ex);
             return failResult(ApiStatus.DATA_UPDATE_FAILED);
         }
         return failResult(ApiStatus.DATA_UPDATE_FAILED);
@@ -214,13 +162,21 @@ public class UserController extends BaseController {
      * @return
      */
     @Get("1")
-    public String getUser(@Param("id") String id, @Param("account") String account) {
-        User user = null;
+    public String getUser(@NotBlank @Param("param") String param) {
+        JSONObject j = JSONObject.fromObject(param);
+        String id = j.optString("id", "");
+        String account = j.optString("account", "");
+        if (StringUtils.isBlank(id) && StringUtils.isBlank(id)) {
+            return failResult(ApiStatus.INVALID_PARAMETER, "id或account不能都为空");
+        }
+        UserDeprecated user = null;
         try {
-            if (StringUtils.isEmpty(id)) {
+            if (!StringUtils.isEmpty(id)) {
                 user = userService.getUserById(id);
+                LOGGER.debug("got user by id:" + id, user);
             } else {
                 user = userService.getUserByAccount(account);
+                LOGGER.debug("got user by account:" + account, user);
             }
             if (user != null) {
                 return successResult(user);
@@ -238,21 +194,18 @@ public class UserController extends BaseController {
      * @return
      */
     @Get("list")
-    public String getUsers(@Trimmed @Param("ids") String ids) {
-        // TODO @NotBlank
-        if (StringUtils.isEmpty(ids)) {
-            return failResult(ApiStatus.INVALID_PARAMETER);
-        }
-        List<String> idlist = Arrays.asList(ids.split(","));
-        LOGGER.debug("getting users:{}", idlist);
+    public String getUsers(@NotBlank @Param("param") String param) {
+        LOGGER.info("list users: {}", param);
+        QueryListParam listParam = (QueryListParam) new QueryListParam().fromJson(param);
+        LOGGER.info("list users with list param: {}", listParam);
         try {
-            List<User> users = userService.getUsers(idlist);
+            List<UserDeprecated> users = userService.queryUsers(listParam);
             LOGGER.debug("got users:{}", users);
             if (users != null && users.size() > 0) {
                 return successResult(users);
             }
         } catch (ServiceException ex) {
-            LOGGER.error("get users failed: " + idlist, ex);
+            LOGGER.error("get users failed: " + listParam, ex);
             return failResult(ApiStatus.DATA_QUERY_FAILED);
         }
         return failResult(ApiStatus.DATA_EMPTY);
@@ -265,7 +218,7 @@ public class UserController extends BaseController {
     @Get("all")
     public String allUsers() {
         try {
-            List<User> users = userService.all();
+            List<UserDeprecated> users = userService.all();
             LOGGER.debug("got all users:{}", users);
             if (users != null && users.size() > 0) {
                 return successResult(users);

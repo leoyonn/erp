@@ -30,10 +30,11 @@ import com.wiselink.dao.UserRoleDAO;
 import com.wiselink.exception.ServiceException;
 import com.wiselink.model.org.Corp;
 import com.wiselink.model.org.Dept;
+import com.wiselink.model.param.QueryListParam;
 import com.wiselink.model.role.DataRoleInfo;
 import com.wiselink.model.role.FuncRoleInfo;
 import com.wiselink.model.user.Positions;
-import com.wiselink.model.user.User;
+import com.wiselink.model.user.UserDeprecated;
 import com.wiselink.model.user.UserCard;
 import com.wiselink.model.user.UserCategory;
 import com.wiselink.model.user.UserInfo;
@@ -72,28 +73,17 @@ public class UserService {
 
     /**
      * 添加一个用户
-     * @param id
-     * @param account
-     * @param name
+     * 
+     * @param uesr
      * @param password
-     * @param avatar
-     * @param email
-     * @param phone
-     * @param tel
-     * @param desc
-     * @param province
-     * @param city
-     * @param creatorId
-     * @param operId
      * @return
      * @throws ServiceException
      */
-    public boolean addUser(String id, String account, String name, String password, String avatar,
-            String email, String phone, String tel, String desc, String province, String city,
-            String creatorId, String operId) throws ServiceException {
+    public boolean addUser(UserInfo user, String password) throws ServiceException {
         try {
-            return userInfoDao.add(id, account, name, password, avatar, email, phone, tel,
-                    desc, province, city, creatorId, operId);
+            return userInfoDao.add(user.id, user.account, user.name, password,
+                    user.avatar, user.email, user.phone, user.tel,
+                    user.desc, user.province, user.city, user.creatorId, user.operId);
         } catch (Exception ex) {
             throw new ServiceException(ex);
         }
@@ -115,12 +105,11 @@ public class UserService {
      * @return
      * @throws ServiceException
      */
-    public boolean updateUserInfo(String id, String account, String name, String avatar, String email, String phone,
-            String tel, String desc, String province, String city, String creatorId, String operId)
-            throws ServiceException {
+    public boolean updateUserInfo(UserInfo user) throws ServiceException {
         try {
-            return userInfoDao.update(id, account, name, avatar, email, phone, tel,
-                    desc, province, city, creatorId, operId);
+            return userInfoDao.update(user.id, user.account, user.name, user.avatar, 
+                    user.email, user.phone, user.tel,
+                    user.desc, user.province, user.city, user.creatorId, user.operId);
         } catch (Exception ex) {
             throw new ServiceException(ex);
         }
@@ -154,10 +143,10 @@ public class UserService {
      * @return
      * @throws ServiceException
      */
-    public boolean addUserRole(String userId, int catCode, int posCode, int froleCode, int droleCode,
-            int statCode, String corpId, String deptId) throws ServiceException {
+    public boolean addUserRole(UserRoleC rolec) throws ServiceException {
         try {
-            return userRoleDao.addUserRole(userId, catCode, posCode, froleCode, droleCode, statCode, corpId, deptId);
+            return userRoleDao.addUserRole(rolec.id, rolec.catCode, rolec.posCode, rolec.froleCode, 
+                    rolec.droleCode, rolec.statCode, rolec.corpId, rolec.deptId);
         } catch (Exception ex) {
             throw new ServiceException(ex);
         }
@@ -165,21 +154,15 @@ public class UserService {
 
     /**
      * 更新用户的所有角色信息
-     * @param userId
-     * @param catCode
-     * @param posCode
-     * @param froleCode
-     * @param droleCode
-     * @param statCode
-     * @param corpId
-     * @param deptId
+     * 
+     * @param rolec
      * @return
      * @throws ServiceException
      */
-    public boolean updateUserRole(String userId, int catCode, int posCode, int froleCode, int droleCode,
-            int statCode, String corpId, String deptId) throws ServiceException {
+    public boolean updateUserRole(UserRoleC rolec ) throws ServiceException {
         try {
-            return userRoleDao.updateUserRole(userId, catCode, posCode, froleCode, droleCode, statCode, corpId, deptId);
+            return userRoleDao.updateUserRole(rolec.id, rolec.catCode, rolec.posCode, rolec.froleCode, 
+                    rolec.droleCode, rolec.statCode, rolec.corpId, rolec.deptId);
         } catch (Exception ex) {
             throw new ServiceException(ex);
         }
@@ -247,7 +230,7 @@ public class UserService {
      * @return
      * @throws ServiceException
      */
-    public User getUserById(String id) throws ServiceException {
+    public UserDeprecated getUserById(String id) throws ServiceException {
         UserInfo info = getUserInfoById(id);
         if (info == null) {
             LOGGER.warn("no such user: {}", id);
@@ -255,7 +238,7 @@ public class UserService {
         }
         UserRole role = getUserRole(id);
         LOGGER.debug("got user: info:{}, role:{}, ", info, role);
-        return new User(id, info, role);
+        return new UserDeprecated(id, info, role);
     }
 
     /**
@@ -265,7 +248,7 @@ public class UserService {
      * @return
      * @throws ServiceException
      */
-    public User getUserByAccount(String account) throws ServiceException {
+    public UserDeprecated getUserByAccount(String account) throws ServiceException {
         UserInfo info = getUserInfoByAccount(account);
         if (info == null) {
             LOGGER.warn("no such user: {}", account);
@@ -273,7 +256,7 @@ public class UserService {
         }
         UserRole role = getUserRole(info.id);
         LOGGER.debug("got user: info:{}, role:{}, ", info, role);
-        return new User(info.id, info, role);
+        return new UserDeprecated(info.id, info, role);
     }
 
     /**
@@ -456,28 +439,41 @@ public class UserService {
      * @return
      * @throws ServiceException
      */
-    public List<User> getUsers(List<String> userIds) throws ServiceException {
+    public List<UserDeprecated> getUsers(List<String> userIds) throws ServiceException {
         List<UserInfo> infos = getUserInfos(userIds);
         LOGGER.debug("got user infos:{}", infos);
         List<UserRoleC> rolecs = getUserRoleCs(userIds);
         Map<String, UserRole> roles = getUserRoles(rolecs);
         LOGGER.debug("got user roles:{}", roles);
-        List<User> users = new ArrayList<User>(infos.size()); 
+        List<UserDeprecated> users = new ArrayList<UserDeprecated>(infos.size()); 
         for (UserInfo info: infos) {
             UserRole role = roles.get(info.id);
             LOGGER.debug("filling user: from info:{}, role:{}...", info, role);
-            users.add(new User(info.id, info, role));
+            users.add(new UserDeprecated(info.id, info, role));
         }
         LOGGER.debug("got users:{}, ", users);
         return users;
     }
-    
+
+    /**
+     * @param listParam
+     * @return
+     * @throws ServiceException 
+     */
+    public List<UserDeprecated> queryUsers(QueryListParam listParam) throws ServiceException {
+        try {
+            return userInfoDao.queryUsers();
+        } catch (SQLException ex) {
+            throw new ServiceException(ex);
+        }
+    }
+
     /**
      * 获取所有的用户，仅用于调试
      * @return
      * @throws ServiceException 
      */
-    public List<User> all() throws ServiceException {
+    public List<UserDeprecated> all() throws ServiceException {
         List<UserInfo> infos = Collections.emptyList();
         List<UserRoleC> rolecs = Collections.emptyList();
         try {
@@ -490,13 +486,14 @@ public class UserService {
         }
         Map<String, UserRole> roles = getUserRoles(rolecs);
         LOGGER.debug("all user roles:{}", roles);
-        List<User> users = new ArrayList<User>(infos.size()); 
+        List<UserDeprecated> users = new ArrayList<UserDeprecated>(infos.size()); 
         for (UserInfo info: infos) {
             UserRole role = roles.get(info.id);
             LOGGER.debug("filling user: from info:{}, role:{}...", info, role);
-            users.add(new User(info.id, info, role));
+            users.add(new UserDeprecated(info.id, info, role));
         }
         LOGGER.debug("all users:{}, ", users);
         return users;
     }
+
 }

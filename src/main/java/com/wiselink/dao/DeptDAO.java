@@ -72,6 +72,20 @@ public interface DeptDAO {
     @SQL("SELECT * FROM " + TableName.Dept + " WHERE \"id\" = :id")
     public Dept find(@SQLParam("id") String id) throws SQLException, DataAccessException;
 
+    @SQL("SELECT COUNT(\"id\") FROM " + TableName.Dept)
+    public int count() throws SQLException, DataAccessException;
+
+    @SQL("SELECT \"id\", \"name\", \"desc\", \"deptType\", \"corpId\" "
+            + "FROM (SELECT A.*, ROWNUM N FROM (SELECT * FROM PICC.\"dept\" WHERE \"name\" LIKE :nameLike) A "
+            + "WHERE ROWNUM <= :to) WHERE N >= :from")
+    public List<Dept> queryByName(@SQLParam("nameLike") String nameLike, 
+            @SQLParam("from") int from, @SQLParam("to") int to) throws SQLException, DataAccessException;
+
+    @SQL("SELECT COUNT(\"id\") FROM " + TableName.Dept + " WHERE \"name\" LIKE :nameLike ORDER BY \"id\"")
+    public int countByName(@SQLParam("nameLike") String nameLike) throws SQLException, DataAccessException;
+
+    @SQL("SELECT MAX(\"id\") FROM " + TableName.Dept + " WHERE \"corpId\"=:corpId ORDER BY \"id\"")
+    public String maxDeptId(@SQLParam("corpId") String corpId) throws SQLException, DataAccessException;
     /**
      * list all depts in :ids  
      * 
@@ -110,4 +124,7 @@ public interface DeptDAO {
      */
     @SQL("DELETE FROM " + TableName.Dept + "WHERE \"id\"=:id")
     public boolean delete(@SQLParam("id") String id) throws SQLException, DataAccessException;
+    
+    @SQL("DELETE FROM " + TableName.Dept)
+    public int clear() throws SQLException, DataAccessException;
 }

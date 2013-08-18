@@ -20,7 +20,7 @@ import com.wiselink.base.ApiResult;
 import com.wiselink.base.ApiStatus;
 import com.wiselink.base.jsonable.Jsonable;
 import com.wiselink.base.jsonable.JsonableEnum;
-import com.wiselink.model.user.User;
+import com.wiselink.model.user.UserDeprecated;
 
 /**
  * @author leo
@@ -30,7 +30,7 @@ public class TestJsoner {
     public void testGson() {
         String json = new ApiResult(ApiStatus.SUCCESS, "this is a test msg").toJson();
         System.out.println(json);
-        System.out.println(new User().toJson());
+        System.out.println(new UserDeprecated().toJson());
     }
     @Test
     public void testReflect() throws SecurityException, NoSuchFieldException, InstantiationException, IllegalAccessException, ClassNotFoundException {

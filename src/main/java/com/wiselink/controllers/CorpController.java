@@ -13,6 +13,8 @@ import net.paoding.rose.web.Invocation;
 import net.paoding.rose.web.annotation.Param;
 import net.paoding.rose.web.annotation.Path;
 import net.paoding.rose.web.annotation.rest.Get;
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -21,7 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.wiselink.base.ApiStatus;
 import com.wiselink.controllers.annotations.LoginRequired;
-import com.wiselink.controllers.annotations.Trimmed;
 import com.wiselink.exception.ServiceException;
 import com.wiselink.model.org.Corp;
 import com.wiselink.model.org.OrgType;
@@ -61,20 +62,17 @@ public class CorpController extends BaseController {
      */
     @SuppressWarnings("@Post")
     @Get("new")
-    public String newCorp(Invocation inv, @Trimmed @Param("id") String id, @Param("type") String type,
-            @Param("name") String name, @Param("desc") String desc, @Param("address") String address,
-            @Param("tel") String tel, @Param("contact") String contact) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("adding corp: {}|{}|{}|{}|{}|{}|{}", new Object[]{id, type, name, desc, address, tel, contact});
-        }
+    public String newCorp(Invocation inv, @Param("param") String param) {
+        Corp corp = (Corp) new Corp().fromJson(param);
+        LOGGER.info("new corp: {}...", corp);
         // TODO: id 检测，添加id util
         try {
-            if (corpService.newCorp(id, type, name, desc, address, tel, contact)) {
-                LOGGER.debug("adding corp: {} success.", id);
+            if (corpService.newCorp(corp)) {
+                LOGGER.debug("new corp: {} success.", corp);
                 return successResult();
             }
         } catch (ServiceException ex) {
-            LOGGER.error("adding corp " + id + " got exception:", ex);
+            LOGGER.error("new corp " + corp + " got exception:", ex);
         }
         return failResult(ApiStatus.DATA_INSERT_FAILED);
     }
@@ -93,20 +91,17 @@ public class CorpController extends BaseController {
      */
     @SuppressWarnings("@Post")
     @Get("up")
-    public String updateCorp(Invocation inv, @Trimmed @Param("id") String id, @Param("type") String type,
-            @Param("name") String name, @Param("desc") String desc, @Param("address") String address,
-            @Param("tel") String tel, @Param("contact") String contact) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("updating corp: {}|{}|{}|{}|{}|{}|{}", new Object[]{id, type, name, desc, address, tel, contact});
-        }
+    public String updateCorp(Invocation inv, @Param("param") String param) {
+        Corp corp = (Corp) new Corp().fromJson(param);
+        LOGGER.info("new corp: {}...", corp);
         // TODO: id 检测，添加id util
         try {
-            if (corpService.updateCorp(id, type, name, desc, address, tel, contact)) {
-                LOGGER.debug("updating corp: {} success.", id);
+            if (corpService.updateCorp(corp)) {
+                LOGGER.debug("updating corp: {} success.", corp);
                 return successResult();
             }
         } catch (ServiceException ex) {
-            LOGGER.error("updating corp " + id + " got exception:", ex);
+            LOGGER.error("updating corp " + corp + " got exception:", ex);
         }
         return failResult(ApiStatus.DATA_UPDATE_FAILED);
     }
@@ -116,7 +111,11 @@ public class CorpController extends BaseController {
      * @return
      */
     @Get("1")
-    public String getCorp(@Param("id") String id) {
+    public String getCorp(@Param("param") String param) {
+        String id = JSONObject.fromObject(param).optString("id", "");
+        if (StringUtils.isEmpty(id)) {
+            return failResult(ApiStatus.INVALID_PARAMETER, "参数中Id为空");
+        }
         try {
             Corp corp = corpService.getCorp(id);
             LOGGER.debug("get corp: {}.", corp);
@@ -135,18 +134,18 @@ public class CorpController extends BaseController {
      * @return
      */
     @Get("list")
-    public String getCorps(@Param("ids") String ids) {
-        // TODO @NotBlank
-        if (StringUtils.isEmpty(ids)) {
-            return failResult(ApiStatus.INVALID_PARAMETER);
+    public String getCorps(@Param("param") String param) {
+        JSONArray idsJson = JSONObject.fromObject(param).optJSONArray("ids");
+        if (idsJson == null || idsJson.size() == 0) {
+            return failResult(ApiStatus.INVALID_PARAMETER, "参数中Id列表为空");
         }
-        List<String> idlist = Arrays.asList(ids.split(","));
-        LOGGER.debug("getting corps:{}", idlist);
+        List<String> ids = Arrays.asList((String[])idsJson.toArray(new String[idsJson.size()]));
+        LOGGER.debug("getting corps:{}", ids);
         try {
-            List<Corp> corps = corpService.getCorps(idlist);
+            List<Corp> corps = corpService.getCorps(ids);
             LOGGER.debug("get corps: {}.", corps);
             if (corps != null && corps.size() > 0) {
-                return successResult(corps);
+                return successResult(corps, corps.size());
             }
         } catch (ServiceException ex) {
             LOGGER.error("get corp " + ids + " got exception:", ex);

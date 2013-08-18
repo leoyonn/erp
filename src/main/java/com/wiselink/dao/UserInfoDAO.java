@@ -16,6 +16,7 @@ import net.paoding.rose.jade.annotation.SQLParam;
 import org.springframework.dao.DataAccessException;
 
 import com.wiselink.base.TableName;
+import com.wiselink.model.user.UserDeprecated;
 import com.wiselink.model.user.UserInfo;
 import com.wiselink.model.user.UserPass;
 
@@ -193,4 +194,10 @@ public interface UserInfoDAO {
      */
     @SQL("DELETE FROM " + TableName.UserInfo)
     public int clear() throws SQLException, DataAccessException;
+
+    /**
+     * TODO
+     * @return
+     */
+    public List<UserDeprecated> queryUsers() throws SQLException, DataAccessException;
 }

@@ -10,7 +10,7 @@ import com.google.gson.Gson;
 import com.wiselink.base.jsonable.Jsonable;
 
 /**
- * 用户简单名片，是{@link User}的子集
+ * 用户简单名片，是{@link UserDeprecated}的子集
  * @author leo
  */
 public class UserCard implements Jsonable {

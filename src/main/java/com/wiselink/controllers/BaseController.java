@@ -7,6 +7,7 @@
 package com.wiselink.controllers;
 
 import java.util.Collection;
+import java.util.Collections;
 
 import net.paoding.rose.web.Invocation;
 import net.sf.json.JSONArray;
@@ -37,15 +38,26 @@ public abstract class BaseController {
         return "@json:" + new ApiResult(ApiStatus.SUCCESS, result.toJson());    
     }
 
-    protected static String successResult(Collection<? extends Jsonable> all) {
-        if (all == null || all.size() == 0) {
-            return failResult(ApiStatus.DATA_EMPTY);
+    protected static String successResult(Collection<? extends Jsonable> all, int total) {
+        if (all == null) {
+            all = Collections.emptyList();
         }
         JSONArray arr = new JSONArray();
         for (Jsonable j: all) {
             arr.add(j.toJson());
         }
-        return "@json:" + new ApiResult(ApiStatus.SUCCESS, arr.toString());
+        return "@json:" + new ApiResult(ApiStatus.SUCCESS, arr.toString(), total);
+    }
+
+    protected static String successResult(Collection<? extends Jsonable> all) {
+        if (all == null) {
+            all = Collections.emptyList();
+        }
+        JSONArray arr = new JSONArray();
+        for (Jsonable j: all) {
+            arr.add(j.toJson());
+        }
+        return "@json:" + new ApiResult(ApiStatus.SUCCESS, arr.toString(), all.size());
     }
 
     protected static String failResult(ApiStatus status, String result) {

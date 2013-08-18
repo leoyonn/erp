@@ -45,6 +45,10 @@ public class UserDaoTest {
     }
 
     @Test
+    public void testUser() {
+        
+    }
+    @Test
     public void testUserInfo() throws SQLException, DataAccessException {
         userDao.clear();
         UserInfo info = new UserInfo("1020300001", "account-1", "周鸿祎", "pass1", "http://avatar.com/1.jpg",

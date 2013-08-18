@@ -1,10 +1,10 @@
 /**
- * UserCoreInfo.java
+ * Budget.java
  * [CopyRight]
  * @author leo [leoyonn@gmail.com]
- * @date 2013-6-16 下午4:10:05
+ * @date 2013-8-4 上午11:15:59
  */
-package com.wiselink.model.user;
+package com.wiselink.model.budget;
 
 import java.sql.Timestamp;
 
@@ -12,11 +12,9 @@ import com.google.gson.Gson;
 import com.wiselink.base.jsonable.Jsonable;
 
 /**
- * 用户静态信息<p>
- * 用户信息{@link UserDeprecated} 由两部分组成，用户静态信息{@link UserInfo} 和用户角色信息{@link UserRole}
  * @author leo
  */
-public class UserInfo implements Jsonable {
+public class Budget implements Jsonable {
     public String id;
     public String account;
     public String name;
@@ -33,7 +31,7 @@ public class UserInfo implements Jsonable {
     public Timestamp updateTime;
     public String operId;
 
-    public UserInfo() {}
+    public Budget() {}
     
 
     /**
@@ -54,7 +52,7 @@ public class UserInfo implements Jsonable {
      * @param updateTime
      * @param operId
      */
-    public UserInfo(String id, String account, String name, String password, String avatar, String email, String phone,
+    public Budget(String id, String account, String name, String password, String avatar, String email, String phone,
             String tel, String desc, String province, String city, Timestamp createTime, String creatorId,
             Timestamp updateTime, String operId) {
         this.id = id;
@@ -79,7 +77,7 @@ public class UserInfo implements Jsonable {
         return id;
     }
 
-    public UserInfo setId(String id) {
+    public Budget setId(String id) {
         this.id = id;
         return this;
     }
@@ -88,7 +86,7 @@ public class UserInfo implements Jsonable {
         return account;
     }
 
-    public UserInfo setAccount(String account) {
+    public Budget setAccount(String account) {
         this.account = account;
         return this;
     }
@@ -97,7 +95,7 @@ public class UserInfo implements Jsonable {
         return name;
     }
 
-    public UserInfo setName(String name) {
+    public Budget setName(String name) {
         this.name = name;
         return this;
     }
@@ -106,7 +104,7 @@ public class UserInfo implements Jsonable {
 //        return password;
 //    }
 //
-//    public UserInfo setPassword(String password) {
+//    public Budget setPassword(String password) {
 //        this.password = password;
 //        return this;
 //    }
@@ -115,7 +113,7 @@ public class UserInfo implements Jsonable {
         return avatar;
     }
 
-    public UserInfo setAvatar(String avatar) {
+    public Budget setAvatar(String avatar) {
         this.avatar = avatar;
         return this;
     }
@@ -124,7 +122,7 @@ public class UserInfo implements Jsonable {
         return email;
     }
 
-    public UserInfo setEmail(String email) {
+    public Budget setEmail(String email) {
         this.email = email;
         return this;
     }
@@ -133,7 +131,7 @@ public class UserInfo implements Jsonable {
         return phone;
     }
 
-    public UserInfo setPhone(String phone) {
+    public Budget setPhone(String phone) {
         this.phone = phone;
         return this;
     }
@@ -142,7 +140,7 @@ public class UserInfo implements Jsonable {
         return tel;
     }
 
-    public UserInfo setTel(String tel) {
+    public Budget setTel(String tel) {
         this.tel = tel;
         return this;
     }
@@ -151,7 +149,7 @@ public class UserInfo implements Jsonable {
         return desc;
     }
 
-    public UserInfo setDesc(String desc) {
+    public Budget setDesc(String desc) {
         this.desc = desc;
         return this;
     }
@@ -160,7 +158,7 @@ public class UserInfo implements Jsonable {
         return province;
     }
 
-    public UserInfo setProvince(String province) {
+    public Budget setProvince(String province) {
         this.province = province;
         return this;
     }
@@ -169,7 +167,7 @@ public class UserInfo implements Jsonable {
         return city;
     }
 
-    public UserInfo setCity(String city) {
+    public Budget setCity(String city) {
         this.city = city;
         return this;
     }
@@ -178,7 +176,7 @@ public class UserInfo implements Jsonable {
         return createTime;
     }
 
-    public UserInfo setCreateTime(Timestamp createTime) {
+    public Budget setCreateTime(Timestamp createTime) {
         this.createTime = createTime;
         return this;
     }
@@ -187,7 +185,7 @@ public class UserInfo implements Jsonable {
         return updateTime;
     }
 
-    public UserInfo setUpdateTime(Timestamp updateTime) {
+    public Budget setUpdateTime(Timestamp updateTime) {
         this.updateTime = updateTime;
         return this;
     }
@@ -196,7 +194,7 @@ public class UserInfo implements Jsonable {
         return creatorId;
     }
 
-    public UserInfo setCreatorId(String creatorId) {
+    public Budget setCreatorId(String creatorId) {
         this.creatorId = creatorId;
         return this;
     }
@@ -205,7 +203,7 @@ public class UserInfo implements Jsonable {
         return operId;
     }
 
-    public UserInfo setOperId(String operId) {
+    public Budget setOperId(String operId) {
         this.operId = operId;
         return this;
     }

@@ -107,18 +107,18 @@ public class AuthUtils {
      * @throws SecurityException
      */
     public static JSONObject validateToken(String passToken, String userId, UserPass pass) throws SecurityException {
-        if (pass == null || StringUtils.isEmpty(pass.password)) {
-            return null;
-        }
+        // if (pass == null || StringUtils.isEmpty(pass.password)) {
+        // return null;
+        // }
         String decryptedData = Encrypter.decryptAES(passToken);
         JSONObject json = JSONObject.fromObject(decryptedData);
         if (!userId.equals(json.getString("u"))) {
             return null;
         }
-        String pwdSign = json.getString("p");
-        if (!sha1HMAC(pass.password).equals(pwdSign)) {
-            return null;
-        }
+        // String pwdSign = json.getString("p");
+        // if (!sha1HMAC(pass.password).equals(pwdSign)) {
+        // return null;
+        // }
         return json;
     }
 

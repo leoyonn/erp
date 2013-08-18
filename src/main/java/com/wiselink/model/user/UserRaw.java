@@ -1,8 +1,8 @@
 /**
- * UserCoreInfo.java
+ * UserRaw.java
  * [CopyRight]
  * @author leo [leoyonn@gmail.com]
- * @date 2013-6-16 下午4:10:05
+ * @date 2013-8-18 下午7:01:29
  */
 package com.wiselink.model.user;
 
@@ -12,11 +12,9 @@ import com.google.gson.Gson;
 import com.wiselink.base.jsonable.Jsonable;
 
 /**
- * 用户静态信息<p>
- * 用户信息{@link UserDeprecated} 由两部分组成，用户静态信息{@link UserInfo} 和用户角色信息{@link UserRole}
  * @author leo
  */
-public class UserInfo implements Jsonable {
+public class UserRaw implements Jsonable {
     public String id;
     public String account;
     public String name;
@@ -33,62 +31,25 @@ public class UserInfo implements Jsonable {
     public Timestamp updateTime;
     public String operId;
 
-    public UserInfo() {}
-    
+    public int catCode;
+    public int posCode;
+    public int froleCode;
+    public int droleCode;
+    public int statCode;
+    public String corpId;
+    public String deptId;
 
-    /**
-     * constructor
-     * @param id
-     * @param account
-     * @param name
-     * @param password
-     * @param avatar
-     * @param email
-     * @param phone
-     * @param tel
-     * @param desc
-     * @param province
-     * @param city
-     * @param createTime
-     * @param creatorId
-     * @param updateTime
-     * @param operId
-     */
-    public UserInfo(String id, String account, String name, String password, String avatar, String email, String phone,
-            String tel, String desc, String province, String city, Timestamp createTime, String creatorId,
-            Timestamp updateTime, String operId) {
-        this.id = id;
-        this.account = account;
-        this.name = name;
-        // this.password = password;
-        this.avatar = avatar;
-        this.email = email;
-        this.phone = phone;
-        this.tel = tel;
-        this.desc = desc;
-        this.province = province;
-        this.city = city;
-        this.createTime = createTime;
-        this.creatorId = creatorId;
-        this.updateTime = updateTime;
-        this.operId = operId;
-    }
-
+    public UserRaw() {}
 
     public String getId() {
         return id;
-    }
-
-    public UserInfo setId(String id) {
-        this.id = id;
-        return this;
     }
 
     public String getAccount() {
         return account;
     }
 
-    public UserInfo setAccount(String account) {
+    public UserRaw setAccount(String account) {
         this.account = account;
         return this;
     }
@@ -97,25 +58,16 @@ public class UserInfo implements Jsonable {
         return name;
     }
 
-    public UserInfo setName(String name) {
+    public UserRaw setName(String name) {
         this.name = name;
         return this;
     }
-
-//    public String getPassword() {
-//        return password;
-//    }
-//
-//    public UserInfo setPassword(String password) {
-//        this.password = password;
-//        return this;
-//    }
 
     public String getAvatar() {
         return avatar;
     }
 
-    public UserInfo setAvatar(String avatar) {
+    public UserRaw setAvatar(String avatar) {
         this.avatar = avatar;
         return this;
     }
@@ -124,7 +76,7 @@ public class UserInfo implements Jsonable {
         return email;
     }
 
-    public UserInfo setEmail(String email) {
+    public UserRaw setEmail(String email) {
         this.email = email;
         return this;
     }
@@ -133,7 +85,7 @@ public class UserInfo implements Jsonable {
         return phone;
     }
 
-    public UserInfo setPhone(String phone) {
+    public UserRaw setPhone(String phone) {
         this.phone = phone;
         return this;
     }
@@ -142,7 +94,7 @@ public class UserInfo implements Jsonable {
         return tel;
     }
 
-    public UserInfo setTel(String tel) {
+    public UserRaw setTel(String tel) {
         this.tel = tel;
         return this;
     }
@@ -151,7 +103,7 @@ public class UserInfo implements Jsonable {
         return desc;
     }
 
-    public UserInfo setDesc(String desc) {
+    public UserRaw setDesc(String desc) {
         this.desc = desc;
         return this;
     }
@@ -160,7 +112,7 @@ public class UserInfo implements Jsonable {
         return province;
     }
 
-    public UserInfo setProvince(String province) {
+    public UserRaw setProvince(String province) {
         this.province = province;
         return this;
     }
@@ -169,7 +121,7 @@ public class UserInfo implements Jsonable {
         return city;
     }
 
-    public UserInfo setCity(String city) {
+    public UserRaw setCity(String city) {
         this.city = city;
         return this;
     }
@@ -178,7 +130,7 @@ public class UserInfo implements Jsonable {
         return createTime;
     }
 
-    public UserInfo setCreateTime(Timestamp createTime) {
+    public UserRaw setCreateTime(Timestamp createTime) {
         this.createTime = createTime;
         return this;
     }
@@ -187,7 +139,7 @@ public class UserInfo implements Jsonable {
         return updateTime;
     }
 
-    public UserInfo setUpdateTime(Timestamp updateTime) {
+    public UserRaw setUpdateTime(Timestamp updateTime) {
         this.updateTime = updateTime;
         return this;
     }
@@ -196,7 +148,7 @@ public class UserInfo implements Jsonable {
         return creatorId;
     }
 
-    public UserInfo setCreatorId(String creatorId) {
+    public UserRaw setCreatorId(String creatorId) {
         this.creatorId = creatorId;
         return this;
     }
@@ -205,8 +157,70 @@ public class UserInfo implements Jsonable {
         return operId;
     }
 
-    public UserInfo setOperId(String operId) {
+    public UserRaw setOperId(String operId) {
         this.operId = operId;
+        return this;
+    }
+
+    public int getPosCode() {
+        return posCode;
+    }
+
+    public int getFroleCode() {
+        return froleCode;
+    }
+
+    public int getDroleCode() {
+        return droleCode;
+    }
+
+    public int getStatCode() {
+        return statCode;
+    }
+
+    public String getCorpId() {
+        return corpId;
+    }
+
+    public String getDeptId() {
+        return deptId;
+    }
+
+    public UserRaw setId(String id) {
+        this.id = id;
+        return this;
+    }
+    public UserRaw setCatCode(int catCode) {
+        this.catCode = catCode;
+        return this;
+    }
+
+    public UserRaw setPosCode(int posCode) {
+        this.posCode = posCode;
+        return this;
+    }
+
+    public UserRaw setDroleCode(int droleCode) {
+        this.droleCode = droleCode;
+        return this;
+    }
+
+    public UserRaw setFroleCode(int froleCode) {
+        this.froleCode = froleCode;
+        return this;
+    }
+
+    public UserRaw setStatCode(int statCode) {
+        this.statCode = statCode;
+        return this;
+    }
+    
+    public UserRaw setCorpId(String corpId) {
+        this.corpId = corpId;
+        return this;
+    }
+    public UserRaw setDeptId(String deptId) {
+        this.deptId = deptId;
         return this;
     }
 

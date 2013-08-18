@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,7 @@ import com.wiselink.exception.ServiceException;
 import com.wiselink.model.org.Corp;
 import com.wiselink.model.org.Dept;
 import com.wiselink.model.org.Org;
+import com.wiselink.model.param.QueryListParam;
 import com.wiselink.utils.IdUtils;
 
 /**
@@ -41,20 +43,12 @@ public class CorpService {
     /**
      * 新建一个公司
      * 
-     * @param id
-     * @param type
-     * @param name
-     * @param desc
-     * @param address
-     * @param tel
-     * @param contact
-     * @return
+     * @param corp
      * @throws ServiceException
      */
-    public boolean newCorp(String id, String type, String name, String desc, String address, String tel, String contact)
-            throws ServiceException {
+    public boolean newCorp(Corp corp) throws ServiceException {
         try {
-            return corpDao.addCorp(id, type, name, desc, address, tel, contact);
+            return corpDao.addCorp(corp.id, corp.type, corp.name, corp.desc, corp.address, corp.tel, corp.contact);
         } catch (Exception ex) {
             throw new ServiceException(ex);
         }
@@ -62,20 +56,13 @@ public class CorpService {
 
     /**
      * 修改一个公司的信息
-     * @param id
-     * @param type
-     * @param name
-     * @param desc
-     * @param address
-     * @param tel
-     * @param contact
+     * @param corp
      * @return
      * @throws ServiceException
      */
-    public boolean updateCorp(String id, String type, String name, String desc, String address, String tel, String contact)
-            throws ServiceException {
+    public boolean updateCorp(Corp corp) throws ServiceException {
         try {
-            return corpDao.updateCorp(id, type, name, desc, address, tel, contact);
+            return corpDao.updateCorp(corp.id, corp.type, corp.name, corp.desc, corp.address, corp.tel, corp.contact);
         } catch (Exception ex) {
             throw new ServiceException(ex);
         }
@@ -130,17 +117,22 @@ public class CorpService {
     /**
      * 添加一个新的部门
      * 
-     * @param id
-     * @param name
-     * @param desc
-     * @param corpId
-     * @param deptType
+     * @param dept
      * @return
      * @throws ServiceException
      */
-    public boolean newDept(String id, String name, String desc, String deptType,String corpId) throws ServiceException {
+    public Dept newDept(Dept dept) throws ServiceException {
         try {
-            return deptDao.addDept(id, name, desc, deptType, corpId);
+            String maxId = deptDao.maxDeptId(dept.corpId);
+            if (StringUtils.isBlank(maxId)) {
+                maxId = dept.corpId;
+            }
+            dept.id = String.valueOf(Long.valueOf(maxId) + 1);
+            if (deptDao.addDept(dept.id, dept.name, dept.desc, dept.deptType, dept.corpId)) {
+                return dept;
+            } else {
+                throw new ServiceException("write into database failed");
+            }
         } catch (Exception ex) {
             throw new ServiceException(ex);
         }
@@ -148,17 +140,18 @@ public class CorpService {
 
     /**
      * 修改一个部门的信息
-     * @param id
-     * @param name
-     * @param desc
-     * @param deptType
-     * @param corpId
+     * 
+     * @param dept
      * @return
      * @throws ServiceException
      */
-    public boolean updateDept(String id, String name, String desc, String deptType,String corpId) throws ServiceException {
+    public Dept updateDept(Dept dept) throws ServiceException {
         try {
-            return deptDao.updateDept(id, name, desc, deptType, corpId);
+            if(deptDao.updateDept(dept.id, dept.name, dept.desc, dept.deptType, dept.corpId)) {
+                return dept;
+            } else {
+                throw new ServiceException("write into database failed");
+            }
         } catch (Exception ex) {
             throw new ServiceException(ex);
         }
@@ -193,16 +186,38 @@ public class CorpService {
     }
 
     /**
-     * list all depts in :ids  
+     * 根据参数查询所有符合要求的部门
      * 
-     * @param from
-     * @param num
+     * @param param
      * @return
-     * @throws ServiceException 
+     * @throws ServiceException
      */
-    public List<Dept> getDepts(Collection<String> ids) throws ServiceException {
+    public List<Dept> listDepts(QueryListParam param) throws ServiceException {
         try {
-            return deptDao.list(ids);
+            String name = param.getFields().get("name");
+            int from = (param.page - 1) * param.size + 1;
+            int to = from + param.size - 1;
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("list depts of name: {} from {} to {}", new Object[]{name, from, to});
+            }
+            if (!StringUtils.isEmpty(name)) {
+                return deptDao.queryByName(name, from, to);
+            } else {
+                return deptDao.all();
+            }
+        } catch (Exception ex) {
+            throw new ServiceException(ex);
+        }
+    }
+
+    public int countDepts(QueryListParam param) throws ServiceException {
+        try {
+            String name = param.getFields().get("name");
+            if (!StringUtils.isEmpty(name)) {
+                return deptDao.countByName(name);
+            } else {
+                return deptDao.count();
+            }
         } catch (Exception ex) {
             throw new ServiceException(ex);
         }
