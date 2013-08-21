@@ -30,6 +30,11 @@ public class UserCard implements Jsonable {
         this.pos = pos;
     }
 
+    public UserCard(UserCardRaw raw) {
+        this.id = raw.id;
+        this.name = raw.name;
+    }
+
     public String getId() {
         return id;
     }

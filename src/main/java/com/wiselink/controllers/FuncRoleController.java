@@ -16,6 +16,7 @@ import net.paoding.rose.web.annotation.Param;
 import net.paoding.rose.web.annotation.Path;
 import net.paoding.rose.web.annotation.rest.Get;
 import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +26,7 @@ import com.wiselink.base.ApiStatus;
 import com.wiselink.base.Constants;
 import com.wiselink.controllers.annotations.LoginRequired;
 import com.wiselink.exception.ServiceException;
+import com.wiselink.model.param.QueryListParam;
 import com.wiselink.model.role.FuncModule;
 import com.wiselink.model.role.FuncRole;
 import com.wiselink.model.role.FuncRoleInfo;
@@ -56,7 +58,9 @@ public class FuncRoleController extends BaseController {
      * @return
      */
     @Get("1")
-    public String getFrole(@Param("code") int code) {
+    public String getFrole(@NotBlank @Param("param") String param) {
+        LOGGER.info("get func role: {}", param);
+        int code = JSONObject.fromObject(param).optInt("code", -1);
         if (code < 0) {
             return allFroles();
         }
@@ -79,29 +83,21 @@ public class FuncRoleController extends BaseController {
      * @return
      */
     @Get("list")
-    public String listFroles(@Param("from") int from, @Param("num") int num) {
-        if (num < 0) {
-            num = Constants.MAX_ROLE_NUM;
-        }
+    public String listFroles(@Param("param") String param) {
+        LOGGER.info("list func roles: {}", param);
+        QueryListParam listParam = (QueryListParam) new QueryListParam().fromJson(param);
+        LOGGER.info("list func roles with list param: {}", listParam);
         List<FuncRoleInfo> roles = null;
+        int total = 0;
         try {
-            roles = froleService.getFuncRoles(from, num);
+            roles = froleService.getFuncRoles(listParam);
+            total = froleService.allFuncRolesCount();
         } catch (ServiceException ex) {
-            LOGGER.error("list froles from " + from + " num " + num + " got exception!", ex);
+            LOGGER.error("list froles " + listParam + " got exception!", ex);
             return failResult(ApiStatus.SERVICE_ERROR);
         }
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("list role from: {}, num: {}, got {}.", new Object[]{from, num, roles});
-        }
-        if (roles == null || roles.size() == 0) {
-            return failResult(ApiStatus.DATA_EMPTY);
-        }
-        JSONArray array = new JSONArray();
-        for (FuncRoleInfo role: roles) {
-            array.add(role.toJson());
-        }
-        LOGGER.debug("list role returning{}.", array);
-        return successResult(array.toString());
+        LOGGER.debug("list func role: {} got {}.", listParam, roles);
+        return successResult(roles, total);
     }
 
     /**
@@ -110,7 +106,16 @@ public class FuncRoleController extends BaseController {
      */
     @Get("all")
     public String allFroles() {
-        return listFroles(-1, -1);
+        LOGGER.info("all func roles...");
+        List<FuncRoleInfo> roles = null;
+        try {
+            roles = froleService.allFuncRoles();
+        } catch (ServiceException ex) {
+            LOGGER.error("list all froles got exception!", ex);
+            return failResult(ApiStatus.SERVICE_ERROR);
+        }
+        LOGGER.debug("list all func role got {}.", roles);
+        return successResult(roles);
     }
 
     /**
@@ -119,8 +124,9 @@ public class FuncRoleController extends BaseController {
      * @return
      */
     @Get("module")
-    public String module(@Param("code") int code) {
-        LOGGER.debug("query for module {}.", code);
+    public String module(@NotBlank @Param("param") String param) {
+        LOGGER.info("query for module: {}", param);
+        int code = JSONObject.fromObject(param).optInt("code", -1);
         if (code < 0) {
             return allModules();
         }
@@ -129,7 +135,7 @@ public class FuncRoleController extends BaseController {
         if (module == null) {
             return failResult(ApiStatus.INVALID_PARAMETER);
         } else {
-            return successResult(module.toJson());
+            return successResult(module);
         }
     }
 
@@ -154,22 +160,21 @@ public class FuncRoleController extends BaseController {
      * @param creatorId
      * @return
      */
-    @SuppressWarnings("not completed|post")
+    @SuppressWarnings("post")
     @Get("new")
-    public String newFrole(Invocation inv, @Param("name") String name, @Param("desc") String desc,
-            @Param("corpId") String corpId, @Param("deptId") String deptId, @Param("creatorId") String creatorId) {
-        LOGGER.debug("add func role of name: {}, desc: {}.", name, desc);
-        // TODO full file this: get creator from cookie
-        CookieUtils.getCookie(inv, "user");
+    public String newFrole(Invocation inv, @Param("param") String param) {
+        LOGGER.info("add func role from param: {}.", param);
+        FuncRoleInfo info = (FuncRoleInfo) new FuncRoleInfo().fromJson(param);
+        info.setCreatorId(getUserIdFromCookie(inv));
         try {
-            FuncRole frole = froleService.newFuncRole(name, desc, corpId, deptId, creatorId);
+            FuncRole frole = froleService.newFuncRole(info);
             LOGGER.debug("add func role result: {}.", frole);
             if (frole == null) {
                 return failResult(ApiStatus.INVALID_PARAMETER, "未检索导数据，请检查参数或联系管理员");
             }
-            return successResult(frole.toJson());
+            return successResult(frole);
         } catch (ServiceException ex) {
-            LOGGER.error("add func role " + name + "|" + desc + " got exception!", ex);
+            LOGGER.error("add func role " + info + " got exception!", ex);
             return failResult(ApiStatus.DATA_INSERT_FAILED, "角色添加失败，请检查参数或联系管理员");
         }
     }
@@ -186,21 +191,20 @@ public class FuncRoleController extends BaseController {
      */
     @SuppressWarnings("not completed|post")
     @Get("up/info")
-    public String updateFroleInfo(Invocation inv, @Param("code") int code, @Param("name") String name, 
-            @Param("desc") String desc, @Param("corpId") String corpId, @Param("deptId") String deptId) {
-        LOGGER.debug("update func role info of name: {}, desc: {}.", name, desc);
-        // TODO full file this: get creator from cookie
-        CookieUtils.getCookie(inv, "user");
+    public String updateFroleInfo(Invocation inv, @Param("param") String param) {
+        LOGGER.info("add func role from param: {}.", param);
+        FuncRoleInfo info = (FuncRoleInfo) new FuncRoleInfo().fromJson(param);
+        info.setCreatorId(getUserIdFromCookie(inv));
         try {
-            FuncRole frole = froleService.updateFuncRole(code, name, desc, corpId, deptId);
+            FuncRole frole = froleService.updateFuncRole(info);
             LOGGER.debug("update func role result: {}.", frole);
             if (frole == null) {
                 return failResult(ApiStatus.INVALID_PARAMETER, "未检索导数据，请检查参数或联系管理员");
             }
-            return successResult(frole.toJson());
+            return successResult(frole);
         } catch (ServiceException ex) {
-            LOGGER.error("add func role " + name + "|" + desc + " got exception!", ex);
-            return failResult(ApiStatus.DATA_INSERT_FAILED, "角色添加失败，请检查参数或联系管理员");
+            LOGGER.error("update func role " + info + " got exception!", ex);
+            return failResult(ApiStatus.DATA_UPDATE_FAILED, "角色更新失败，请检查参数或联系管理员");
         }
     }
     

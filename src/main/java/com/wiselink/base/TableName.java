@@ -11,6 +11,7 @@ package com.wiselink.base;
  * @author leo
  */
 public interface TableName {
+    String User = "PICC.\"user\"";
     String UserInfo = "PICC.\"user_info\"";
     String UserRole = "PICC.\"user_role\"";
     String FuncRoleInfo = "PICC.\"func_role_info\"";

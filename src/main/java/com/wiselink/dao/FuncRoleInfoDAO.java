@@ -13,6 +13,7 @@ import java.util.List;
 import javax.management.relation.Role;
 
 import net.paoding.rose.jade.annotation.DAO;
+import net.paoding.rose.jade.annotation.ReturnGeneratedKeys;
 import net.paoding.rose.jade.annotation.SQL;
 import net.paoding.rose.jade.annotation.SQLParam;
 
@@ -27,6 +28,8 @@ import com.wiselink.model.role.FuncRoleInfo;
  */
 @DAO
 public interface FuncRoleInfoDAO {
+    String KEYS = "\"name\", \"desc\", \"corpId\", \"deptId\", \"creatorId\", \"createTime\", \"updateTime\"";
+
     /**
      * 添加一条func-role-info到database
      * <li>code为自增PK字段；
@@ -38,11 +41,14 @@ public interface FuncRoleInfoDAO {
      * @param creatorId
      * @return
      */
-    @SQL("INSERT INTO " + TableName.FuncRoleInfo 
-            + "(\"name\", \"desc\", \"corpId\", \"deptId\", \"creatorId\", \"createTime\", \"updateTime\")"
+    @SQL("INSERT INTO " + TableName.FuncRoleInfo + "(" + KEYS + ")"
             + " VALUES (:name,:desc,:corpId,:deptId,:creatorId,sysdate,sysdate)")
     public boolean add(@SQLParam("name") String name, @SQLParam("desc") String desc, @SQLParam("corpId") String corpId, @SQLParam("deptId") String deptId,
-            @SQLParam("creatorId") String creatorId) throws SQLException, DataAccessException, DataAccessException;
+            @SQLParam("creatorId") String creatorId) throws SQLException, DataAccessException;
+
+    @SQL("INSERT INTO " + TableName.FuncRoleInfo + "(" + KEYS + ")"
+            + " VALUES (:r.name,:r.desc,:r.corpId,:r.deptId,:r.creatorId,sysdate,sysdate)")
+    public boolean add(@SQLParam("r") FuncRoleInfo role) throws SQLException, DataAccessException;
 
     /**
      * 修改一条func-role-info
@@ -58,6 +64,11 @@ public interface FuncRoleInfoDAO {
             + " WHERE \"code\" = :code")
     public boolean update(@SQLParam("code") int code, @SQLParam("name") String name, @SQLParam("desc") String desc,
             @SQLParam("corpId") String corpId, @SQLParam("deptId") String deptId) throws SQLException, DataAccessException;
+
+    @SQL("UPDATE " + TableName.FuncRoleInfo
+            + " SET \"name\"=:r.name, \"desc\"=:r.desc, \"corpId\"=:r.corpId, \"deptId\"=:r.deptId, \"updateTime\"=sysdate"
+            + " WHERE \"code\" = :r.code") // TODO creator验证：AND \"creatorId\" = :r.creatorId"
+    public boolean update(@SQLParam("r") FuncRoleInfo role) throws SQLException, DataAccessException;
 
     /**
      * find func-role using id
@@ -78,8 +89,15 @@ public interface FuncRoleInfoDAO {
      * @param num
      * @return
      */
-    @SQL("SELECT * FROM " + TableName.FuncRoleInfo + " WHERE \"code\" >= :from AND ROWNUM <=:num ORDER BY \"code\"")
-    public List<FuncRoleInfo> list(@SQLParam("from") int from, @SQLParam("num") int num) throws SQLException, DataAccessException;
+    @SQL("SELECT " + KEYS + " FROM (SELECT A.*, ROWNUM N FROM (SELECT * FROM " + TableName.FuncRoleInfo + ") A "
+            + "WHERE ROWNUM <= :to) WHERE N >= :from")
+    public List<FuncRoleInfo> list(@SQLParam("from") int from, @SQLParam("to") int to) throws SQLException, DataAccessException;
+
+    @SQL("SELECT * FROM " + TableName.FuncRoleInfo)
+    public List<FuncRoleInfo> all() throws SQLException, DataAccessException;
+
+    @SQL("SELECT COUNT(\"code\") FROM " + TableName.FuncRoleInfo)
+    public int count() throws SQLException, DataAccessException;
 
     /**
      * list all func-roles in :codes sorted by {@link Role#code}  

@@ -192,9 +192,9 @@ public class CorpService {
      * @return
      * @throws ServiceException
      */
-    public List<Dept> listDepts(QueryListParam param) throws ServiceException {
+    public List<Dept> queryDepts(QueryListParam param) throws ServiceException {
         try {
-            String name = param.getFields().get("name");
+            String name = param.getLikeField("name", "");
             int from = (param.page - 1) * param.size + 1;
             int to = from + param.size - 1;
             if (LOGGER.isDebugEnabled()) {

@@ -15,9 +15,9 @@ CREATE TABLE PICC."user"
   "desc"        VARCHAR2(256 CHAR),
   "province"    VARCHAR2(64 CHAR),
   "city"        VARCHAR2(64 CHAR),
-  "createTime"  TIMESTAMP(6),
+  "createTime"  TIMESTAMP(6) DEFAULT SYSDATE,
   "creatorId"   VARCHAR2(64 CHAR),
-  "updateTime"  TIMESTAMP(6),
+  "updateTime"  TIMESTAMP(6) DEFAULT SYSDATE,
   "operId"      VARCHAR2(64 CHAR),
 
   "catCode"     NUMBER(6),

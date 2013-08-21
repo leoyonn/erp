@@ -6,7 +6,6 @@
  */
 package com.wiselink.controllers;
 
-import java.util.Arrays;
 import java.util.List;
 
 import net.paoding.rose.web.Invocation;
@@ -23,12 +22,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.google.gson.Gson;
 import com.wiselink.base.ApiStatus;
 import com.wiselink.controllers.annotations.LoginRequired;
-import com.wiselink.controllers.annotations.Trimmed;
 import com.wiselink.exception.ServiceException;
 import com.wiselink.model.param.QueryListParam;
-import com.wiselink.model.user.UserDeprecated;
-import com.wiselink.model.user.UserInfo;
-import com.wiselink.model.user.UserRoleC;
+import com.wiselink.model.user.User;
+import com.wiselink.model.user.UserRaw;
 import com.wiselink.service.UserService;
 import com.wiselink.utils.CookieUtils;
 
@@ -47,19 +44,19 @@ public class UserController extends BaseController {
     @SuppressWarnings("@Post")
     @Get("new")
     public String newUser(Invocation inv, @Param("param") String param) {
-        UserInfo info = (UserInfo)new UserInfo().fromJson(param);
+        UserRaw user = (UserRaw)new UserRaw().fromJson(param);
         String password = JSONObject.fromObject(param).optString("password", "");
         if (StringUtils.isBlank(password)) {
             return failResult(ApiStatus.INVALID_PARAMETER, "用户密码为空");
         }
-        new Gson().fromJson(param, UserInfo.class);
+        new Gson().fromJson(param, UserRaw.class);
         try {
-            boolean ok = userService.addUser(info, password);
+            boolean ok = userService.newUser(user, password);
             if (ok) {
                 return successResult("添加用户成功");
             }
         } catch (ServiceException ex) {
-            LOGGER.error("add user failed:" + info, ex);
+            LOGGER.error("add user failed:" + user, ex);
             return failResult(ApiStatus.DATA_INSERT_FAILED);
         }
         return failResult(ApiStatus.DATA_INSERT_FAILED);
@@ -70,16 +67,16 @@ public class UserController extends BaseController {
      * @return
      */
     @SuppressWarnings("@Post")
-    @Get("up/info")
-    public String updateUserInfo(@Param("param") String param) {
-        UserInfo info = (UserInfo)new UserInfo().fromJson(param);
+    @Get("up")
+    public String updateUser(@Param("param") String param) {
+        UserRaw user = (UserRaw)new UserRaw().fromJson(param);
         try {
-            boolean ok = userService.updateUserInfo(info);
+            boolean ok = userService.updateUser(user);
             if (ok) {
                 return successResult("修改用户信息成功");
             }
         } catch (ServiceException ex) {
-            LOGGER.error("update user info failed:" + info, ex);
+            LOGGER.error("update user info failed:" + user, ex);
             return failResult(ApiStatus.DATA_INSERT_FAILED);
         }
         return failResult(ApiStatus.DATA_INSERT_FAILED);
@@ -102,7 +99,7 @@ public class UserController extends BaseController {
             return failResult(ApiStatus.AUTH_INVALID_USER);
         }
         try {
-            boolean ok = userService.updateUserPassword(userId, oldpass, newpass);
+            boolean ok = userService.updatePassword(userId, oldpass, newpass);
             if (ok) {
                 return successResult("修改密码成功");
             }
@@ -111,49 +108,6 @@ public class UserController extends BaseController {
             return failResult(ApiStatus.DATA_INSERT_FAILED);
         }
         return failResult(ApiStatus.DATA_INSERT_FAILED);
-    }
-
-    /**
-     * @param userId
-     * @param catCode
-     * @param posCode
-     * @param froleCode
-     * @param droleCode
-     * @param statCode
-     * @param corpId
-     * @param deptId
-     * @return
-     */
-    @SuppressWarnings("@Post")
-    @Get("new/role")
-    public String newUserRole(@Param("param") String param) {
-        UserRoleC rolec = (UserRoleC) new UserRoleC().fromJson(param);
-        try {
-            boolean ok = userService.addUserRole(rolec);
-            if (ok) {
-                return successResult("添加用户角色属性成功");
-            }
-        } catch (ServiceException ex) {
-            LOGGER.error("new user role failed:" + rolec, ex);
-            return failResult(ApiStatus.DATA_INSERT_FAILED);
-        }
-        return failResult(ApiStatus.DATA_INSERT_FAILED);
-    }
-
-    @SuppressWarnings("@Post")
-    @Get("up/role")
-    public String updateUserRole(@Param("param") String param) {
-        UserRoleC rolec = (UserRoleC) new UserRoleC().fromJson(param);
-        try {
-            boolean ok = userService.updateUserRole(rolec);
-            if (ok) {
-                return successResult("修改用户角色属性成功");
-            }
-        } catch (ServiceException ex) {
-            LOGGER.error("update user role failed:" + rolec, ex);
-            return failResult(ApiStatus.DATA_UPDATE_FAILED);
-        }
-        return failResult(ApiStatus.DATA_UPDATE_FAILED);
     }
 
     /**
@@ -166,10 +120,10 @@ public class UserController extends BaseController {
         JSONObject j = JSONObject.fromObject(param);
         String id = j.optString("id", "");
         String account = j.optString("account", "");
-        if (StringUtils.isBlank(id) && StringUtils.isBlank(id)) {
+        if (StringUtils.isBlank(id) && StringUtils.isBlank(account)) {
             return failResult(ApiStatus.INVALID_PARAMETER, "id或account不能都为空");
         }
-        UserDeprecated user = null;
+        User user = null;
         try {
             if (!StringUtils.isEmpty(id)) {
                 user = userService.getUserById(id);
@@ -190,6 +144,7 @@ public class UserController extends BaseController {
 
     /**
      * 批量获取用户
+     * 
      * @param ids
      * @return
      */
@@ -199,7 +154,7 @@ public class UserController extends BaseController {
         QueryListParam listParam = (QueryListParam) new QueryListParam().fromJson(param);
         LOGGER.info("list users with list param: {}", listParam);
         try {
-            List<UserDeprecated> users = userService.queryUsers(listParam);
+            List<User> users = userService.queryUsers(listParam);
             LOGGER.debug("got users:{}", users);
             if (users != null && users.size() > 0) {
                 return successResult(users);
@@ -218,7 +173,7 @@ public class UserController extends BaseController {
     @Get("all")
     public String allUsers() {
         try {
-            List<UserDeprecated> users = userService.all();
+            List<User> users = userService.all();
             LOGGER.debug("got all users:{}", users);
             if (users != null && users.size() > 0) {
                 return successResult(users);
@@ -236,10 +191,16 @@ public class UserController extends BaseController {
      */
     @SuppressWarnings("@Post")
     @Get("del")
-    public String deleteUser(@Param("id") String userId) {
-        // TODO permission check
+    public String deleteUser(Invocation inv, @NotBlank @Param("param") String param) {
+        JSONObject json = JSONObject.fromObject(param);
+        String id =json.optString("id", "");
+        String creatorId =json.optString("creatorId", "");
+        String userId = CookieUtils.getUserId(inv);
+        if (StringUtils.isEmpty(creatorId) || !creatorId.equals(userId)) {
+            return failResult(ApiStatus.AUTH_DENIED, "创建者ID参数不存在或与当前登录用户不符，或与要删除的用户创建者不符");
+        }
         try {
-            boolean ok = userService.deleteUser(userId);
+            boolean ok = userService.deleteUser(id, creatorId);
             if (ok) {
                 return successResult("删除用户成功");
             }

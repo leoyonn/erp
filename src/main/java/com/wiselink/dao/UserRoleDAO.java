@@ -17,7 +17,6 @@ import net.paoding.rose.jade.annotation.SQLParam;
 import org.springframework.dao.DataAccessException;
 
 import com.wiselink.base.TableName;
-import com.wiselink.model.user.UserInfo;
 import com.wiselink.model.user.UserRoleC;
 
 /**
@@ -42,6 +41,7 @@ public interface UserRoleDAO {
      * @return
      * @throws SQLException, DataAccessException
      */
+    @Deprecated
     @SQL("INSERT INTO " + TableName.UserRole + USER_ROLE_KEYS + USER_ROLE_VALUES)
     public boolean addUserRole(@SQLParam("id") String userId,
             @SQLParam("catCode") int catCode,
@@ -68,6 +68,7 @@ public interface UserRoleDAO {
      * @return
      * @throws SQLException, DataAccessException
      */
+    @Deprecated
     @SQL("SELECT * FROM " + TableName.UserRole + " WHERE \"id\" = :id")
     public UserRoleC find(@SQLParam("id") String userId) throws SQLException, DataAccessException;
 
@@ -76,6 +77,7 @@ public interface UserRoleDAO {
      * @param userIds
      * @return
      */
+    @Deprecated
     @SQL("SELECT * FROM " + TableName.UserRole + " WHERE \"id\" IN (:ids) ORDER BY \"id\"")
     public List<UserRoleC> getRoles(@SQLParam("ids") Collection<String> userIds) throws SQLException, DataAccessException;
 
@@ -85,6 +87,7 @@ public interface UserRoleDAO {
      * @throws SQLException
      * @throws DataAccessException
      */
+    @Deprecated
     @SQL("SELECT * FROM " + TableName.UserRole + " ORDER BY \"id\"")
     public List<UserRoleC> all() throws SQLException, DataAccessException;
 
@@ -93,6 +96,7 @@ public interface UserRoleDAO {
      * @return
      * @throws SQLException, DataAccessException
      */
+    @Deprecated
     @SQL("DELETE FROM " + TableName.UserRole + " WHERE \"id\" = :id")
     public boolean delete(@SQLParam("id") String id) throws SQLException, DataAccessException;
 
@@ -101,6 +105,7 @@ public interface UserRoleDAO {
      * @return
      * @throws SQLException, DataAccessException
      */
+    @Deprecated
     @SQL("DELETE FROM " + TableName.UserRole)
     public int clear() throws SQLException, DataAccessException;
 }

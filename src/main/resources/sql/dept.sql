@@ -41,3 +41,9 @@ ALTER TABLE PICC."dept"
  ADD CONSTRAINT "dept_PK"
   PRIMARY KEY ("id")
   ENABLE VALIDATE;
+
+ALTER TABLE PICC."dept" ADD 
+CONSTRAINT "dept_unique_name_corpId"
+ UNIQUE ("name", "corpId")
+ ENABLE
+ VALIDATE;

@@ -67,55 +67,62 @@ public class FuncRoleInfo implements Jsonable {
         return name;
     }
 
-    public void setName(String name) {
+    public FuncRoleInfo setName(String name) {
         this.name = name;
+        return this;
     }
 
     public String getDesc() {
         return desc;
     }
 
-    public void setDesc(String desc) {
+    public FuncRoleInfo setDesc(String desc) {
         this.desc = desc;
+        return this;
     }
 
     public String getCorpId() {
         return corpId;
     }
 
-    public void setCorpId(String corpId) {
+    public FuncRoleInfo setCorpId(String corpId) {
         this.corpId = corpId;
+        return this;
     }
 
     public String getDeptId() {
         return deptId;
     }
 
-    public void setDeptId(String deptId) {
+    public FuncRoleInfo setDeptId(String deptId) {
         this.deptId = deptId;
+        return this;
     }
 
     public Timestamp getCreateTime() {
         return createTime;
     }
 
-    public void setCreateTime(Timestamp createTime) {
+    public FuncRoleInfo setCreateTime(Timestamp createTime) {
         this.createTime = createTime;
+        return this;
     }
 
     public String getCreatorId() {
         return creatorId;
     }
 
-    public void setCreatorId(String creatorId) {
+    public FuncRoleInfo setCreatorId(String creatorId) {
         this.creatorId = creatorId;
+        return this;
     }
 
     public Timestamp getUpdateTime() {
         return updateTime;
     }
 
-    public void setUpdateTime(Timestamp updateTime) {
+    public FuncRoleInfo setUpdateTime(Timestamp updateTime) {
         this.updateTime = updateTime;
+        return this;
     }
 }

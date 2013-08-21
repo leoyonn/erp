@@ -12,6 +12,8 @@ import java.util.Map;
 
 import net.sf.json.JSONObject;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.google.gson.Gson;
 import com.wiselink.base.jsonable.Jsonable;
 
@@ -84,7 +86,7 @@ public class QueryListParam implements Jsonable {
             if (k.equals("con")) {
                 this.q = QueryType.valueOf(where.getString(k));
             } else {
-                this.fields.put(k, "%" + where.getString(k) + "%");
+                this.fields.put(k, where.getString(k));
             }
         }
         return this;
@@ -93,5 +95,29 @@ public class QueryListParam implements Jsonable {
     @Override
     public String toString() {
         return toJson();
+    }
+
+    public String getStringField(String key, String defaultValue) {
+        String v = fields.get(key);
+        if (StringUtils.isBlank(v)) {
+            v = defaultValue;
+        }
+        return v;
+    }
+
+    public String getLikeField(String key, String defaultValue) {
+        return "%" + getStringField(key, defaultValue) + "%";
+    }
+
+    public int getIntField(String key, int defaultValue) {
+        String v = fields.get(key);
+        if (StringUtils.isBlank(v)) {
+            return defaultValue;
+        }
+        try {
+            return Integer.valueOf(v);
+        } catch (NumberFormatException ex) {
+            return defaultValue;
+        }
     }
 }

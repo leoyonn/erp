@@ -76,7 +76,7 @@ public interface DeptDAO {
     public int count() throws SQLException, DataAccessException;
 
     @SQL("SELECT \"id\", \"name\", \"desc\", \"deptType\", \"corpId\" "
-            + "FROM (SELECT A.*, ROWNUM N FROM (SELECT * FROM PICC.\"dept\" WHERE \"name\" LIKE :nameLike) A "
+            + "FROM (SELECT A.*, ROWNUM N FROM (SELECT * FROM " + TableName.Dept + " WHERE \"name\" LIKE :nameLike) A "
             + "WHERE ROWNUM <= :to) WHERE N >= :from")
     public List<Dept> queryByName(@SQLParam("nameLike") String nameLike, 
             @SQLParam("from") int from, @SQLParam("to") int to) throws SQLException, DataAccessException;

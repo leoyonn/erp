@@ -21,6 +21,7 @@ import com.wiselink.dao.FuncRoleFuncsDAO;
 import com.wiselink.dao.FuncRoleInfoDAO;
 import com.wiselink.dao.FuncRoleUsersDAO;
 import com.wiselink.exception.ServiceException;
+import com.wiselink.model.param.QueryListParam;
 import com.wiselink.model.role.Func;
 import com.wiselink.model.role.FuncModule;
 import com.wiselink.model.role.FuncModules;
@@ -109,15 +110,34 @@ public class FuncRoleService {
     }
 
     /**
-     * 获取功能角色列表，从code为 #from 开始取 #num 个
+     * 获取功能角色列表
+     * 
      * @param from
-     * @param num
+     * @param to
      * @return
      * @throws ServiceException
      */
-    public List<FuncRoleInfo> getFuncRoles(int from, int num) throws ServiceException {
+    public List<FuncRoleInfo> getFuncRoles(QueryListParam param) throws ServiceException {
+        int from = (param.page - 1) * param.size + 1;
+        int to = from + param.size - 1;
         try {
-            return froleDao.list(from, num);
+            return froleDao.list(from, to);
+        } catch (Exception ex) {
+            throw new ServiceException(ex);
+        }
+    }
+
+    public List<FuncRoleInfo> allFuncRoles() throws ServiceException {
+        try {
+            return froleDao.all();
+        } catch (Exception ex) {
+            throw new ServiceException(ex);
+        }
+    }
+    
+    public int allFuncRolesCount() throws ServiceException {
+        try {
+            return froleDao.count();
         } catch (Exception ex) {
             throw new ServiceException(ex);
         }
@@ -166,23 +186,18 @@ public class FuncRoleService {
      * @return
      * @throws ServiceException
      */
-    public FuncRole newFuncRole(String name, String desc, String corpId, String deptId, String creatorId) throws ServiceException {
+    public FuncRole newFuncRole(FuncRoleInfo info) throws ServiceException {
         boolean ok = false;
         try {
-            ok = froleDao.add(name, desc, corpId, deptId, creatorId);
+            ok = froleDao.add(info);
+            info = froleDao.findByName(info.name);
         } catch (Exception ex) { // SQLException, DataAccessException
             throw new ServiceException(ex);
         }
         if (!ok) {
             throw new ServiceException("new func role failed.");
         }
-        try {
-            FuncRoleInfo frole = froleDao.findByName(name);
-            LOGGER.debug("add func role success: {}.", frole);
-            return new FuncRole(frole);
-        } catch (Exception ex) {
-            throw new ServiceException(ex);
-        }
+        return new FuncRole(info);
     }
 
     /**
@@ -195,17 +210,17 @@ public class FuncRoleService {
      * @return
      * @throws ServiceException
      */
-    public FuncRole updateFuncRole(int code, String name, String desc, String corpId, String deptId) throws ServiceException {
+    public FuncRole updateFuncRole(FuncRoleInfo info) throws ServiceException {
         boolean ok = false;
         try {
-            ok = froleDao.update(code, name, desc, corpId, deptId);;
+            ok = froleDao.update(info);
         } catch (Exception ex) { // SQLException, DataAccessException
             throw new ServiceException(ex);
         }
         if (!ok) {
             throw new ServiceException("update func role failed.");
         }
-        return getFuncRole(code);
+        return getFuncRole(info.code);
     }
 
     /**

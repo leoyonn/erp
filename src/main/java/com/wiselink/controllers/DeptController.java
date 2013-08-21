@@ -71,6 +71,11 @@ public class DeptController  extends BaseController {
     public String newDept(Invocation inv, @NotBlank @Param("param") String param) {
         LOGGER.info("new dept with param: {}...", param);
         Dept dept = (Dept) new Dept().fromJson(param);
+        DeptType type = DeptType.valueOf(dept.type);
+        if (type == null) {
+            return failResult(ApiStatus.INVALID_PARAMETER, "参数type非法");
+        }
+        dept.type = DeptType.valueOf(dept.type).cname;
         LOGGER.info("new dept: {}...", dept);
         // TODO 检查id合法性
         try {
@@ -167,13 +172,13 @@ public class DeptController  extends BaseController {
      * @param num
      * @return
      */
-    @Get("list")
-    public String listDepts(@NotBlank @Param("param") String param) {
+    @Get("query")
+    public String queryDepts(@NotBlank @Param("param") String param) {
         LOGGER.info("list depts: {}", param);
         QueryListParam listParam = (QueryListParam) new QueryListParam().fromJson(param);
         LOGGER.info("list depts with list param: {}", listParam);
         try {
-            List<Dept> depts = corpService.listDepts(listParam);
+            List<Dept> depts = corpService.queryDepts(listParam);
             int total = corpService.countDepts(listParam);
             LOGGER.debug("got depts: {}.", depts);
             if (depts != null && depts.size() > 0) {

@@ -23,6 +23,7 @@ import com.wiselink.base.AuthResult;
 import com.wiselink.base.AuthStatus;
 import com.wiselink.base.Constants;
 import com.wiselink.exception.ServiceException;
+import com.wiselink.model.user.User;
 import com.wiselink.model.user.UserDeprecated;
 import com.wiselink.service.UserService;
 import com.wiselink.utils.CookieUtils;
@@ -53,7 +54,7 @@ public class AuthController extends BaseController {
             return apiResult(ApiResult.authFailed(authResult.stat));
         }
         setCookie(inv, authResult);
-        UserDeprecated u = null;
+        User u = null;
         try {
             u = userService.getUserById(authResult.userId);
         } catch (ServiceException e) {
@@ -92,7 +93,7 @@ public class AuthController extends BaseController {
     public String check(Invocation inv) {
         String userId = CookieUtils.getUserId(inv);
         LOGGER.info("got user from cookie: {}", userId);
-        UserDeprecated u = null;
+        User u = null;
         try {
             u = userService.getUserById(userId);
         } catch (ServiceException ex) {

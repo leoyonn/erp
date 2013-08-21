@@ -8,9 +8,7 @@ package com.wiselink.dao;
 
 import java.sql.SQLException;
 import java.util.Arrays;
-import java.util.List;
 
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -19,9 +17,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.wiselink.model.user.UserInfo;
-import com.wiselink.model.user.UserPass;
-import com.wiselink.model.user.UserRoleC;
+import com.wiselink.model.user.UserRaw;
 
 /**
  * @author leo
@@ -29,9 +25,11 @@ import com.wiselink.model.user.UserRoleC;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "classpath:applicationContext.xml")
 public class UserDaoTest {
+    @Autowired
+    private UserDAO userDao;
 
     @Autowired
-    private UserInfoDAO userDao;
+    private UserInfoDAO userInfoDao;
 
     @Autowired
     private UserRoleDAO roleDao;
@@ -45,21 +43,53 @@ public class UserDaoTest {
     }
 
     @Test
-    public void testUser() {
-        
+    public void testUser() throws DataAccessException, SQLException {
+        p(userDao.delete("1020300003", "1020300000"));
+        p(userDao.delete("1020300004", "1020300000"));
+        p(userDao.add("1020300003", "account-3", "张阿三", "pass1", "http://avatar.com/3.jpg",
+                "zhangsan@picc.com", "13811811888", "95518-1", "我是张三", "河北省", "石家庄市",
+                "1020300000", "1020300000", 0, 0, 101051, 102017, 0, "1020300000", "1020300001"));
+        UserRaw raw = new UserRaw().setId("1020300004")
+                .setAccount("account-4").setName("李阿四").setAvatar("http://avatar.com/4.jpg")
+                .setEmail("zhangsan@picc.com").setPhone("13811811888").setTel("95518-1")
+                .setDesc("我是张三").setProvince("河北省").setCity("石家庄市")
+                .setCreateTime(null).setCreatorId("1020300000").setUpdateTime(null).setOperId("1020300000")
+                .setCatCode(0).setPosCode(0).setFroleCode(101051).setDroleCode(102017)
+                .setStatCode(0).setCorpId("1020300000").setDeptId("1020300001");
+        p(userDao.add(raw, "pass1"));
+
+        p(userDao.update("1020300003", "account-3", "张阿三", "http://avatar.com/3.jpg",
+                "zhangsan@picc.com", "13811811888", "95518-1", "我是张三啊", "河北省", "石家庄市",
+                "1020300000", "1020300000", 0, 0, 101051, 102017, 0, "1020300000", "1020300001"));
+
+        p(userDao.update(raw.setDesc("我是李四啊")));
+        p(userDao.updatePasswordById(raw.id, "pass1", "pass4"));
+        p(userDao.getPasswordByAccount(raw.account));
+        p(userDao.updatePasswordByAccount(raw.account, "pass4", "pass1"));
+        p(userDao.getPasswordById(raw.id));
+        p(userDao.getUserByAccount(raw.account));
+        p(userDao.getUserById("1020300003"));
+        p(userDao.all());
+        p(userDao.queryUsers("%阿%", "", "", -1, -1, -1, 0, 10));
+        p(userDao.getUserCardsById(Arrays.asList(new String[]{"1020300003", "1020300004"})));
+        // p(userDao.delete(raw.id, "1020300000"));
+        // p(userDao.delete("1020300003", "1020300003"));
+        // p(userDao.delete("1020300003", "1020300000"));
+        // p(userDao.all());
     }
+    /*
     @Test
     public void testUserInfo() throws SQLException, DataAccessException {
-        userDao.clear();
-        UserInfo info = new UserInfo("1020300001", "account-1", "周鸿祎", "pass1", "http://avatar.com/1.jpg",
+        userInfoDao.clear();
+        UserInfo info = n)ew UserInfo("1020300001", "account-1", "周鸿祎", "pass1", "http://avatar.com/1.jpg",
                 "hongyi@picc.com", "13811811888", "95518-1", "人称教主啊我", "河北省", "石家庄市", null, "1020300000", null, "1020300000");
         UserInfo info2 = new UserInfo("1020300002", "account-2", "周鸿er", "pass2", "http://avatar.com/2.jpg",
                 "honger@picc.com", "13811811882", "95518-2", "人称教主2啊我", "河北省", "保定市", null, "1020300001", null, "1020300001");
         // add
-        boolean ok = userDao.add(info.id, info.account, info.name, "pass1", info.avatar,
+        boolean ok = userInfoDao.add(info.id, info.account, info.name, "pass1", info.avatar,
                 info.email, info.phone, info.tel, info.desc, info.province, info.city, info.creatorId, info.operId);
         // get by id
-        UserInfo got = userDao.getUserById(info.id);
+        UserInfo got = userInfoDao.getUserById(info.id);
         p(info);
         p(got);
         Assert.assertTrue(ok);
@@ -78,33 +108,33 @@ public class UserDaoTest {
         Assert.assertNotNull(got.createTime);
         Assert.assertNotNull(got.updateTime);
         // get by account
-        got = userDao.getUserByAccount(info.account);
+        got = userInfoDao.getUserByAccount(info.account);
         Assert.assertEquals(info.id, got.id);
         Assert.assertEquals(info.account, got.account);
         Assert.assertEquals(info.name, got.name);
         // unique: id, account
         try {
-            userDao.add(info.id, info.account + "a", info.name, "pass1", info.avatar,
+            userInfoDao.add(info.id, info.account + "a", info.name, "pass1", info.avatar,
                     info.email, info.phone, info.tel, info.desc, info.province, info.city, info.creatorId, info.operId);
             Assert.fail();
         } catch (Exception ex) {}
         try {
-            userDao.add(info.id + 1, info.account, info.name, "pass1", info.avatar,
+            userInfoDao.add(info.id + 1, info.account, info.name, "pass1", info.avatar,
                     info.email, info.phone, info.tel, info.desc, info.province, info.city, info.creatorId, info.operId);
             Assert.fail();
         } catch (Exception ex) {}
         // add another
-        ok = userDao.add(info2.id, info2.account, info2.name, "pass2", info2.avatar,
+        ok = userInfoDao.add(info2.id, info2.account, info2.name, "pass2", info2.avatar,
                 info2.email, info2.phone, info2.tel, info2.desc, info2.province, info2.city, info2.creatorId, info2.operId);
-        got = userDao.getUserById(info2.id);
+        got = userInfoDao.getUserById(info2.id);
         Assert.assertTrue(ok);
         Assert.assertEquals(info2.id, got.id);
         Assert.assertEquals(info2.account, got.account);
-        Assert.assertEquals(info2.name, got.name);
+       ) Assert.assertEquals(info2.name, got.name);
         p(info2);
         p(got);
         // list
-        List<UserInfo> l = userDao.getUsersById(Arrays.asList(new String[]{info.id, info2.id}));
+        List<UserInfo> l = userInfoDao.getUsersById(Arrays.asList(new String[]{info.id, info2.id}));
         Assert.assertEquals(2, l.size());
         Assert.assertEquals(info.id, l.get(0).id);
         Assert.assertEquals(info.account, l.get(0).account);
@@ -112,55 +142,55 @@ public class UserDaoTest {
         Assert.assertEquals(info2.id, l.get(1).id);
         Assert.assertEquals(info2.account, l.get(1).account);
         Assert.assertEquals(info2.name, l.get(1).name);
-        l = userDao.getUsersById(Arrays.asList(new String[]{info.id, info2.id, "11001100"}));
+        l = userInfoDao.getUsersById(Arrays.asList(new String[]{info.id, info2.id, "11001100"}));
         p(l);
         Assert.assertEquals(2, l.size());
         Assert.assertEquals(info.id, l.get(0).id);
         Assert.assertEquals(info2.id, l.get(1).id);
         // update
         String oldAccount = info.account;
-        ok = userDao.update(info.id, info.account = info.account + "-b", info.name + "2号", info.avatar,
+        ok = userInfoDao.update(info.id, info.account = info.account + "-b", info.name + "2号", info.avatar,
                 info.email, info.phone, info.tel, info.desc, info.province, info.city, info.creatorId, info.operId);
-        got = userDao.getUserById(info.id);
+        got = userInfoDao.getUserById(info.id);
         Assert.assertTrue(ok);
         Assert.assertEquals(info.id, got.id);
         Assert.assertEquals(info.account, got.account);
         Assert.assertEquals(info.name + "2号", got.name);
-        Assert.assertNull(userDao.getUserByAccount(oldAccount));
-        got = userDao.getUserByAccount(info.account);
+        Assert.assertNull(userInfoDao.getUserByAccount(oldAccount));
+        got = userInfoDao.getUserByAccount(info.account);
         Assert.assertEquals(info.id, got.id);
         Assert.assertEquals(info.account, got.account);
         Assert.assertEquals(info.name + "2号", got.name);
         // update conflict
         try {
-            userDao.update(info.id, info2.account, info.name, info.avatar,
+            userInfoDao.update(info.id, info2.account, info.name, info.avatar,
                     info.email, info.phone, info.tel, info.desc, info.province, info.city, info.creatorId, info.operId);
             Assert.fail();
         } catch (Exception ex) {}
         // get pass
-        UserPass pass = userDao.getPasswordById(info.id);
+        UserPass pass = userInfoDao.getPasswordById(info.id);
         Assert.assertEquals("pass1", pass.password);
         Assert.assertEquals(info.id, pass.id);
         Assert.assertEquals(info.account, pass.account);
         // get pass
-        pass = userDao.getPasswordByAccount(info.account);
+        pass = userInfoDao.getPasswordByAccount(info.account);
         Assert.assertEquals("pass1", pass.password);
         Assert.assertEquals(info.id, pass.id);
         Assert.assertEquals(info.account, pass.account);
-        Assert.assertTrue(userDao.updatePasswordById(info.id, "pass1", "pass1id"));
-        pass = userDao.getPasswordByAccount(info.account);
+        Assert.assertTrue(userInfoDao.updatePasswordById(info.id, "pass1", "pass1id"));
+        pass = userInfoDao.getPasswordByAccount(info.account);
         Assert.assertEquals("pass1id", pass.password);
-        Assert.assertTrue(userDao.updatePasswordByAccount(info.account, "pass1id", "pass1account"));
-        pass = userDao.getPasswordByAccount(info.account);
+        Assert.assertTrue(userInfoDao.updatePasswordByAccount(info.account, "pass1id", "pass1account"));
+        pass = userInfoDao.getPasswordByAccount(info.account);
         Assert.assertEquals("pass1account", pass.password);
-        Assert.assertFalse(userDao.updatePasswordById(info.id, "pass1", "pass1id"));
-        pass = userDao.getPasswordByAccount(info.account);
+        Assert.assertFalse(userInfoDao.updatePasswordById(info.id, "pass1", "pass1id"));
+        pass = userInfoDao.getPasswordByAccount(info.account);
         Assert.assertEquals("pass1account", pass.password);
         // delete
-        Assert.assertTrue(userDao.delete(info.id));
-        Assert.assertNull(userDao.getUserById(info.id));
-        Assert.assertNull(userDao.getUserByAccount(info.account));
-        userDao.clear();
+        Assert.assertTrue(userInfoDao.delete(info.id));
+        Assert.assertNull(userInfoDao.getUserById(info.id));
+        Assert.assertNull(userInfoDao.getUserByAccount(info.account));
+        userInfoDao.clear();
     }
 
     @Test
@@ -202,4 +232,5 @@ public class UserDaoTest {
         Assert.assertNull(roleDao.find(rolec.id));
         roleDao.clear();
     }
+    */
 }

@@ -55,8 +55,8 @@ public class FuncRoleDaosTest {
         }
     }
     
-    private void p(String s) {
-        System.out.println(s);
+    private void p(Object o) {
+        System.out.println(o);
     }
 
     @Test
@@ -180,8 +180,28 @@ public class FuncRoleDaosTest {
         Assert.assertEquals(1, l.size());
         Assert.assertEquals(name[2], l.get(0).name);
         // clear
+        p(infoDao.list(1, 1));
         Assert.assertEquals(2, infoDao.clear());
         Assert.assertEquals(0, infoDao.list(0, 100).size());
+    }
+
+    @Test
+    public void testFuncRoleInfoList() throws DataAccessException, SQLException {
+        FuncRoleInfo r = infoDao.findByName(name[0]);
+        p(r);
+        if (r != null) {
+            p(infoDao.delete(r.code));
+        }
+        r = new FuncRoleInfo().setName(name[0]).setDesc(desc[1])
+                .setCorpId(corpId[0]).setDeptId(deptId[0]).setCreatorId(creatorId[0]);
+        p(infoDao.add(r));
+        p(r = infoDao.findByName(name[0]));
+        p(infoDao.update(r.setDesc(desc[0])));
+        p(infoDao.findByName(name[0]));
+        p(infoDao.list(1, 1));
+        p(infoDao.all());
+        p(infoDao.count());
+        p(infoDao.delete(r.code));
     }
 
     @Test

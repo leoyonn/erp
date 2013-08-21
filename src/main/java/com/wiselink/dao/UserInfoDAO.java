@@ -54,6 +54,7 @@ public interface UserInfoDAO {
      * @return
      * @throws SQLException, DataAccessException
      */
+    @Deprecated
     @SQL("INSERT INTO " + TableName.UserInfo + "(" + KEYS + ")" + " VALUES(" + VALUES + ")")
     public boolean add(@SQLParam("id") String id,
             @SQLParam("account") String account,
@@ -87,6 +88,7 @@ public interface UserInfoDAO {
      * @throws SQLException
      * @throws DataAccessException
      */
+    @Deprecated
     @SQL("UPDATE " + TableName.UserInfo + " SET " + KVS_NO_PASS + " WHERE \"id\"=:id")
     public boolean update(@SQLParam("id") String id,
             @SQLParam("account") String account,
@@ -109,6 +111,7 @@ public interface UserInfoDAO {
      * @throws SQLException
      * @throws DataAccessException
      */
+    @Deprecated
     @SQL("UPDATE " + TableName.UserInfo + " SET " + "\"password\"=:newpass"
             + " WHERE \"id\"=:id and \"password\"=:oldpass")
     public boolean updatePasswordById(@SQLParam("id") String id,
@@ -121,6 +124,7 @@ public interface UserInfoDAO {
      * @throws SQLException
      * @throws DataAccessException
      */
+    @Deprecated
     @SQL("UPDATE " + TableName.UserInfo + " SET " + "\"password\"=:newpass"
             + " WHERE \"account\"=:account and \"password\"=:oldpass")
     public boolean updatePasswordByAccount(@SQLParam("account") String account,
@@ -132,6 +136,7 @@ public interface UserInfoDAO {
      * @return
      * @throws SQLException, DataAccessException
      */
+    @Deprecated
     @SQL("SELECT \"id\", \"account\", \"password\" FROM " + TableName.UserInfo + " WHERE \"id\" = :id")
     public UserPass getPasswordById(@SQLParam("id") String userId) throws SQLException, DataAccessException;
 
@@ -141,6 +146,7 @@ public interface UserInfoDAO {
      * @return
      * @throws SQLException, DataAccessException
      */
+    @Deprecated
     @SQL("SELECT  \"id\", \"account\", \"password\" FROM " + TableName.UserInfo + " WHERE \"account\" = :account")
     public UserPass getPasswordByAccount(@SQLParam("account") String account) throws SQLException, DataAccessException;
 
@@ -150,6 +156,7 @@ public interface UserInfoDAO {
      * @return
      * @throws SQLException, DataAccessException
      */
+    @Deprecated
     @SQL("SELECT " + KEYS_NO_PASS + " FROM " + TableName.UserInfo + " WHERE \"account\" = :account")
     public UserInfo getUserByAccount(@SQLParam("account") String account) throws SQLException, DataAccessException;
 
@@ -160,6 +167,7 @@ public interface UserInfoDAO {
      * @return
      * @throws SQLException, DataAccessException
      */
+    @Deprecated
     @SQL("SELECT " + KEYS_NO_PASS + " FROM " + TableName.UserInfo + " WHERE \"id\" = :id")
     public UserInfo getUserById(@SQLParam("id") String userId) throws SQLException, DataAccessException;
 
@@ -168,6 +176,7 @@ public interface UserInfoDAO {
      * @param userIds
      * @return
      */
+    @Deprecated
     @SQL("SELECT " + KEYS_NO_PASS + " FROM " + TableName.UserInfo + " WHERE \"id\" IN (:ids) ORDER BY \"id\"")
     public List<UserInfo> getUsersById(@SQLParam("ids") List<String> userIds) throws SQLException, DataAccessException;
 
@@ -176,6 +185,7 @@ public interface UserInfoDAO {
      * @param userIds
      * @return
      */
+    @Deprecated
     @SQL("SELECT " + KEYS_NO_PASS + " FROM " + TableName.UserInfo + " ORDER BY \"id\"")
     public List<UserInfo> all() throws SQLException, DataAccessException;
 
@@ -184,6 +194,7 @@ public interface UserInfoDAO {
      * @return
      * @throws SQLException, DataAccessException
      */
+    @Deprecated
     @SQL("DELETE FROM " + TableName.UserInfo + " WHERE \"id\" = :id")
     public boolean delete(@SQLParam("id") String id) throws SQLException, DataAccessException;
 
@@ -192,6 +203,7 @@ public interface UserInfoDAO {
      * @return
      * @throws SQLException, DataAccessException
      */
+    @Deprecated
     @SQL("DELETE FROM " + TableName.UserInfo)
     public int clear() throws SQLException, DataAccessException;
 
@@ -199,5 +211,6 @@ public interface UserInfoDAO {
      * TODO
      * @return
      */
+    @Deprecated
     public List<UserDeprecated> queryUsers() throws SQLException, DataAccessException;
 }

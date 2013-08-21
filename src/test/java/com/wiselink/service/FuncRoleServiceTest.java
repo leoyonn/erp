@@ -25,6 +25,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import com.wiselink.exception.ServiceException;
+import com.wiselink.model.param.QueryListParam;
 import com.wiselink.model.role.Func;
 import com.wiselink.model.role.FuncModule;
 import com.wiselink.model.role.FuncRole;
@@ -78,16 +79,18 @@ public class FuncRoleServiceTest {
         Assert.assertEquals(6, funcs.size());
         System.out.println(funcs);
         Assert.assertNotNull(funcs.get(5).name);
-        FuncRole role = service.newFuncRole(name[0], desc[0], corpId[0], deptId[0], creatorId[0]);
+        FuncRoleInfo r = new FuncRoleInfo().setName(name[0]).setDesc(desc[0])
+                .setCorpId(corpId[0]).setDeptId(deptId[0]).setCreatorId(creatorId[0]);
+        FuncRole role = service.newFuncRole(r);
         System.out.println(role);
-        role = service.newFuncRole(name[1], desc[1], corpId[1], deptId[1], creatorId[1]);
+        r = new FuncRoleInfo().setName(name[1]).setDesc(desc[1])
+                .setCorpId(corpId[1]).setDeptId(deptId[1]).setCreatorId(creatorId[1]);
+        role = service.newFuncRole(r);
         System.out.println(role);
-        List<FuncRoleInfo> infos = service.getFuncRoles(code[0], 2);
+        List<FuncRoleInfo> infos = service.getFuncRoles(new QueryListParam().setPage(1).setSize(10));
         System.out.println(infos);
         Integer []f1 = new Integer[]{1, 2, 3};
-        Integer []f2 = new Integer[]{4, 5, 6};
         String []u1 = new String[]{"1", "2", "3"};
-        String []u2 = new String[]{"4", "5", "6"};
         service.updateFuncRole(code[0], Collections.<Integer>emptyList(), Arrays.asList(f1),
                 Collections.<String>emptyList(), Arrays.asList(u1));
         role = service.getFuncRole(code[0]);
