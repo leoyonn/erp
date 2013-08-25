@@ -24,10 +24,13 @@ import com.wiselink.model.org.Corp;
  */
 @DAO
 public interface CorpDAO {
-    String KEYS =" (\"id\", \"type\", \"name\", \"desc\", \"address\", \"tel\", \"contact\")";
-    String VALUES = " VALUES (:id, :type, :name, :desc, :address, :tel, :contact)";
+    String KEYS =" (\"id\", \"type\", \"name\", \"desc\", \"address\", \"tel\", \"contact\", \"superCorpId\")";
+    String VALUES = " VALUES (:id, :type, :name, :desc, :address, :tel, :contact, :superCorpId)";
+    String VALUES_OBJ = " VALUES (:c.id, :c.type, :c.name, :c.desc, :c.address, :c.tel, :c.contact, :c.superCorpId)";
     String KVS = " \"type\"=:type, \"name\"=:name, \"desc\"=:desc, \"address\"=:address, "
-            + "\"tel\"=:tel, \"contact\"=:contact";
+            + "\"tel\"=:tel, \"contact\"=:contact, \"superCorpId\"=:superCorpId";
+    String KVS_OBJ = " \"type\"=:c.type, \"name\"=:c.name, \"desc\"=:c.desc, \"address\"=:c.address, "
+            + "\"tel\"=:c.tel, \"contact\"=:c.contact, \"superCorpId\"=:c.superCorpId";
 
     /**
      * add an corp into database
@@ -42,8 +45,11 @@ public interface CorpDAO {
             @SQLParam("desc") String desc,
             @SQLParam("address") String address,
             @SQLParam("tel") String tel,
-            @SQLParam("contact") String contact) throws SQLException, DataAccessException;
+            @SQLParam("contact") String contact,
+            @SQLParam("superCorpId") String superCorpId) throws SQLException, DataAccessException;
 
+    @SQL("INSERT INTO " + TableName.Corp + KEYS + VALUES_OBJ)
+    public boolean addCorp(@SQLParam("c") Corp corp) throws SQLException, DataAccessException;
 
     /**
      * update an corp into database
@@ -58,16 +64,17 @@ public interface CorpDAO {
             @SQLParam("desc") String desc,
             @SQLParam("address") String address,
             @SQLParam("tel") String tel,
-            @SQLParam("contact") String contact) throws SQLException, DataAccessException;
+            @SQLParam("contact") String contact,
+            @SQLParam("superCorpId") String superCorpId) throws SQLException, DataAccessException;
 
-    /**
-     * get password of an user (md5)
-     * @param userId
-     * @return
-     * @throws SQLException, DataAccessException
-     */
+    @SQL("UPDATE " + TableName.Corp + " SET " + KVS_OBJ + " WHERE \"id\"=:c.id")
+    public boolean updateCorp(@SQLParam("c") Corp corp) throws SQLException, DataAccessException;
+
     @SQL("SELECT * FROM " + TableName.Corp + " WHERE \"id\" = :id")
     public Corp find(@SQLParam("id") String id) throws SQLException, DataAccessException;
+
+    @SQL("SELECT * FROM " + TableName.Corp + " WHERE \"name\" = :name")
+    public Corp findByName(@SQLParam("name") String name) throws SQLException, DataAccessException;
 
     /**
      * list all corps in :ids  
@@ -87,4 +94,30 @@ public interface CorpDAO {
      */
     @SQL("SELECT * FROM " + TableName.Corp + " ORDER BY \"id\"")
     public List<Corp> all() throws SQLException, DataAccessException;
+
+    @SQL("SELECT * FROM " + TableName.Corp + " WHERE \"superCorpId\" = :superCorpId ORDER BY \"id\"")
+    public List<Corp> subCorps(@SQLParam("superCorpId") String superCorpId) throws SQLException, DataAccessException;
+
+
+    /**
+     * 删除一个公司
+     * 
+     * @param id
+     * @return
+     * @throws SQLException
+     * @throws DataAccessException
+     */
+    @SQL("DELETE FROM " + TableName.Corp + "WHERE \"id\"=:id")
+    public boolean delete(@SQLParam("id") String id) throws SQLException, DataAccessException;
+
+    /**
+     * 删除一组公司
+     * 
+     * @param ids
+     * @return
+     * @throws SQLException
+     * @throws DataAccessException
+     */
+    @SQL("DELETE FROM " + TableName.Corp + "WHERE \"id\" IN :ids")
+    public int delete(@SQLParam("ids") List<String> ids) throws SQLException, DataAccessException;
 }

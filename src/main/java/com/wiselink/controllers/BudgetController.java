@@ -14,8 +14,8 @@ import net.paoding.rose.web.annotation.rest.Get;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.wiselink.base.ApiStatus;
 import com.wiselink.controllers.annotations.LoginRequired;
+import com.wiselink.result.ErrorCode;
 
 /**
  * 
@@ -29,19 +29,19 @@ public class BudgetController extends BaseController {
     @SuppressWarnings("@Post")
     @Get("declare")
     public String declare(Invocation inv, @Param("budget") String budgetJson) {
-        return failResult(ApiStatus.INVALID_PARAMETER, "budget/declare not implementted yet:" + budgetJson);
+        return failResult(ErrorCode.InvalidParam, "budget/declare not implementted yet:" + budgetJson);
     }
 
     @SuppressWarnings("@Post")
     @Get("up")
     public String update(Invocation inv, @Param("budget") String budgetJson) {
-        return failResult(ApiStatus.INVALID_PARAMETER, "budget/up not implementted yet:" + budgetJson);
+        return failResult(ErrorCode.InvalidParam, "budget/up not implementted yet:" + budgetJson);
     }
 
     @SuppressWarnings("@Post")
     @Get("approve")
     public String approve(Invocation inv, @Param("budget") String budgetJson) {
-        return failResult(ApiStatus.INVALID_PARAMETER, "budget/up not implementted yet:" + budgetJson);
+        return failResult(ErrorCode.InvalidParam, "budget/up not implementted yet:" + budgetJson);
     }
 
 //    public String 

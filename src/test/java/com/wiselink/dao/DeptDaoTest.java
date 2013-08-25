@@ -7,6 +7,7 @@
 package com.wiselink.dao;
 
 import java.sql.SQLException;
+import java.util.Arrays;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,15 +34,17 @@ public class DeptDaoTest {
     public void testDeptDao() throws SQLException, DataAccessException {
         p(deptDao.count());
         p(deptDao.all());
+        p(deptDao.delete(Arrays.asList(new String[]{"10002", "10003", "10010", "20001"})));
+        p(deptDao.delete("10001"));
+        p(deptDao.count());
+        p(deptDao.all());
         p(deptDao.addDept("10001", "测试部门1", "测试部门1", "技术部", "10000"));
         p(deptDao.addDept("10002", "测试部门2", "测试部门2", "技术部", "10000"));
         p(deptDao.addDept("10003", "测试部门3", "测试部门3", "技术部", "10000"));
-        p(deptDao.addDept("10004", "测试部门4", "测试部门4", "技术部", "10000"));
-        p(deptDao.addDept("10005", "测试部门5", "测试部门5", "技术部", "10000"));
         p(deptDao.addDept("10010", "测试部门10", "测试部门10", "技术部", "10000"));
         p(deptDao.addDept("20001", "测试部门21", "测试部门21", "技术部", "20000"));
-//        p(deptDao.queryByName("%某%", 1, 3));
-//        p(deptDao.countByName("%某%"));
+        p(deptDao.queryByName("%测%", "10000", 1, 3));
+        p(deptDao.countByName("%1%", "10000"));
         p(deptDao.maxDeptId("10000"));
     }   
 

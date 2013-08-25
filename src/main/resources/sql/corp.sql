@@ -10,7 +10,8 @@ CREATE TABLE PICC."corp"
   "desc"        VARCHAR2(128 CHAR),
   "address"     VARCHAR2(128 CHAR),
   "contact"     VARCHAR2(32 CHAR),
-  "tel"         VARCHAR2(32 CHAR)
+  "tel"         VARCHAR2(32 CHAR),
+  "superCorpId" VARCHAR2(64 CHAR)
 )
 TABLESPACE PICCTABLE
 RESULT_CACHE (MODE DEFAULT)
@@ -41,3 +42,6 @@ ALTER TABLE PICC."corp"
   PRIMARY KEY
   ("id")
   ENABLE VALIDATE;
+  
+ALTER TABLE PICC."corp"
+ ADD ("superCorpId"  VARCHAR2(64 CHAR));

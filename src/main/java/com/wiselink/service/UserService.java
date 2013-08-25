@@ -20,8 +20,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.wiselink.base.AuthResult;
-import com.wiselink.base.AuthStatus;
 import com.wiselink.dao.CorpDAO;
 import com.wiselink.dao.DataRoleInfoDAO;
 import com.wiselink.dao.DeptDAO;
@@ -33,14 +31,17 @@ import com.wiselink.model.org.Dept;
 import com.wiselink.model.param.QueryListParam;
 import com.wiselink.model.role.DataRoleInfo;
 import com.wiselink.model.role.FuncRoleInfo;
+import com.wiselink.model.user.Position;
 import com.wiselink.model.user.Positions;
 import com.wiselink.model.user.User;
 import com.wiselink.model.user.UserCard;
 import com.wiselink.model.user.UserCardRaw;
 import com.wiselink.model.user.UserCategory;
-import com.wiselink.model.user.UserPass;
 import com.wiselink.model.user.UserRaw;
 import com.wiselink.model.user.UserStatus;
+import com.wiselink.result.Auth;
+import com.wiselink.result.ErrorCode;
+import com.wiselink.result.OperResult;
 import com.wiselink.utils.AuthUtils;
 import com.wiselink.utils.IdUtils;
 
@@ -49,7 +50,7 @@ import com.wiselink.utils.IdUtils;
  * @author leo
  */
 @Service
-public class UserService {
+public class UserService extends BaseService {
     private static final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
 
     @Autowired
@@ -70,32 +71,46 @@ public class UserService {
     /**
      * 添加一个用户
      * 
-     * @param uesr
+     * @param raw
      * @param password
      * @return
-     * @throws ServiceException
      */
-    public boolean newUser(UserRaw user, String password) throws ServiceException {
-        try {
-            return userDao.add(user, password);
-        } catch (Exception ex) {
-            throw new ServiceException(ex);
+    public OperResult<User> newUser(UserRaw raw, String password) {
+        OperResult<User> r = buildUser(raw);
+        if (r.error != ErrorCode.Success) {
+            return r;
         }
+        try {
+            if (!userDao.add(raw, password)) {
+                return r(ErrorCode.DbInsertFail, "插入用户数据失败，请检查参数");
+            }
+        } catch (Exception ex) {
+            LOGGER.error("new user " + raw + " got exception", ex);
+            return r(ErrorCode.DbInsertFail, "插入用户数据失败：" , ex);
+        }
+        return r;
     }
 
     /**
      * 更新一个用户的信息
      * 
-     * @param user
+     * @param raw
      * @return
-     * @throws ServiceException
      */
-    public boolean updateUser(UserRaw user) throws ServiceException {
-        try {
-            return userDao.update(user);
-        } catch (Exception ex) {
-            throw new ServiceException(ex);
+    public OperResult<User> updateUser(UserRaw raw) {
+        OperResult<User> r = buildUser(raw);
+        if (r.error != ErrorCode.Success) {
+            return r;
         }
+        try {
+            if (!userDao.update(raw)) {
+                return r(ErrorCode.DbUpdateFail, "更新用户数据失败，请检查参数");
+            }
+        } catch (Exception ex) {
+            LOGGER.error("update user " + raw + " got exception", ex);
+            return r(ErrorCode.DbUpdateFail, "更新用户数据失败：" , ex);
+        }
+        return r;
     }
 
     /**
@@ -105,14 +120,17 @@ public class UserService {
      * @param oldpass
      * @param newpass
      * @return
-     * @throws ServiceException
      */
-    public boolean updatePassword(String userId, String oldpass, String newpass) throws ServiceException {
+    public OperResult<String> updatePassword(String userId, String oldpass, String newpass) {
         try {
-            return userDao.updatePasswordById(userId, oldpass, newpass);
+            if (!userDao.updatePasswordById(userId, oldpass, newpass)) {
+                return r(ErrorCode.DbUpdateFail, "更新密码失败，请检查参数");
+            }
         } catch (Exception ex) {
-            throw new ServiceException(ex);
+            LOGGER.error("update user password " + userId + " got exception", ex);
+            return r(ErrorCode.DbUpdateFail, "更新密码失败：" , ex);
         }
+        return r("更新密码成功");
     }
 
     /**
@@ -121,14 +139,18 @@ public class UserService {
      * @param id
      * @param creatorId
      * @return
-     * @throws ServiceException
      */
-    public boolean deleteUser(String id, String creatorId) throws ServiceException {
+    public OperResult<String> deleteUsers(List<String> ids, String creatorId) {
+        int count = 0;
         try {
-            return userDao.delete(id, creatorId);
+            if ((count = userDao.delete(ids, creatorId)) <= 0) {
+                return r(ErrorCode.DbDeleteFail, "删除用户失败，请检查参数");
+            }
         } catch (Exception ex) {
-            throw new ServiceException(ex);
+            LOGGER.error("delete user " + ids + " by creator: " + creatorId + "got exception", ex);
+            return r(ErrorCode.DbDeleteFail, "删除用户失败：" , ex);
         }
+        return r("成功删除" + count + "个用户");
     }
 
     /**
@@ -137,13 +159,18 @@ public class UserService {
      * @param userId
      * @return
      */
-    public UserPass getPasswordById(String userId) {
+    public OperResult<Auth> getAuthInfoById(String userId) {
+        Auth auth = null;
         try {
-            return userDao.getPasswordById(userId);
+            auth = userDao.authById(userId);
         } catch (Exception ex) {
-            LOGGER.error("get pass [" + userId + "] got exception:", ex);
-            return null;
+            LOGGER.error("get auth info of [" + userId + "] got exception:", ex);
+            return r(ErrorCode.DbQueryFail, "查询用户权限信息失败：" , ex);
         }
+        if (auth == null || StringUtils.isBlank(auth.password)) {
+            return r(ErrorCode.DbQueryFail, "查询用户权限信息失败，请检查参数");
+        }
+        return r(auth);
     }
 
     /**
@@ -152,30 +179,29 @@ public class UserService {
      * @param password
      * @param userIp
      * @return
-     * @throws SQLException, DataAccessException 
      */
-    public AuthResult checkPassword(String user, String password, String userIp) {
-        UserPass pass = null;
+    public OperResult<Auth> auth(String user, String password, String userIp) {
+        Auth auth = null;
         try {
             if (IdUtils.isUserIdLegal(user)) {
-                pass = userDao.getPasswordById(user);
+                auth = userDao.authById(user);
             } else if (IdUtils.isUserAccountLegal(user)) {
-                pass = userDao.getPasswordByAccount(user);
+                auth = userDao.authByAccount(user);
             } else {
-                return AuthResult.INVALID_USER;
+                return r(ErrorCode.InvalidParam, "不是合法的用户Id或Account：" + user);
             }
-            LOGGER.debug("check pass: user:{}, real:{}, para:{}", new Object[]{user, pass, password});
         } catch (Exception ex) {
-            LOGGER.error("check pass [" + user + "|" + password + "] got exception:", ex);
+            LOGGER.error("auth uesr [" + user + "|" + password + "] got exception:", ex);
+            return r(ErrorCode.DbQueryFail, "验证用户权限信息失败：" , ex);
         }
-        if (pass == null || StringUtils.isEmpty(pass.password)) {
-            return AuthResult.INVALID_USER;
-        } else if (!pass.password.equalsIgnoreCase(password)) {
-            return AuthResult.WRONG_PASSWORD;
+        if (auth == null || StringUtils.isEmpty(auth.password)) {
+            return r(ErrorCode.DbQueryFail, "查询用户权限信息失败，或用户密码设置不合法，请检查参数");
         }
-        String sessionCode = AuthUtils.generateRandomAESKey();
-        String passToken = AuthUtils.genPassToken(pass, sessionCode, userIp);
-        return new AuthResult(AuthStatus.SUCCESS, pass.id, passToken);
+        if (!auth.password.equalsIgnoreCase(password)) {
+            return r(ErrorCode.WrongPassword, "用户密码错误");
+        }
+        auth = AuthUtils.genPassToken(auth, userIp);
+        return r(auth);
     }
 
     /**
@@ -183,18 +209,19 @@ public class UserService {
      * 
      * @param id
      * @return
-     * @throws ServiceException
      */
-    public User getUserById(String id) throws ServiceException {
+    public OperResult<User> getUserById(String id) {
+        UserRaw raw = null;
         try {
-            UserRaw raw = userDao.getUserById(id);
-            if (raw == null) {
-                return null;
-            }
-            return buildUser(raw);
+            raw = userDao.getUserById(id);
         } catch (Exception ex) {
-            throw new ServiceException(ex);
+            LOGGER.error("get user info by id " + id + " got exception", ex);
+            return r(ErrorCode.DbQueryFail, "查找用户信息失败：" , ex);
         }
+        if (raw == null) {
+            return r(ErrorCode.DbQueryFail, "未查找到此用户，请检查参数");
+        }
+        return buildUser(raw);
     }
 
     /**
@@ -202,18 +229,19 @@ public class UserService {
      * 
      * @param account
      * @return
-     * @throws ServiceException
      */
-    public User getUserByAccount(String account) throws ServiceException {
+    public OperResult<User> getUserByAccount(String account) {
+        UserRaw raw = null;
         try {
-            UserRaw raw = userDao.getUserByAccount(account);
-            if (raw == null) {
-                return null;
-            }
-            return buildUser(raw);
+            raw = userDao.getUserByAccount(account);
         } catch (Exception ex) {
-            throw new ServiceException(ex);
+            LOGGER.error("get user info by account " + account + " got exception", ex);
+            return r(ErrorCode.DbQueryFail, "查找用户信息失败：" , ex);
         }
+        if (raw == null) {
+            return r(ErrorCode.DbQueryFail, "未查找到此用户，请检查参数");
+        }
+        return buildUser(raw);
     }
 
     /**
@@ -221,23 +249,65 @@ public class UserService {
      * 
      * @param raw
      * @return
-     * @throws ServiceException
      */
-    public User buildUser(UserRaw raw) throws ServiceException {
+    private OperResult<User> buildUser(UserRaw raw) {
         LOGGER.debug("building user data: {}...", raw);
         User user = new User(raw);
-        user.setCat(UserCategory.fromCode(raw.catCode));
-        user.setPos(Positions.getInstance().getPosition(raw.posCode));
-        user.setStat(UserStatus.fromCode(raw.statCode));
-        try {
-            user.setFrole(funcRoleDao.find(raw.froleCode));
-            user.setDrole(dataRoleDao.find(raw.droleCode));
-            user.setCorp(corpDao.find(raw.corpId));
-            user.setDept(deptDao.find(raw.deptId));
-        } catch (Exception ex) {
-            throw new ServiceException(ex);
+        if (raw.catCode >= 0) {
+            UserCategory cat = UserCategory.fromCode(raw.catCode);
+            if (cat == null) {
+                return r(ErrorCode.InvalidParam, "用户的catCode无效：" + raw.catCode);
+            }
+            user.setCat(cat);
         }
-        return user;
+        if (raw.posCode >= 0) {
+            Position pos = Positions.getInstance().getPosition(raw.posCode);
+            if (pos == null) {
+                return r(ErrorCode.InvalidParam, "用户的posCode无效：" + raw.posCode);
+            }
+            user.setPos(pos);
+        }
+        if (raw.statCode >= 0) {
+            UserStatus stat = UserStatus.fromCode(raw.statCode);
+            if (stat == null) {
+                return r(ErrorCode.InvalidParam, "用户的statCode无效：" + raw.statCode);
+            }
+            user.setStat(stat);
+        }
+        try {
+            if (raw.froleCode >= 0) {
+                FuncRoleInfo frole = funcRoleDao.find(raw.froleCode);
+                if (frole == null) {
+                    return r(ErrorCode.InvalidParam, "用户的forleCode无效：" + raw.froleCode);
+                }
+                user.setFrole(frole);
+            }
+            if (raw.droleCode >= 0) {
+                DataRoleInfo drole = dataRoleDao.find(raw.droleCode);
+                if (drole == null) {
+                    return r(ErrorCode.InvalidParam, "用户的dorleCode无效：" + raw.droleCode);
+                }
+                user.setDrole(drole);
+            }
+            if (!StringUtils.isBlank(raw.corpId)) {
+                Corp corp = corpDao.find(raw.corpId);
+                if (corp == null) {
+                    return r(ErrorCode.InvalidParam, "用户的corpId无效：" + raw.corpId);
+                }
+                user.setCorp(corp);
+            }
+            if (!StringUtils.isBlank(raw.corpId)) {
+                Dept dept = deptDao.find(raw.deptId);
+                if (dept == null) {
+                    return r(ErrorCode.InvalidParam, "用户的deptId无效：" + raw.deptId);
+                }
+                user.setDept(dept);
+            }
+        } catch (Exception ex) {
+            LOGGER.error("build raw " + raw + " to user got exception", ex);
+            return r(ErrorCode.DbQueryFail, "查询用户信息失败：" , ex);
+        }
+        return r(user);
     }
 
     /**
@@ -245,9 +315,8 @@ public class UserService {
      * 
      * @param userIds
      * @return
-     * @throws ServiceException 
      */
-    public List<User> buildUsers(List<UserRaw> raws) throws ServiceException {
+    private OperResult<List<User>> buildUsers(List<UserRaw> raws) {
         // 1. read all user roleCs
         // 2. init roles and code/ids of attributes
         Map<String, User> users = new HashMap<String, User>();
@@ -279,7 +348,8 @@ public class UserService {
             corpsl = corpDao.list(corps.keySet());
             deptsl = deptDao.list(depts.keySet());
         } catch (Exception ex) {
-            throw new ServiceException(ex);
+            LOGGER.error("query user related info got exception", ex);
+            return r(ErrorCode.DbQueryFail, "查找用户相关信息失败：" , ex);
         }
         // 4. batch set into map for retrieve: O(n^2)->O(n)
         for (FuncRoleInfo frole: frolesl) froles.put(frole.code, frole);
@@ -297,15 +367,14 @@ public class UserService {
         }
         List<User> res = new ArrayList<User>(users.values());
         Collections.sort(res, COMPARATOR_USER_BY_ID);
-        return res;
+        return r(res);
     }
 
     /**
      * @param listParam
      * @return
-     * @throws ServiceException 
      */
-    public List<User> queryUsers(QueryListParam param) throws ServiceException {
+    public OperResult<List<User>> queryUsers(QueryListParam param) {
         List<UserRaw> raws = Collections.emptyList();
         String name = param.getLikeField("name", "");
         String corpId = param.getStringField("corpId", "");
@@ -321,7 +390,8 @@ public class UserService {
         try {
             raws = userDao.queryUsers(name, corpId, deptId, posCode, froleCode, droleCode, from, to);
         } catch (Exception ex) {
-            throw new ServiceException(ex);
+            LOGGER.error("query users of " + param + " got exception:", ex);
+            return r(ErrorCode.DbQueryFail, "查询用户列表失败：" , ex);
         }
         return buildUsers(raws);
     }
@@ -331,12 +401,15 @@ public class UserService {
      * @return
      * @throws ServiceException
      */
-    public List<UserCard> getUserCards(List<String> userIds) throws ServiceException {
-        List<UserCardRaw> raws = getUserCardRaws(userIds);
-        return buildUserCards(raws);
+    public OperResult<List<UserCard>> getUserCards(List<String> userIds) throws ServiceException {
+        OperResult<List<UserCardRaw>> r = getUserCardRaws(userIds);
+        if (r.error != ErrorCode.Success) {
+            return new OperResult<List<UserCard>>(r.error, r.reason);
+        }
+        return buildUserCards(r.result);
     }
 
-    public List<UserCard> buildUserCards(List<UserCardRaw> raws) throws ServiceException {
+    private OperResult<List<UserCard>> buildUserCards(List<UserCardRaw> raws) {
         // 1. read all user roleCs
         // 2. init roles and code/ids of attributes
         Map<String, UserCard> cards = new HashMap<String, UserCard>();
@@ -358,7 +431,8 @@ public class UserService {
             corpsl = corpDao.list(corps.keySet());
             deptsl = deptDao.list(depts.keySet());
         } catch (Exception ex) {
-            throw new ServiceException(ex);
+            LOGGER.error("query user related info got exception", ex);
+            return r(ErrorCode.DbQueryFail, "查找用户相关信息失败：" , ex);
         }
         // 4. batch set into map for retrieve: O(n^2)->O(n)
         for (Corp corp: corpsl) corps.put(corp.id, corp);
@@ -372,7 +446,7 @@ public class UserService {
         }
         List<UserCard> res = new ArrayList<UserCard>(cards.values());
         Collections.sort(res, COMPARATOR_CARD_BY_ID);
-        return res;
+        return r(res);
     }
 
 
@@ -381,31 +455,108 @@ public class UserService {
      * 
      * @param userIds
      * @return
-     * @throws ServiceException 
      */
-    private List<UserCardRaw> getUserCardRaws(List<String> userIds) throws ServiceException {
+    private OperResult<List<UserCardRaw>> getUserCardRaws(List<String> userIds) {
+        List<UserCardRaw> cards = null;
         try {
-            return userDao.getUserCardsById(userIds);
+            cards = userDao.getUserCardsById(userIds);
         } catch (SQLException ex) {
-            throw new ServiceException(ex);
+            LOGGER.error("query user card raws of " + userIds + " got exception:", ex);
+            return r(ErrorCode.DbQueryFail, "查询用户信息失败");
         }
+        if (cards == null || cards.size() == 0) {
+            return r(ErrorCode.DbQueryFail, "未查询到相关用户信息，请检查参数");
+        }
+        return r(cards);
     }
 
     /**
      * 获取所有的用户，仅用于调试
      * 
      * @return
-     * @throws ServiceException
      */
-    public List<User> all() throws ServiceException {
+    public OperResult<List<User>> all() {
         List<UserRaw> raws = Collections.emptyList();
         try {
             raws = userDao.all();
-            LOGGER.debug("all user raws:{}", raws);
         } catch (Exception ex) {
-            throw new ServiceException(ex);
+            LOGGER.error("query all users got exception:", ex);
+            return r(ErrorCode.DbQueryFail, "查询所有用户信息失败");
+        }
+        if (raws == null || raws.size() == 0) {
+            return r(ErrorCode.DbQueryFail, "未查到任何用户");
         }
         return buildUsers(raws);
+    }
+
+    public OperResult<Integer> countUsersInDepts(List<String> deptIds) {
+        try {
+            return r(userDao.countUserOfDepts(deptIds));
+        } catch (Exception ex) {
+            LOGGER.error("count users in depts " + deptIds + " got exception:", ex);
+            return r(ErrorCode.DbQueryFail, "查询部门列表中的用户个数信息失败");
+        }
+    }
+
+    public OperResult<Integer> countUsersInCorps(List<String> corpIds) {
+        try {
+            return r(userDao.countUserOfCorps(corpIds));
+        } catch (Exception ex) {
+            LOGGER.error("count users in depts " + corpIds + " got exception:", ex);
+            return r(ErrorCode.DbQueryFail, "查询公司列表中的用户个数信息失败：" , ex);
+        }
+    }
+
+    /**
+     * 更新一组用中的功能角色
+     * 
+     * @param usersToDel
+     * @param usersToAdd
+     * @param roleCode
+     */
+    public OperResult<Boolean> updateUsersFuncRole(List<String> usersToDel, List<String> usersToAdd, int roleCode) {
+        try {
+            for (String id: usersToDel) {
+                userDao.updateFuncRole(id, -1);
+            }
+            for (String id: usersToDel) {
+                userDao.updateFuncRole(id, roleCode);
+            }
+        } catch (Exception ex) {
+            LOGGER.error("update users func role got exception:", ex);
+            return r(ErrorCode.DbUpdateFail, "更新用户功能角色属性失败：" , ex);
+        }
+        return r(false);
+    }
+
+    public OperResult<List<UserCard>> getUsersInOrgWithFroleOrNoFrole(String corpId, String deptId, int froleCode) {
+        List<UserCardRaw> raws = Collections.emptyList();
+        try {
+            if (StringUtils.isBlank(deptId)) {
+                raws = userDao.getUserCardsOfCorpWithFroleOrNoFrole(corpId, froleCode);
+            } else {
+                raws = userDao.getUserCardsOfDeptWithFroleOrNoFrole(corpId, deptId, froleCode);
+            }
+        } catch (Exception ex) {
+            LOGGER.error("get usres in org " + corpId + ", " + deptId + " got exception:", ex);
+            return r(ErrorCode.DbQueryFail, "查询公司/部门中的用户列表失败：" , ex);
+        }
+        return buildUserCards(raws);
+    }
+
+    public OperResult<List<UserCard>> getUsersInOrgWithDroleOrNoDrole(String corpId, String deptId, int droleCode) {
+        List<UserCardRaw> raws = Collections.emptyList();
+        try {
+            if (StringUtils.isBlank(deptId)) {
+                raws = userDao.getUserCardsOfCorpWithDroleOrNoDrole(corpId, droleCode);
+            } else {
+                raws = userDao.getUserCardsOfDeptWithDroleOrNoDrole(corpId, deptId, droleCode);
+            }
+        } catch (Exception ex) {
+            LOGGER.error("get usres in org " + corpId + ", " + deptId + " got exception:", ex);
+            return r(ErrorCode.DbQueryFail, "查询公司/部门中的用户列表失败：" , ex);
+        }
+        return buildUserCards(raws);
     }
 
     public static final Comparator<User> COMPARATOR_USER_BY_ID = new Comparator<User>() {
@@ -421,5 +572,4 @@ public class UserService {
             return u1.id.compareTo(u2.id);
         }
     };
-
 }

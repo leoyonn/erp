@@ -72,17 +72,32 @@ public interface DeptDAO {
     @SQL("SELECT * FROM " + TableName.Dept + " WHERE \"id\" = :id")
     public Dept find(@SQLParam("id") String id) throws SQLException, DataAccessException;
 
+    /**
+     * 获取一个部门信息
+     * @param name
+     * @return
+     * @throws SQLException, DataAccessException
+     */
+    @SQL("SELECT * FROM " + TableName.Dept + " WHERE \"name\" = :name and \"corpId\" = :corpId")
+    public Dept findByName(@SQLParam("name") String name, @SQLParam("corpId") String corpId) throws SQLException, DataAccessException;
+
     @SQL("SELECT COUNT(\"id\") FROM " + TableName.Dept)
     public int count() throws SQLException, DataAccessException;
 
+    @SQL("SELECT COUNT(\"id\") FROM " + TableName.Dept + " WHERE \"corpId\" = :corpId")
+    public int count(@SQLParam("corpId") String corpId) throws SQLException, DataAccessException;
+
     @SQL("SELECT \"id\", \"name\", \"desc\", \"deptType\", \"corpId\" "
-            + "FROM (SELECT A.*, ROWNUM N FROM (SELECT * FROM " + TableName.Dept + " WHERE \"name\" LIKE :nameLike) A "
-            + "WHERE ROWNUM <= :to) WHERE N >= :from")
-    public List<Dept> queryByName(@SQLParam("nameLike") String nameLike, 
+            + "FROM (SELECT A.*, ROWNUM N FROM (SELECT * FROM " + TableName.Dept
+            + " WHERE \"name\" LIKE :nameLike AND \"corpId\" = :corpId) A "
+            + " WHERE ROWNUM <= :to) WHERE N >= :from")
+    public List<Dept> queryByName(@SQLParam("nameLike") String nameLike, @SQLParam("corpId") String corpId, 
             @SQLParam("from") int from, @SQLParam("to") int to) throws SQLException, DataAccessException;
 
-    @SQL("SELECT COUNT(\"id\") FROM " + TableName.Dept + " WHERE \"name\" LIKE :nameLike ORDER BY \"id\"")
-    public int countByName(@SQLParam("nameLike") String nameLike) throws SQLException, DataAccessException;
+    @SQL("SELECT COUNT(\"id\") FROM " + TableName.Dept
+            + " WHERE \"name\" LIKE :nameLike AND \"corpId\" = :corpId ORDER BY \"id\"")
+    public int countByName(@SQLParam("nameLike") String nameLike, @SQLParam("corpId") String corpId)
+            throws SQLException, DataAccessException;
 
     @SQL("SELECT MAX(\"id\") FROM " + TableName.Dept + " WHERE \"corpId\"=:corpId ORDER BY \"id\"")
     public String maxDeptId(@SQLParam("corpId") String corpId) throws SQLException, DataAccessException;
@@ -116,7 +131,7 @@ public interface DeptDAO {
     public List<Dept> all() throws SQLException, DataAccessException;
 
     /**
-     * 删除
+     * 删除一个部门
      * @param id
      * @return
      * @throws SQLException
@@ -124,6 +139,16 @@ public interface DeptDAO {
      */
     @SQL("DELETE FROM " + TableName.Dept + "WHERE \"id\"=:id")
     public boolean delete(@SQLParam("id") String id) throws SQLException, DataAccessException;
+
+    /**
+     * 删除一组部门
+     * @param ids
+     * @return
+     * @throws SQLException
+     * @throws DataAccessException
+     */
+    @SQL("DELETE FROM " + TableName.Dept + "WHERE \"id\" IN :ids")
+    public int delete(@SQLParam("ids") List<String> ids) throws SQLException, DataAccessException;
     
     @SQL("DELETE FROM " + TableName.Dept)
     public int clear() throws SQLException, DataAccessException;

@@ -6,29 +6,25 @@
  */
 package com.wiselink.controllers;
 
-import java.util.Collection;
 import java.util.List;
 
 import net.paoding.rose.web.Invocation;
 import net.paoding.rose.web.annotation.Param;
 import net.paoding.rose.web.annotation.Path;
 import net.paoding.rose.web.annotation.rest.Get;
-import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.wiselink.base.ApiStatus;
-import com.wiselink.base.Constants;
 import com.wiselink.controllers.annotations.LoginRequired;
-import com.wiselink.exception.ServiceException;
-import com.wiselink.model.role.DataLevel;
 import com.wiselink.model.role.DataRole;
 import com.wiselink.model.role.DataRoleInfo;
+import com.wiselink.result.ErrorCode;
 import com.wiselink.service.DataRoleService;
 import com.wiselink.service.UserService;
-import com.wiselink.utils.CookieUtils;
 import com.wiselink.utils.Utils;
 
 /**
@@ -53,20 +49,12 @@ public class DataRoleController extends BaseController {
      * @return
      */
     @Get("1")
-    public String getDrole(@Param("code") int code) {
+    public String getDrole(@Param("param") String param) {
+        int code = JSONObject.fromObject(param).optInt("code", -1);
         if (code < 0) {
             return allDroles();
         }
-        try {
-            DataRole drole = droleService.getDataRole(code);
-            if (drole == null) {
-                return failResult(ApiStatus.INVALID_PARAMETER, "未检索导数据，请检查参数或联系管理员");
-            }
-            return successResult(drole.toJson());
-        } catch (ServiceException ex) {
-            LOGGER.error("get data role " + code + " got exception!", ex);
-            return failResult(ApiStatus.DATA_QUERY_FAILED);
-        }
+        return apiResult(droleService.getDataRole(code));
     }
 
     /**
@@ -77,29 +65,12 @@ public class DataRoleController extends BaseController {
      * @return
      */
     @Get("list")
-    public String listDroles(@Param("from") int from, @Param("num") int num) {
-        if (num < 0) {
-            num = Constants.MAX_ROLE_NUM;
+    public String listDroles(@Param("param") String param) {
+        String corpId = JSONObject.fromObject(param).optString("corpId");
+        if (StringUtils.isBlank(corpId)) {
+            return allDroles();
         }
-        List<DataRoleInfo> roles = null;
-        try {
-            roles = droleService.getDataRoles(from, num);
-        } catch (ServiceException ex) {
-            LOGGER.error("list froles from " + from + " num " + num + " got exception!", ex);
-            return failResult(ApiStatus.SERVICE_ERROR);
-        }
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("list role from: {}, num: {}, got {}.", new Object[]{from, num, roles});
-        }
-        if (roles == null || roles.size() == 0) {
-            return failResult(ApiStatus.DATA_EMPTY);
-        }
-        JSONArray array = new JSONArray();
-        for (DataRoleInfo role: roles) {
-            array.add(role.toJson());
-        }
-        LOGGER.debug("list role returning{}.", array);
-        return successResult(array.toString());
+        return apiResult(droleService.allDataRoles(corpId));
     }
 
     /**
@@ -108,7 +79,7 @@ public class DataRoleController extends BaseController {
      */
     @Get("all")
     public String allDroles() {
-        return listDroles(-1, -1);
+        return apiResult(droleService.allDataRoles());
     }
 
     /**
@@ -117,9 +88,7 @@ public class DataRoleController extends BaseController {
      */
     @Get("levels")
     public String levels() {
-        Collection<DataLevel> allLevels = droleService.levels();
-        LOGGER.debug("query for all-levels got {}.", allLevels);
-        return successResult(allLevels);
+        return apiResult(droleService.levels());
     }
 
     /**
@@ -134,21 +103,11 @@ public class DataRoleController extends BaseController {
      */
     @SuppressWarnings("@Post")
     @Get("new")
-    public String newDrole(@Param("name") String name, @Param("desc") String desc, @Param("levelCode") int levelCode,
-        @Param("corpId") String corpId, @Param("deptId") String deptId, @Param("creatorId") String creatorId) {
-        LOGGER.debug("add data role of name: {}, desc: {}.", name, desc);
-        // TODO full file this: get creator from cookie
-        try {
-            DataRole drole = droleService.newDataRole(name, desc, levelCode, corpId, deptId, creatorId);
-            LOGGER.debug("add data role result: {}.", drole);
-            if (drole == null) {
-                return failResult(ApiStatus.INVALID_PARAMETER, "未检索导数据，请检查参数或联系管理员");
-            }
-            return successResult(drole.toJson());
-        } catch (ServiceException ex) {
-            LOGGER.error("add func role " + name + "|" + desc + " got exception!", ex);
-            return failResult(ApiStatus.DATA_INSERT_FAILED, "角色添加失败，请确认角色名不重复，或联系系统管理员");
-        }
+    public String newDrole(Invocation inv, @Param("param") String param) {
+        LOGGER.info("add data role from param: {}.", param);
+        DataRoleInfo info = (DataRoleInfo) new DataRoleInfo().fromJson(param);
+        info.setCreatorId(getUserIdFromCookie(inv));
+        return apiResult(droleService.newDataRole(info));
     }
 
     /**
@@ -162,25 +121,12 @@ public class DataRoleController extends BaseController {
      * @param deptId
      * @return
      */
-    @SuppressWarnings("not completed|post|验证sequence！")
     @Get("up/info")
-    public String updateDroleInfo(Invocation inv, @Param("code") int code, @Param("name") String name, 
-            @Param("desc") String desc, @Param("levelCode") int levelCode, 
-            @Param("corpId") String corpId, @Param("deptId") String deptId) {
-        LOGGER.debug("update data role info of name: {}, desc: {}.", name, desc);
-        // TODO full file this: get creator from cookie
-        CookieUtils.getCookie(inv, "user");
-        try {
-            DataRole drole = droleService.updateDataRole(code, name, desc, levelCode, corpId, deptId);
-            LOGGER.debug("update data role result: {}.", drole);
-            if (drole == null) {
-                return failResult(ApiStatus.INVALID_PARAMETER, "未检索导数据，请检查参数或联系管理员");
-            }
-            return successResult(drole.toJson());
-        } catch (ServiceException ex) {
-            LOGGER.error("add func role " + name + "|" + desc + " got exception!", ex);
-            return failResult(ApiStatus.DATA_INSERT_FAILED, "角色添加失败，请检查参数或联系管理员");
-        }
+    public String updateDroleInfo(Invocation inv, @Param("param") String param) {
+        LOGGER.info("update data role from param: {}.", param);
+        DataRoleInfo info = (DataRoleInfo) new DataRoleInfo().fromJson(param);
+        info.setCreatorId(getUserIdFromCookie(inv));
+        return apiResult(droleService.updateDataRole(info));
     }
     
     /**
@@ -202,28 +148,18 @@ public class DataRoleController extends BaseController {
      */
     @SuppressWarnings("@Post")
     @Get("up/list")
-    public String updateDroleList(@Param("code") int code,
-            @Param("scopesToDel") String scopesToDel, @Param("scopesToAdd") String scopesToAdd, 
-            @Param("usersToDel") String usersToDel, @Param("usersToAdd") String usersToAdd) {
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("updating data role: {}|sd:{}|sa:{}; ud:{}|ua:{}", 
-                    new Object[]{code, scopesToDel, scopesToAdd, usersToDel, usersToAdd});
+    public String updateDroleList(@Param("param") String param) {
+        JSONObject jparam = JSONObject.fromObject(param);
+        LOGGER.info("update data role list {}", param);
+        int code = jparam.optInt("code", -1);
+        if (code < 0) {
+            return failResult(ErrorCode.InvalidParam, "code参数不存在");
         }
-        List<String> sdel = Utils.split(scopesToDel, ",");
-        List<String> sadd = Utils.split(scopesToAdd, ",");
-        List<String> udel = Utils.split(usersToDel, ",");
-        List<String> uadd = Utils.split(usersToAdd, ",");
-        try {
-            DataRole drole = droleService.updateDataRole(code, sdel, sadd, udel, uadd);
-            if (drole == null) {
-                return failResult(ApiStatus.INVALID_PARAMETER, "未检索导数据，请检查参数或联系管理员");
-            }
-            return successResult(drole.toJson());
-        } catch (ServiceException ex) {
-            LOGGER.error("update data role " + code + " scopes " + scopesToDel + "|" + scopesToAdd
-                    + " users " + usersToDel + "|" + usersToAdd + " got exception!", ex);
-            return failResult(ApiStatus.SERVICE_ERROR);
-        }
+        List<String> sdel = Utils.split(jparam.optString("scopesToDel"), ",");
+        List<String> sadd = Utils.split(jparam.optString("scopesToAdd"), ",");
+        List<String> udel = Utils.split(jparam.optString("usersToDel"), ",");
+        List<String> uadd = Utils.split(jparam.optString("usersToAdd"), ",");
+        return apiResult(droleService.updateDataRole(code, sdel, sadd, udel, uadd));
     }
 
     /**
@@ -233,17 +169,12 @@ public class DataRoleController extends BaseController {
      */
     @SuppressWarnings("@Post")
     @Get("del")
-    public String delete(@Param("code") int code) {
-        LOGGER.debug("deleting data role: {}", code);
-        try {
-            boolean ok = droleService.delete(code);
-            if (!ok) {
-                return failResult(ApiStatus.DATA_DELETE_FAILED);
-            }
-            return successResult();
-        } catch (ServiceException ex) {
-            LOGGER.error("delete func role " + code + " got exception!", ex);
-            return failResult(ApiStatus.SERVICE_ERROR);
+    public String delete(@Param("param") String param) {
+        LOGGER.info("deleting data role: {}", param);
+        int code = JSONObject.fromObject("param").optInt("code", -1);
+        if (code < 0) {
+            return failResult(ErrorCode.InvalidParam, "code参数不存在");
         }
+        return apiResult(droleService.delete(code));
     }
 }

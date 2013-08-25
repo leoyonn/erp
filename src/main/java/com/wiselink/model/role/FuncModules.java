@@ -83,6 +83,10 @@ public class FuncModules {
         return funcs.values();
     }
 
+    public final Map<Integer, Func> allFuncsMap() {
+        return funcs;
+    }
+
     /**
      * 获取code指定的功能模块
      * 

@@ -17,7 +17,7 @@ import org.apache.commons.codec.DecoderException;
 import org.apache.commons.lang.StringUtils;
 
 import com.wiselink.base.Constants;
-import com.wiselink.model.user.UserPass;
+import com.wiselink.result.Auth;
 import com.wiselink.security.Encrypter;
 
 /**
@@ -45,15 +45,17 @@ public class AuthUtils {
      * @return
      * @throws SecurityException
      */
-    public static String genPassToken(UserPass pass, String sessionCode, String userIp) throws SecurityException {
+    public static Auth genPassToken(Auth auth, String userIp) throws SecurityException {
+        String sessionCode = AuthUtils.generateRandomAESKey();
         JSONObject json = new JSONObject();
-        json.put("p", sha1HMAC(pass.password));
+        json.put("p", sha1HMAC(auth.password));
         json.put("ip", userIp);
-        json.put("u", pass.id);
+        json.put("u", auth.id);
         json.put("s", sessionCode);
         json.put("t", System.currentTimeMillis() + "");
         json.put("v", "1.0");
-        return Encrypter.encryptAES(json.toString());
+        String token = Encrypter.encryptAES(json.toString());
+        return auth.setPassToken(token);
     }
 
     /**
@@ -106,7 +108,7 @@ public class AuthUtils {
      * @return
      * @throws SecurityException
      */
-    public static JSONObject validateToken(String passToken, String userId, UserPass pass) throws SecurityException {
+    public static JSONObject validateToken(String passToken, String userId, Auth auth) throws SecurityException {
         // if (pass == null || StringUtils.isEmpty(pass.password)) {
         // return null;
         // }

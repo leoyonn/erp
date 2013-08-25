@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
 import com.wiselink.base.Constants;
-import com.wiselink.model.user.UserPass;
+import com.wiselink.result.Auth;
 import com.wiselink.utils.AuthUtils;
 import com.wiselink.utils.CookieUtils;
 
@@ -104,8 +104,8 @@ public class LoginRequiredChecker {
         try {
             JSONObject tokenJson = AuthUtils.checkPassToken(token);
             String userId = AuthUtils.getUserIdFromPassToken(tokenJson);
-            UserPass pass = null; //userService.getPasswordById(userId);
-            return AuthUtils.validateToken(token, userId, pass);
+            Auth auth = null; //userService.auth(userId);
+            return AuthUtils.validateToken(token, userId, auth);
         } catch (Exception ex) {
             // SQLException, SecurityException, JSONException
             LOGGER.warn("check pass token got exeption!", ex);

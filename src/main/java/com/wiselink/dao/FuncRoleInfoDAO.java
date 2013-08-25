@@ -13,7 +13,6 @@ import java.util.List;
 import javax.management.relation.Role;
 
 import net.paoding.rose.jade.annotation.DAO;
-import net.paoding.rose.jade.annotation.ReturnGeneratedKeys;
 import net.paoding.rose.jade.annotation.SQL;
 import net.paoding.rose.jade.annotation.SQLParam;
 
@@ -89,11 +88,10 @@ public interface FuncRoleInfoDAO {
      * @param num
      * @return
      */
-    @SQL("SELECT " + KEYS + " FROM (SELECT A.*, ROWNUM N FROM (SELECT * FROM " + TableName.FuncRoleInfo + ") A "
-            + "WHERE ROWNUM <= :to) WHERE N >= :from")
-    public List<FuncRoleInfo> list(@SQLParam("from") int from, @SQLParam("to") int to) throws SQLException, DataAccessException;
+    @SQL("SELECT " + KEYS + " FROM " + TableName.FuncRoleInfo + "WHERE \"corpId\" = :corpId ORDER BY \"code\"")
+    public List<FuncRoleInfo> all(@SQLParam("corpId") String corpId) throws SQLException, DataAccessException;
 
-    @SQL("SELECT * FROM " + TableName.FuncRoleInfo)
+    @SQL("SELECT * FROM " + TableName.FuncRoleInfo + " ORDER BY \"code\"")
     public List<FuncRoleInfo> all() throws SQLException, DataAccessException;
 
     @SQL("SELECT COUNT(\"code\") FROM " + TableName.FuncRoleInfo)

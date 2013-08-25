@@ -16,6 +16,7 @@ import com.wiselink.base.jsonable.Jsonable;
 public class Dept extends Org {
     public String deptType;
     public String corpId;
+    public Corp corp;
 
     public Dept() {
         super.type = OrgType.Dept.cname;
@@ -31,16 +32,27 @@ public class Dept extends Org {
         return deptType;
     }
 
-    public void setDeptType(String deptType) {
+    public Dept setDeptType(String deptType) {
         this.deptType = deptType;
+        return this;
     }
 
     public String getCorpId() {
         return corpId;
     }
 
-    public void setCorpId(String corpId) {
+    public Dept setCorpId(String corpId) {
         this.corpId = corpId;
+        return this;
+    }
+
+    public Corp getCorp() {
+        return corp;
+    }
+
+    public Dept setCorp(Corp corp) {
+        this.corp = corp;
+        return this;
     }
 
     @Override
@@ -56,9 +68,5 @@ public class Dept extends Org {
     @Override
     public String toString() {
         return toJson();
-    }
-    
-    public static void main(String[] args) {
-        System.out.println(new Dept("1", "3", "4", "5", "6").toJson());
     }
 }

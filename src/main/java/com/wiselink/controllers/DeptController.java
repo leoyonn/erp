@@ -7,6 +7,7 @@
 package com.wiselink.controllers;
 
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
 
 import net.paoding.rose.web.Invocation;
@@ -20,14 +21,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.wiselink.base.ApiStatus;
 import com.wiselink.controllers.annotations.LoginRequired;
-import com.wiselink.exception.ServiceException;
 import com.wiselink.model.org.Dept;
 import com.wiselink.model.org.DeptType;
 import com.wiselink.model.org.OrgType;
 import com.wiselink.model.param.QueryListParam;
-import com.wiselink.service.CorpService;
+import com.wiselink.result.ErrorCode;
+import com.wiselink.result.OperResult;
+import com.wiselink.service.DeptService;
+import com.wiselink.service.UserService;
 
 /**
  * 
@@ -38,7 +40,10 @@ import com.wiselink.service.CorpService;
 public class DeptController  extends BaseController {
     private static final Logger LOGGER = LoggerFactory.getLogger(DeptController.class);
     @Autowired
-    private CorpService corpService;
+    private DeptService deptService;
+
+    @Autowired
+    private UserService userService;
 
     /**
      * 获取所有的组织结构类型
@@ -62,6 +67,7 @@ public class DeptController  extends BaseController {
 
     /**
      * 创建一个新的部门，name/id一旦设置不可更改
+     * 
      * @param inv
      * @param param
      * @return
@@ -70,22 +76,17 @@ public class DeptController  extends BaseController {
     @Get("new")
     public String newDept(Invocation inv, @NotBlank @Param("param") String param) {
         LOGGER.info("new dept with param: {}...", param);
+        // TODO: creatorId
         Dept dept = (Dept) new Dept().fromJson(param);
-        DeptType type = DeptType.valueOf(dept.type);
-        if (type == null) {
-            return failResult(ApiStatus.INVALID_PARAMETER, "参数type非法");
+        if (StringUtils.isBlank(dept.getName()) || StringUtils.isBlank(dept.corpId)) {
+            return failResult(ErrorCode.InvalidParam, "参数值为空：(name:" + dept.getName() + ", corpId:" + dept.getCorpId());
         }
-        dept.type = DeptType.valueOf(dept.type).cname;
-        LOGGER.info("new dept: {}...", dept);
-        // TODO 检查id合法性
-        try {
-            dept = corpService.newDept(dept);
-            LOGGER.debug("adding dept: {} success.", dept);
-            return successResult(dept);
-        } catch (ServiceException ex) {
-            LOGGER.error("adding corp " + dept + " got exception:", ex);
+        DeptType type = DeptType.valueOf(dept.deptType);
+        if (type != null) {
+            dept.deptType = type.cname;
         }
-        return failResult(ApiStatus.DATA_INSERT_FAILED);
+        OperResult<Dept> r = deptService.newDept(dept);
+        return apiResult(r);
     }
 
     /**
@@ -100,18 +101,18 @@ public class DeptController  extends BaseController {
     public String updateDept(Invocation inv, @NotBlank @Param("param") String param) {
         LOGGER.info("update dept with param: {}...", param);
         Dept dept = (Dept) new Dept().fromJson(param);
-        LOGGER.info("update dept: {}", dept);
-        // TODO 检查id合法性
-        try {
-            dept = corpService.updateDept(dept);
-            LOGGER.debug("updating dept: {} success.", dept);
-            return successResult();
-        } catch (ServiceException ex) {
-            LOGGER.error("adding corp " + dept + " got exception:", ex);
+        if (StringUtils.isBlank(dept.getName()) || StringUtils.isBlank(dept.corpId) || StringUtils.isBlank(dept.id)) {
+            return failResult(ErrorCode.InvalidParam, "参数值为空：(id:" + dept.id
+                    + ",name:" + dept.getName() + ", corpId:" + dept.getCorpId());
         }
-        return failResult(ApiStatus.DATA_UPDATE_FAILED);
+        DeptType type = DeptType.valueOf(dept.deptType);
+        if (type != null) {
+            dept.deptType = type.cname;
+        }
+        OperResult<Dept> r = deptService.updateDept(dept);
+        return apiResult(r);
     }
-    
+
     /**
      * 删除一个部门信息
      * 
@@ -120,74 +121,52 @@ public class DeptController  extends BaseController {
      */
     @SuppressWarnings("@Post")
     @Get("del")
-    public String deleteDept(@NotBlank @Param("param") String param) {
+    public String deleteDept(Invocation inv, @NotBlank @Param("param") String param) {
         LOGGER.info("delete dept: {}...", param);
-        String id = JSONObject.fromObject(param).optString("id", "");
-        if (StringUtils.isBlank(id)) {
-            return failResult(ApiStatus.INVALID_PARAMETER, "参数中ID不可为空");
+        String ids = JSONObject.fromObject(param).optString("ids", "");
+        if (StringUtils.isBlank(ids)) {
+            return failResult(ErrorCode.InvalidParam, "参数中ID不可为空");
         }
-        // TODO permission check
-        try {
-            boolean ok = corpService.deleteDept(id);
-            if (ok) {
-                return successResult("删除部门成功");
-            }
-        } catch (ServiceException ex) {
-            LOGGER.error("delete dept failed:" + id, ex);
-            return failResult(ApiStatus.DATA_DELETE_FAILED);
+        // String user = getUserIdFromCookie(inv); // TODO creatorId?
+        List<String> idList = Arrays.asList(ids.split(","));
+        OperResult<Integer> cnt = userService.countUsersInDepts(idList);
+        if (cnt.getError() != ErrorCode.Success) {
+            return apiResult(cnt);
+        } else if (cnt.result > 0) {
+            return failResult(ErrorCode.DbDeleteFail, "尚有员工在此部门中，删除失败");
         }
-        return failResult(ApiStatus.DATA_DELETE_FAILED);
+        OperResult<String> r = deptService.deleteDept(idList);
+        return apiResult(r);
     }
 
     /**
      * 获取一个部门信息
+     * TODO: use deptId as url string
      * 
      * @param param
      * @return
      * @throws SQLException, DataAccessException
      */
-    @Get("1")
-    public String getDept(@NotBlank @Param("param") String param) {
-        LOGGER.info("get dept: {}...", param);
-        String id = JSONObject.fromObject(param).optString("id", "");
-        if (StringUtils.isBlank(id)) {
-            return failResult(ApiStatus.INVALID_PARAMETER, "参数中ID不可为空");
-        }
-        try {
-            Dept dept = corpService.getDept(id);
-            LOGGER.debug("get dept: {}.", dept);
-            if (dept != null) {
-                return successResult(dept);
-            }
-        } catch (ServiceException ex) {
-            LOGGER.error("get dept " + id + " got exception:", ex);
-        }
-        return failResult(ApiStatus.DATA_QUERY_FAILED);
+    @Get("{id:[0-9]+}")
+    public String getDept(@NotBlank @Param("id") String id) {
+        LOGGER.info("get dept: {}...", id);
+        return apiResult(deptService.getDept(id));
     }
 
     /**
-     * list all depts in :ids  
+     * 通过name参数模糊查询部门信息
      * 
-     * @param from
-     * @param num
+     * @param param
      * @return
      */
     @Get("query")
-    public String queryDepts(@NotBlank @Param("param") String param) {
+    public String queryDepts(Invocation inv, @NotBlank @Param("param") String param) {
         LOGGER.info("list depts: {}", param);
         QueryListParam listParam = (QueryListParam) new QueryListParam().fromJson(param);
+        String corpId = getCorpIdFromCookie(inv);
         LOGGER.info("list depts with list param: {}", listParam);
-        try {
-            List<Dept> depts = corpService.queryDepts(listParam);
-            int total = corpService.countDepts(listParam);
-            LOGGER.debug("got depts: {}.", depts);
-            if (depts != null && depts.size() > 0) {
-                return successResult(depts, total);
-            }
-        } catch (ServiceException ex) {
-            LOGGER.error("get depts " + listParam + " got exception:", ex);
-        }
-        return failResult(ApiStatus.DATA_QUERY_FAILED);
+        OperResult<List<Dept>> r = deptService.queryDepts(listParam, corpId);
+        return apiResult(r);
     }
 
     /**
@@ -199,31 +178,19 @@ public class DeptController  extends BaseController {
         LOGGER.info("all dept with param: {}...", param);
         String corpId = JSONObject.fromObject(param).optString("corpId", "");
         if (StringUtils.isBlank(corpId)) {
-            return failResult(ApiStatus.INVALID_PARAMETER, "参数中corpId为空");
+            return failResult(ErrorCode.InvalidParam, "参数中corpId为空");
         }
-        try {
-            List<Dept> depts = corpService.allDepts(corpId);
-            LOGGER.debug("get depts: {}.", depts);
-            return successResult(depts);
-        } catch (ServiceException ex) {
-            LOGGER.error("get all depts of " + corpId + " got exception:", ex);
-            return failResult(ApiStatus.DATA_QUERY_FAILED);
-        }
+        OperResult<List<Dept>> r = deptService.allDepts(corpId);
+        return apiResult(r);
     }
 
     /**
      * 获取所有的部门列表
+     * 
      * @return
      */
     @Get("all")
     public String allDepts() {
-        try {
-            List<Dept> depts = corpService.allDepts();
-            LOGGER.debug("get depts: {}.", depts);
-            return successResult(depts);
-        } catch (ServiceException ex) {
-            LOGGER.error("get all depts got exception:", ex);
-            return failResult(ApiStatus.DATA_QUERY_FAILED);
-        }
+        return apiResult(deptService.allDepts());
     }
 }

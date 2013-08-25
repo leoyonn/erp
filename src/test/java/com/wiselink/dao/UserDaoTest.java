@@ -28,12 +28,6 @@ public class UserDaoTest {
     @Autowired
     private UserDAO userDao;
 
-    @Autowired
-    private UserInfoDAO userInfoDao;
-
-    @Autowired
-    private UserRoleDAO roleDao;
-
     @Before
     public void init() {
     }
@@ -44,8 +38,7 @@ public class UserDaoTest {
 
     @Test
     public void testUser() throws DataAccessException, SQLException {
-        p(userDao.delete("1020300003", "1020300000"));
-        p(userDao.delete("1020300004", "1020300000"));
+        p(userDao.delete(Arrays.asList(new String[]{"1020300003", "1020300004"}), "1020300000"));
         p(userDao.add("1020300003", "account-3", "张阿三", "pass1", "http://avatar.com/3.jpg",
                 "zhangsan@picc.com", "13811811888", "95518-1", "我是张三", "河北省", "石家庄市",
                 "1020300000", "1020300000", 0, 0, 101051, 102017, 0, "1020300000", "1020300001"));
@@ -55,7 +48,7 @@ public class UserDaoTest {
                 .setDesc("我是张三").setProvince("河北省").setCity("石家庄市")
                 .setCreateTime(null).setCreatorId("1020300000").setUpdateTime(null).setOperId("1020300000")
                 .setCatCode(0).setPosCode(0).setFroleCode(101051).setDroleCode(102017)
-                .setStatCode(0).setCorpId("1020300000").setDeptId("1020300001");
+                .setStatCode(0).setCorpId("1020300000").setDeptId("1020300002");
         p(userDao.add(raw, "pass1"));
 
         p(userDao.update("1020300003", "account-3", "张阿三", "http://avatar.com/3.jpg",
@@ -64,14 +57,16 @@ public class UserDaoTest {
 
         p(userDao.update(raw.setDesc("我是李四啊")));
         p(userDao.updatePasswordById(raw.id, "pass1", "pass4"));
-        p(userDao.getPasswordByAccount(raw.account));
+        p(userDao.authByAccount(raw.account));
         p(userDao.updatePasswordByAccount(raw.account, "pass4", "pass1"));
-        p(userDao.getPasswordById(raw.id));
+        p(userDao.authById(raw.id));
         p(userDao.getUserByAccount(raw.account));
         p(userDao.getUserById("1020300003"));
         p(userDao.all());
         p(userDao.queryUsers("%阿%", "", "", -1, -1, -1, 0, 10));
         p(userDao.getUserCardsById(Arrays.asList(new String[]{"1020300003", "1020300004"})));
+        p(userDao.countUserOfDepts(Arrays.asList(new String[]{"1020300001", "1020300002"})));
+        p(userDao.countUserOfCorps(Arrays.asList(new String[]{"1020300000"})));
         // p(userDao.delete(raw.id, "1020300000"));
         // p(userDao.delete("1020300003", "1020300003"));
         // p(userDao.delete("1020300003", "1020300000"));

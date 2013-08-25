@@ -17,8 +17,8 @@ import org.springframework.dao.DataAccessException;
 
 import com.wiselink.base.TableName;
 import com.wiselink.model.user.UserCardRaw;
-import com.wiselink.model.user.UserPass;
 import com.wiselink.model.user.UserRaw;
+import com.wiselink.result.Auth;
 
 /**
  * 
@@ -205,6 +205,10 @@ public interface UserDAO {
     public boolean updatePasswordByAccount(@SQLParam("account") String account,
             @SQLParam("oldpass") String oldpass, @SQLParam("newpass") String newpass) throws SQLException, DataAccessException;
 
+    @SQL("UPDATE " + TableName.User + " SET " + "\"froleCode\"=:froleCode WHERE \"id\"=:id")
+    public boolean updateFuncRole(@SQLParam("id") String id, @SQLParam("froleCode") int froleCode)
+            throws SQLException, DataAccessException;
+
     /**
      * 获取用户密码
      * 
@@ -212,8 +216,9 @@ public interface UserDAO {
      * @return
      * @throws SQLException, DataAccessException
      */
-    @SQL("SELECT \"id\", \"account\", \"password\" FROM " + TableName.User + " WHERE \"id\" = :id")
-    public UserPass getPasswordById(@SQLParam("id") String id) throws SQLException, DataAccessException;
+    @SQL("SELECT \"id\", \"account\", \"password\" , \"corpId\" , \"deptId\" FROM "
+            + TableName.User + " WHERE \"id\" = :id")
+    public Auth authById(@SQLParam("id") String id) throws SQLException, DataAccessException;
 
     /**
      * 获取用户密码
@@ -222,8 +227,9 @@ public interface UserDAO {
      * @return
      * @throws SQLException, DataAccessException
      */
-    @SQL("SELECT  \"id\", \"account\", \"password\" FROM " + TableName.User + " WHERE \"account\" = :account")
-    public UserPass getPasswordByAccount(@SQLParam("account") String account) throws SQLException, DataAccessException;
+    @SQL("SELECT \"id\", \"account\", \"password\" , \"corpId\" , \"deptId\" FROM "
+            + TableName.User + " WHERE \"account\" = :account")
+    public Auth authByAccount(@SQLParam("account") String account) throws SQLException, DataAccessException;
 
     /**
      * 获取一个用户的所有信息
@@ -263,14 +269,44 @@ public interface UserDAO {
     @SQL("SELECT " + KEYS_NO_PASS + " FROM " + TableName.User + " ORDER BY \"id\"")
     public List<UserRaw> all() throws SQLException, DataAccessException;
 
+    @SQL("SELECT " + KEYS_CARD + " FROM " + TableName.User
+            + " WHERE \"corpId\" = :corpId AND (\"froleCode\" <= 0 OR \"froleCode\" = :froleCode) ORDER BY \"id\"")
+    public List<UserCardRaw> getUserCardsOfCorpWithFroleOrNoFrole(
+            @SQLParam("corpId") String corpId, @SQLParam("froleCode") int froleCode) throws SQLException, DataAccessException;
+
+    @SQL("SELECT " + KEYS_CARD + " FROM " + TableName.User
+            + " WHERE \"corpId\" = :corpId AND \"deptId\" = :deptId AND"
+            + " (\"froleCode\" <= 0 OR \"froleCode\" = :froleCode) ORDER BY \"id\"")
+    public List<UserCardRaw> getUserCardsOfDeptWithFroleOrNoFrole(
+            @SQLParam("corpId") String corpId, @SQLParam("deptId") String deptId, 
+            @SQLParam("froleCode") int froleCode) throws SQLException, DataAccessException;
+
+    @SQL("SELECT " + KEYS_CARD + " FROM " + TableName.User
+            + " WHERE \"corpId\" = :corpId AND (\"droleCode\" <= 0 OR \"droleCode\" = :droleCode) ORDER BY \"id\"")
+    public List<UserCardRaw> getUserCardsOfCorpWithDroleOrNoDrole(
+            @SQLParam("corpId") String corpId, @SQLParam("droleCode") int droleCode) throws SQLException, DataAccessException;
+
+    @SQL("SELECT " + KEYS_CARD + " FROM " + TableName.User
+            + " WHERE \"corpId\" = :corpId AND \"deptId\" = :deptId AND"
+            + " (\"droleCode\" <= 0 OR \"droleCode\" = :droleCode) ORDER BY \"id\"")
+    public List<UserCardRaw> getUserCardsOfDeptWithDroleOrNoDrole(
+            @SQLParam("corpId") String corpId, @SQLParam("deptId") String deptId, 
+            @SQLParam("droleCode") int droleCode) throws SQLException, DataAccessException;
+
+    @SQL("SELECT COUNT(\"id\") FROM " + TableName.User + " WHERE \"deptId\" IN (:deptIds)")
+    public int countUserOfDepts(@SQLParam("deptIds") List<String> deptIds) throws SQLException, DataAccessException;
+
+    @SQL("SELECT COUNT(\"id\") FROM " + TableName.User + " WHERE \"corpId\" IN (:corpIds)")
+    public int countUserOfCorps(@SQLParam("corpIds") List<String> corpIds) throws SQLException, DataAccessException;
+
     /**
      * 删除用户
      * 
      * @return
      * @throws SQLException, DataAccessException
      */
-    @SQL("DELETE FROM " + TableName.User + " WHERE \"id\" = :id AND \"creatorId\" = :creatorId")
-    public boolean delete(@SQLParam("id") String id, @SQLParam("creatorId") String creatorId) throws SQLException, DataAccessException;
+    @SQL("DELETE FROM " + TableName.User + " WHERE \"id\" IN (:ids) AND \"creatorId\" = :creatorId")
+    public int delete(@SQLParam("ids") List<String> ids, @SQLParam("creatorId") String creatorId) throws SQLException, DataAccessException;
 
     /**
      * @param name

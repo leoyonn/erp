@@ -20,6 +20,8 @@ public interface Constants {
     String COOKIE_KEY_USER_ID = "userId";
     String COOKIE_KEY_EXPIRE_TIME = "expireTime";
     String COOKIE_KEY_PASS_TOKEN = "passToken";
+    String COOKIE_KEY_CORP_ID = "corpId";
+    String COOKIE_KEY_DEPT_ID = "deptId";
     String SECURITY_KEY = "MTIzNDU2Nzg5MDEyMzQ1Ng==";
     String ENCODING = "UTF-8";
     

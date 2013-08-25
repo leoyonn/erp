@@ -19,10 +19,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.wiselink.base.ApiStatus;
 import com.wiselink.base.Config;
 import com.wiselink.controllers.annotations.LoginRequired;
 import com.wiselink.dao.AvatarDAO;
+import com.wiselink.result.ErrorCode;
 import com.wiselink.utils.ImageUtils;
 
 /**
@@ -44,7 +44,7 @@ public class FileController extends BaseController {
             bytes = file.getBytes();
         } catch (IOException ex) {
             LOGGER.error("get bytes from file exception!", ex);
-            return failResult(ApiStatus.INVALID_PARAMETER);
+            return failResult(ErrorCode.InvalidParam);
         }
         String url = Config.getInstance().avatarUrl(userId);
         String path = Config.getInstance().path(url);
@@ -54,7 +54,7 @@ public class FileController extends BaseController {
             ImageUtils.create(bytes, path);
         } catch (Exception ex) {
             LOGGER.error("save avatar got exception!", ex);
-            return failResult(ApiStatus.DATA_INSERT_FAILED);
+            return failResult(ErrorCode.DbInsertFail);
         }
         return successResult(url);
     }

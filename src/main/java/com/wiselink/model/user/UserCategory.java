@@ -48,7 +48,7 @@ public enum UserCategory implements Jsonable {
         switch(code) {
             case 0: return Corp;
             case 1: return Supplier;
-            default: throw new IllegalArgumentException("invalid code in parameter");
+            default: return null;
         }
     }
 

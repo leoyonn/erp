@@ -6,12 +6,9 @@
  */
 package com.wiselink.service;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,16 +19,15 @@ import com.wiselink.dao.DeptDAO;
 import com.wiselink.exception.ServiceException;
 import com.wiselink.model.org.Corp;
 import com.wiselink.model.org.Dept;
-import com.wiselink.model.org.Org;
-import com.wiselink.model.param.QueryListParam;
-import com.wiselink.utils.IdUtils;
+import com.wiselink.result.ErrorCode;
+import com.wiselink.result.OperResult;
 
 /**
  * 组织结构相关的服务
  * @author leo
  */
 @Service
-public class CorpService {
+public class CorpService extends BaseService {
     private static final Logger LOGGER = LoggerFactory.getLogger(CorpService.class);
 
     @Autowired
@@ -40,17 +36,27 @@ public class CorpService {
     @Autowired
     private DeptDAO deptDao;
 
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private DeptService deptService;
+
     /**
      * 新建一个公司
      * 
      * @param corp
-     * @throws ServiceException
      */
-    public boolean newCorp(Corp corp) throws ServiceException {
+    public OperResult<Corp> newCorp(Corp corp) {
         try {
-            return corpDao.addCorp(corp.id, corp.type, corp.name, corp.desc, corp.address, corp.tel, corp.contact);
+            if (corpDao.addCorp(corp)) {
+                return r(corp);
+            } else {
+                return r(ErrorCode.DbInsertFail, "添加公司失败，请检查参数");
+            }
         } catch (Exception ex) {
-            throw new ServiceException(ex);
+            LOGGER.error("add corp: " + corp + " got exception", ex);
+            return r(ErrorCode.DbInsertFail, "添加公司失败：" , ex);
         }
     }
 
@@ -58,13 +64,18 @@ public class CorpService {
      * 修改一个公司的信息
      * @param corp
      * @return
-     * @throws ServiceException
      */
-    public boolean updateCorp(Corp corp) throws ServiceException {
+    public OperResult<Corp> updateCorp(Corp corp) {
+        LOGGER.debug("update corp: {}", corp);
         try {
-            return corpDao.updateCorp(corp.id, corp.type, corp.name, corp.desc, corp.address, corp.tel, corp.contact);
+            if (corpDao.updateCorp(corp)) {
+                return r(corp);
+            } else {
+                return r(ErrorCode.DbUpdateFail, "修改公司失败，请检查参数");
+            }
         } catch (Exception ex) {
-            throw new ServiceException(ex);
+            LOGGER.error("update corp: " + corp + " got exception", ex);
+            return r(ErrorCode.DbInsertFail, "修改公司失败：", ex);
         }
     }
 
@@ -76,211 +87,80 @@ public class CorpService {
      * @return
      * @throws ServiceException
      */
-    public Corp getCorp(String id) throws ServiceException {
+    public OperResult<Boolean> deleteCorp(String id) {
+        OperResult<Integer> cnt = userService.countUsersInCorps(Arrays.asList(new String[]{id}));
+        if (cnt.error != ErrorCode.Success) {
+            return r(cnt.error, cnt.reason);
+        } else if (cnt.result > 0) {
+            return r(ErrorCode.AuthDenied, "不能删除还有用户存在的公司");
+        }
+        OperResult<List<Corp>> subs = allSubCorps(id);
+        if (subs.error != ErrorCode.Success) {
+            return r(subs.error, subs.reason);
+        } else if (subs.result.size() > 0) {
+            return r(ErrorCode.AuthDenied, "不能删除还有子公司存在的公司");
+        }
+        OperResult<List<Dept>> depts = deptService.allDepts(id);
+        if (depts.error != ErrorCode.Success) {
+            return r(depts.error, depts.reason);
+        } else if (depts.result.size() > 0) {
+            return r(ErrorCode.AuthDenied, "不能删除还有子部门存在的公司");
+        }
         try {
-            return corpDao.find(id);
+            return r(corpDao.delete(id));
         } catch (Exception ex) {
-            throw new ServiceException(ex);
+            LOGGER.error("delete corp: " + id + " got exception", ex);
+            return r(ErrorCode.DbDeleteFail, "删除公司失败：" , ex);
         }
     }
 
     /**
-     * list all corps in :ids
+     * 查询一个公司
      * 
-     * @param from
-     * @param num
+     * @param id
      * @return
      * @throws ServiceException
      */
-    public List<Corp> getCorps(Collection<String> ids) throws ServiceException {
+    public OperResult<Corp> getCorp(String id) {
         try {
-            return corpDao.list(ids);
+            Corp corp = corpDao.find(id);
+            if (corp != null) {
+                return r(corp);
+            } else {
+                return r(ErrorCode.DbQueryFail, "无此id对应的公司");
+            }
         } catch (Exception ex) {
-            throw new ServiceException(ex);
+            LOGGER.error("query corp: " + id + " got exception", ex);
+            return r(ErrorCode.DbQueryFail, "查找公司失败：" , ex);
         }
     }
 
     /**
      * 获取所有的公司
-     * @return
-     * @throws ServiceException
-     */
-    public List<Corp> allCorps() throws ServiceException {
-        try {
-            return corpDao.all();
-        } catch (Exception ex) {
-            throw new ServiceException(ex);
-        }
-    }
-
-
-    /**
-     * 添加一个新的部门
      * 
-     * @param dept
      * @return
-     * @throws ServiceException
      */
-    public Dept newDept(Dept dept) throws ServiceException {
+    public OperResult<List<Corp>> allCorps() {
         try {
-            String maxId = deptDao.maxDeptId(dept.corpId);
-            if (StringUtils.isBlank(maxId)) {
-                maxId = dept.corpId;
-            }
-            dept.id = String.valueOf(Long.valueOf(maxId) + 1);
-            if (deptDao.addDept(dept.id, dept.name, dept.desc, dept.deptType, dept.corpId)) {
-                return dept;
-            } else {
-                throw new ServiceException("write into database failed");
-            }
+            return r(corpDao.all());
         } catch (Exception ex) {
-            throw new ServiceException(ex);
+            LOGGER.error("get all corps: got exception", ex);
+            return r(ErrorCode.DbQueryFail, "查找公司失败：" , ex);
         }
     }
 
     /**
-     * 修改一个部门的信息
+     * 获取指定公司id的所有子公司（一级）
      * 
-     * @param dept
+     * @param corpId
      * @return
-     * @throws ServiceException
      */
-    public Dept updateDept(Dept dept) throws ServiceException {
+    public OperResult<List<Corp>> allSubCorps(String corpId) {
         try {
-            if(deptDao.updateDept(dept.id, dept.name, dept.desc, dept.deptType, dept.corpId)) {
-                return dept;
-            } else {
-                throw new ServiceException("write into database failed");
-            }
+            return r(corpDao.subCorps(corpId));
         } catch (Exception ex) {
-            throw new ServiceException(ex);
+            LOGGER.error("get all sub corps of " + corpId + ": got exception", ex);
+            return r(ErrorCode.DbQueryFail, "查找子公司公司失败：" , ex);
         }
     }
-
-    /**
-     * 删除指定部门
-     * @param id
-     * @return
-     * @throws ServiceException
-     */
-    public boolean deleteDept(String id) throws ServiceException {
-        try {
-            return deptDao.delete(id);
-        } catch (Exception ex) {
-            throw new ServiceException(ex);
-        }
-    }
-
-    /**
-     * 获取一个部门信息
-     * @param id
-     * @return
-     * @throws ServiceException 
-     */
-    public Dept getDept(String id) throws ServiceException {
-        try {
-            return deptDao.find(id);
-        } catch (Exception ex) {
-            throw new ServiceException(ex);
-        }
-    }
-
-    /**
-     * 根据参数查询所有符合要求的部门
-     * 
-     * @param param
-     * @return
-     * @throws ServiceException
-     */
-    public List<Dept> queryDepts(QueryListParam param) throws ServiceException {
-        try {
-            String name = param.getLikeField("name", "");
-            int from = (param.page - 1) * param.size + 1;
-            int to = from + param.size - 1;
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("list depts of name: {} from {} to {}", new Object[]{name, from, to});
-            }
-            if (!StringUtils.isEmpty(name)) {
-                return deptDao.queryByName(name, from, to);
-            } else {
-                return deptDao.all();
-            }
-        } catch (Exception ex) {
-            throw new ServiceException(ex);
-        }
-    }
-
-    public int countDepts(QueryListParam param) throws ServiceException {
-        try {
-            String name = param.getFields().get("name");
-            if (!StringUtils.isEmpty(name)) {
-                return deptDao.countByName(name);
-            } else {
-                return deptDao.count();
-            }
-        } catch (Exception ex) {
-            throw new ServiceException(ex);
-        }
-    }
-
-    /**
-     * 获取一个公司所有的部门列表
-     * @return
-     * @throws ServiceException
-     */
-    public List<Dept> allDepts(String corpId) throws ServiceException {
-        try {
-            return deptDao.all(corpId);
-        } catch (Exception ex) {
-            throw new ServiceException(ex);
-        }
-    }
-
-    /**
-     * 获取所有的部门列表
-     * @return
-     * @throws ServiceException
-     */
-    public List<Dept> allDepts() throws ServiceException {
-        try {
-            return deptDao.all();
-        } catch (Exception ex) {
-            throw new ServiceException(ex);
-        }
-    }
-
-    /**
-     * @param scopeIds
-     * @return
-     * @throws ServiceException 
-     */
-    public List<Org> getOrgs(List<String> scopeIds) throws ServiceException {
-        if (scopeIds == null || scopeIds.size() == 0) {
-            return Collections.emptyList();
-        }
-        List<String> corpIds = new ArrayList<String>();
-        List<String> deptIds = new ArrayList<String>();
-        for (String id: scopeIds) {
-            if (IdUtils.isCorpIdLegal(id)) {
-                corpIds.add(id);
-            } else if (IdUtils.isDeptIdLegal(id)) {
-                deptIds.add(id);
-            } else {
-                LOGGER.warn("bad id:" + id);
-            }
-        }
-        List<Corp> corps = Collections.emptyList();
-        List<Dept> depts = Collections.emptyList();
-        try {
-            corps = corpDao.list(corpIds);
-            depts = deptDao.list(deptIds);
-        } catch (Exception ex) {
-            throw new ServiceException(ex);
-        }
-        List<Org> orgs = new ArrayList<Org>(corps.size() + depts.size());
-        orgs.addAll(corps);
-        orgs.addAll(depts);
-        return orgs;
-    }
-
 }

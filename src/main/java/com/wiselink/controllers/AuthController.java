@@ -17,14 +17,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.wiselink.base.ApiResult;
-import com.wiselink.base.ApiStatus;
-import com.wiselink.base.AuthResult;
-import com.wiselink.base.AuthStatus;
 import com.wiselink.base.Constants;
-import com.wiselink.exception.ServiceException;
-import com.wiselink.model.user.User;
-import com.wiselink.model.user.UserDeprecated;
+import com.wiselink.result.Auth;
+import com.wiselink.result.ErrorCode;
+import com.wiselink.result.OperResult;
 import com.wiselink.service.UserService;
 import com.wiselink.utils.CookieUtils;
 import com.wiselink.utils.HttpUtils;
@@ -46,24 +42,15 @@ public class AuthController extends BaseController {
         String user = json.optString("user", "");
         String password = json.optString("password", "");
         if (StringUtils.isBlank(user) || StringUtils.isBlank(password)) {
-            return failResult(ApiStatus.INVALID_PARAMETER, "用户名或密码为空");
+            return failResult(ErrorCode.BlankParam, "用户名或密码为空");
         }
         // TODO: permission check
-        AuthResult authResult = userService.checkPassword(user, password, inv.getRequest().getRemoteAddr());
-        if (AuthStatus.SUCCESS != authResult.stat) {
-            return apiResult(ApiResult.authFailed(authResult.stat));
+        OperResult<Auth> auth = userService.auth(user, password, inv.getRequest().getRemoteAddr());
+        if (auth.error != ErrorCode.Success) {
+            return apiResult(auth);
         }
-        setCookie(inv, authResult);
-        User u = null;
-        try {
-            u = userService.getUserById(authResult.userId);
-        } catch (ServiceException e) {
-            return failResult(ApiStatus.DATA_QUERY_FAILED, "读取用户数据失败");
-        }
-        if (u == null) {
-            return failResult(ApiStatus.DATA_QUERY_FAILED, "读取用户数据失败");
-        }
-        return successResult(u.toJson());
+        setAuthCookie(inv, auth.result);
+        return apiResult(userService.getUserById(auth.result.id));
     }
 
     /**
@@ -79,30 +66,31 @@ public class AuthController extends BaseController {
         return successResult("退出登录成功");
     }
 
-    private boolean setCookie(Invocation inv, AuthResult auth) {
+    /**
+     * 检查登录情况
+     * @param inv
+     * @return
+     */
+    @Get("check")
+    public String check(Invocation inv) {
+        String userId = CookieUtils.getUserId(inv);
+        LOGGER.info("got user from cookie: {}", userId);
+        if (StringUtils.isBlank(userId)) {
+            return failResult(ErrorCode.LoginRequired, "尚未登录");
+        }
+        return apiResult(userService.getUserById(userId));
+    }
+
+    private boolean setAuthCookie(Invocation inv, Auth auth) {
         int expire = Constants.COOKIE_EXPIRE_SECONDS_2WEEK;
-        CookieUtils.saveCookie(inv.getResponse(), Constants.COOKIE_KEY_USER_ID, auth.userId, expire, "/",
+        CookieUtils.saveCookie(inv.getResponse(), Constants.COOKIE_KEY_USER_ID, auth.id, expire, "/",
                 HttpUtils.getRootDomain(inv.getRequest()));
-        CookieUtils.saveCookie(inv.getResponse(), Constants.COOKIE_KEY_USER_ID, auth.userId, expire, "/", "");
+        CookieUtils.saveCookie(inv.getResponse(), Constants.COOKIE_KEY_USER_ID, auth.id, expire, "/", "");
+        CookieUtils.saveCookie(inv.getResponse(), Constants.COOKIE_KEY_CORP_ID, auth.corpId, expire, "/", "");
+        CookieUtils.saveCookie(inv.getResponse(), Constants.COOKIE_KEY_DEPT_ID, auth.deptId, expire, "/", "");
         CookieUtils.saveCookie(inv.getResponse(), Constants.COOKIE_KEY_EXPIRE_TIME, String.valueOf(expire), expire, "/", "");
         CookieUtils.saveCookie(inv.getResponse(), Constants.COOKIE_KEY_PASS_TOKEN, auth.passToken, expire, "/", "");
         return true;
     }
 
-    @Get("check")
-    public String check(Invocation inv) {
-        String userId = CookieUtils.getUserId(inv);
-        LOGGER.info("got user from cookie: {}", userId);
-        User u = null;
-        try {
-            u = userService.getUserById(userId);
-        } catch (ServiceException ex) {
-            LOGGER.error("got user from cookie: " + userId, ex);
-            return failResult(ApiStatus.DATA_QUERY_FAILED, "读取用户数据失败");
-        }
-        if (u == null) {
-            return failResult(ApiStatus.DATA_QUERY_FAILED, "读取用户数据失败");
-        }
-        return successResult(u);
-    }
 }

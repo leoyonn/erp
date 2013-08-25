@@ -12,9 +12,10 @@ import java.util.Collections;
 import net.paoding.rose.web.Invocation;
 import net.sf.json.JSONArray;
 
-import com.wiselink.base.ApiResult;
-import com.wiselink.base.ApiStatus;
 import com.wiselink.base.jsonable.Jsonable;
+import com.wiselink.result.ApiResult;
+import com.wiselink.result.ErrorCode;
+import com.wiselink.result.OperResult;
 import com.wiselink.utils.CookieUtils;
 
 /**
@@ -23,19 +24,40 @@ import com.wiselink.utils.CookieUtils;
  */
 public abstract class BaseController {
     protected static String apiResult(ApiResult res) {
-        return "@json:" + res.toJson();
+        return res.toJsonApiResult();
+    }
+
+    protected static <T> String apiResult(OperResult<T> r) {
+        if (r.getError() != ErrorCode.Success) {
+            return failResult(r.error, r.reason);
+        }
+        if (r.result instanceof String) {
+            return successResult((String) r.result);
+        } else if (r.result instanceof Jsonable) {
+            return successResult((Jsonable) r.result);
+        } else if (r.result instanceof Collection<?>) {
+            @SuppressWarnings("unchecked")
+            Collection<? extends Jsonable> res = (Collection<? extends Jsonable>) r.result;
+            return successResult(res, r.total);
+        } else {
+            return successResult(r.result);
+        }
     }
 
     protected static String successResult() {
-        return "@json:" + new ApiResult(ApiStatus.SUCCESS);    
+        return new ApiResult(ErrorCode.Success).toJsonApiResult();
     }
 
     protected static String successResult(String result) {
-        return "@json:" + new ApiResult(ApiStatus.SUCCESS, result);    
+        return new ApiResult(result).toJsonApiResult();
+    }
+
+    protected static <T> String successResult(T result) {
+        return new ApiResult(result.toString()).toJsonApiResult();
     }
 
     protected static String successResult(Jsonable result) {
-        return "@json:" + new ApiResult(ApiStatus.SUCCESS, result.toJson());    
+        return new ApiResult(result.toJson()).toJsonApiResult();
     }
 
     protected static String successResult(Collection<? extends Jsonable> all, int total) {
@@ -46,29 +68,30 @@ public abstract class BaseController {
         for (Jsonable j: all) {
             arr.add(j.toJson());
         }
-        return "@json:" + new ApiResult(ApiStatus.SUCCESS, arr.toString(), total);
+        return new ApiResult(arr.toString(), total).toJsonApiResult();
     }
 
     protected static String successResult(Collection<? extends Jsonable> all) {
-        if (all == null) {
-            all = Collections.emptyList();
-        }
-        JSONArray arr = new JSONArray();
-        for (Jsonable j: all) {
-            arr.add(j.toJson());
-        }
-        return "@json:" + new ApiResult(ApiStatus.SUCCESS, arr.toString(), all.size());
+        return successResult(all, all == null ? 0 : all.size());
     }
 
-    protected static String failResult(ApiStatus status, String result) {
-        return "@json:" + new ApiResult(status, result);    
+    protected static String failResult(ErrorCode error, String reason) {
+        return new ApiResult(error, reason).toJsonApiResult();
     }
 
-    protected static String failResult(ApiStatus status) {
-        return "@json:" + new ApiResult(status, "");    
+    protected static String failResult(ErrorCode error) {
+        return new ApiResult(error).toJsonApiResult();
     }
     
     protected String getUserIdFromCookie(Invocation inv) {
         return CookieUtils.getUserId(inv);
+    }
+
+    protected String getCorpIdFromCookie(Invocation inv) {
+        return CookieUtils.getCorpId(inv);
+    }
+
+    protected String getDeptIdFromCookie(Invocation inv) {
+        return CookieUtils.getDeptId(inv);
     }
 }

@@ -21,14 +21,12 @@ import org.springframework.dao.DataAccessException;
 import com.wiselink.base.TableName;
 import com.wiselink.model.role.DataRole;
 import com.wiselink.model.role.DataRoleInfo;
-import com.wiselink.model.role.FuncRoleInfo;
 
 /**
  * 
  * @author leo
  */
 @DAO
-@SuppressWarnings("not completed|post|验证sequence！")
 public interface DataRoleInfoDAO {
 
     /**
@@ -53,6 +51,11 @@ public interface DataRoleInfoDAO {
             @SQLParam("levelCode") int levelCode, @SQLParam("corpId") String corpId, @SQLParam("deptId") String deptId,
             @SQLParam("creatorId") String creatorId) throws SQLException, DataAccessException;
 
+    @SQL("INSERT INTO " + TableName.DataRoleInfo 
+            + "(\"name\", \"desc\", \"levelCode\", \"corpId\", \"deptId\", \"creatorId\", \"createTime\", \"updateTime\")"
+            + " VALUES (:r.name,:r.desc,:r.levelCode,:r.corpId,:r.deptId,:r.creatorId,sysdate,sysdate)")
+    boolean add(@SQLParam("r") DataRoleInfo role) throws SQLException, DataAccessException;
+
     /**
      * 修改一条level-role-info
      * @param code
@@ -69,6 +72,11 @@ public interface DataRoleInfoDAO {
             + " WHERE \"code\" = :code")
     boolean update(@SQLParam("code") int code, @SQLParam("name") String name, @SQLParam("desc") String desc,
             @SQLParam("levelCode") int levelCode, @SQLParam("corpId") String corpId, @SQLParam("deptId") String deptId) throws SQLException, DataAccessException;
+
+    @SQL("UPDATE " + TableName.DataRoleInfo
+            + " SET \"name\"=:r.name, \"desc\"=:r.desc, \"levelCode\"=:r.levelCode, "
+            + " \"corpId\"=:r.corpId, \"deptId\"=:r.deptId  WHERE \"code\" = :r.code")
+    boolean update(@SQLParam("r") DataRoleInfo role) throws SQLException, DataAccessException;
 
     /**
      * find data-role-info using code
@@ -96,8 +104,11 @@ public interface DataRoleInfoDAO {
      * @return
      * @throws SQLException, DataAccessException
      */
-    @SQL("SELECT * FROM " + TableName.DataRoleInfo + " WHERE \"code\" >= :from AND ROWNUM <=:num ORDER BY \"code\"")
-    public List<DataRoleInfo> list(@SQLParam("from") int from, @SQLParam("num") int num) throws SQLException, DataAccessException;
+    @SQL("SELECT * FROM " + TableName.DataRoleInfo + " WHERE \"corpId\" = :corpId ORDER BY \"code\"")
+    public List<DataRoleInfo> all(@SQLParam("corpId") String corpId) throws SQLException, DataAccessException;
+
+    @SQL("SELECT * FROM " + TableName.DataRoleInfo + " ORDER BY \"code\"")
+    public List<DataRoleInfo> all() throws SQLException, DataAccessException;
 
     /**
      * list all func-roles in :codes sorted by {@link Role#code}  

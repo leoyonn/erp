@@ -160,4 +160,13 @@ public class Utils {
         }
         return size;
     }
+    
+    public static String fixJsonValueQuota(String v) {
+        if (StringUtils.isEmpty(v)) {
+            v = "\"\"";
+        } else if (!v.startsWith("[") && !v.startsWith("{") && !v.startsWith("\"")) {
+            v = "\"" + v + "\"";
+        }
+        return v;
+    }
 }

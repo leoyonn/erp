@@ -7,7 +7,6 @@
 package com.wiselink.dao;
 
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Assert;
@@ -133,56 +132,57 @@ public class FuncRoleDaosTest {
         Assert.assertEquals(info.name, name[2]);
         Assert.assertEquals(info.desc, desc[2]);
         // list
-        List<FuncRoleInfo> l = infoDao.list(0, 10);
-        p("list: " + l);
-        Assert.assertEquals(3, l.size());
-        Assert.assertEquals(name[0], l.get(0).name);
-        Assert.assertEquals(name[1], l.get(1).name);
-        Assert.assertEquals(name[2], l.get(2).name);
-        l = infoDao.list(code[0], 10);
-        p("list: " + l);
-        Assert.assertEquals(3, l.size());
-        Assert.assertEquals(name[0], l.get(0).name);
-        Assert.assertEquals(name[1], l.get(1).name);
-        Assert.assertEquals(name[2], l.get(2).name);
-        l = infoDao.list(code[1], 10);
-        p("list: " + l);
-        Assert.assertEquals(2, l.size());
-        Assert.assertEquals(name[1], l.get(0).name);
-        l = infoDao.list(code[2], 10);
-        p("list: " + l);
-        Assert.assertEquals(1, l.size());
-        Assert.assertEquals(name[2], l.get(0).name);
-        l = infoDao.list(code[2] + 1, 10);
-        p("list: " + l);
-        Assert.assertEquals(0, l.size());
-        // list by collections
-        l = infoDao.list(Arrays.asList(new Integer[]{1323232, code[0], code[2], code[1], 1212}));
-        p("listc: " + l);
-        Assert.assertEquals(3, l.size());
-        Assert.assertEquals(name[0], l.get(0).name);
-        Assert.assertEquals(name[1], l.get(1).name);
-        Assert.assertEquals(name[2], l.get(2).name);
-        // delete
-        Assert.assertTrue(infoDao.delete(code[1]));
-        l = (infoDao.list(0, 100));
-        p("list: " + l);
-        Assert.assertEquals(2, l.size());
-        Assert.assertEquals(name[0], l.get(0).name);
-        Assert.assertEquals(name[2], l.get(1).name);
-        l = (infoDao.list(code[0], 10));
-        p("list: " + l);
-        Assert.assertEquals(2, l.size());
-        l = (infoDao.list(code[1], 10));
-        p("list: " + l);
-        Assert.assertEquals(1, l.size());
-        l = (infoDao.list(code[2], 10));
-        Assert.assertEquals(1, l.size());
-        Assert.assertEquals(name[2], l.get(0).name);
-        // clear
-        p(infoDao.list(1, 1));
-        Assert.assertEquals(2, infoDao.clear());
-        Assert.assertEquals(0, infoDao.list(0, 100).size());
+        // List<FuncRoleInfo> l = infoDao.list(0, 10);
+        // p("list: " + l);
+        // Assert.assertEquals(3, l.size());
+        // Assert.assertEquals(name[0], l.get(0).name);
+        // Assert.assertEquals(name[1], l.get(1).name);
+        // Assert.assertEquals(name[2], l.get(2).name);
+        // l = infoDao.list(code[0], 10);
+        // p("list: " + l);
+        // Assert.assertEquals(3, l.size());
+        // Assert.assertEquals(name[0], l.get(0).name);
+        // Assert.assertEquals(name[1], l.get(1).name);
+        // Assert.assertEquals(name[2], l.get(2).name);
+        // l = infoDao.list(code[1], 10);
+        // p("list: " + l);
+        // Assert.assertEquals(2, l.size());
+        // Assert.assertEquals(name[1], l.get(0).name);
+        // l = infoDao.list(code[2], 10);
+        // p("list: " + l);
+        // Assert.assertEquals(1, l.size());
+        // Assert.assertEquals(name[2], l.get(0).name);
+        // l = infoDao.list(code[2] + 1, 10);
+        // p("list: " + l);
+        // Assert.assertEquals(0, l.size());
+        // // list by collections
+        // l = infoDao.list(Arrays.asList(new Integer[]{1323232, code[0],
+        // code[2], code[1], 1212}));
+        // p("listc: " + l);
+        // Assert.assertEquals(3, l.size());
+        // Assert.assertEquals(name[0], l.get(0).name);
+        // Assert.assertEquals(name[1], l.get(1).name);
+        // Assert.assertEquals(name[2], l.get(2).name);
+        // // delete
+        // Assert.assertTrue(infoDao.delete(code[1]));
+        // l = (infoDao.list(0, 100));
+        // p("list: " + l);
+        // Assert.assertEquals(2, l.size());
+        // Assert.assertEquals(name[0], l.get(0).name);
+        // Assert.assertEquals(name[2], l.get(1).name);
+        // l = (infoDao.list(code[0], 10));
+        // p("list: " + l);
+        // Assert.assertEquals(2, l.size());
+        // l = (infoDao.list(code[1], 10));
+        // p("list: " + l);
+        // Assert.assertEquals(1, l.size());
+        // l = (infoDao.list(code[2], 10));
+        // Assert.assertEquals(1, l.size());
+        // Assert.assertEquals(name[2], l.get(0).name);
+        // // clear
+        // p(infoDao.list(1, 1));
+        // Assert.assertEquals(2, infoDao.clear());
+        // Assert.assertEquals(0, infoDao.list(0, 100).size());
     }
 
     @Test
@@ -198,7 +198,7 @@ public class FuncRoleDaosTest {
         p(r = infoDao.findByName(name[0]));
         p(infoDao.update(r.setDesc(desc[0])));
         p(infoDao.findByName(name[0]));
-        p(infoDao.list(1, 1));
+        // p(infoDao.list(1, 1));
         p(infoDao.all());
         p(infoDao.count());
         p(infoDao.delete(r.code));

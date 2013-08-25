@@ -8,8 +8,10 @@ package com.wiselink.service;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,14 +22,15 @@ import org.springframework.stereotype.Service;
 import com.wiselink.dao.FuncRoleFuncsDAO;
 import com.wiselink.dao.FuncRoleInfoDAO;
 import com.wiselink.dao.FuncRoleUsersDAO;
-import com.wiselink.exception.ServiceException;
-import com.wiselink.model.param.QueryListParam;
 import com.wiselink.model.role.Func;
 import com.wiselink.model.role.FuncModule;
 import com.wiselink.model.role.FuncModules;
 import com.wiselink.model.role.FuncRole;
 import com.wiselink.model.role.FuncRoleInfo;
 import com.wiselink.model.user.UserCard;
+import com.wiselink.result.Checked;
+import com.wiselink.result.ErrorCode;
+import com.wiselink.result.OperResult;
 
 /**
  * 功能角色相关的服务
@@ -35,7 +38,7 @@ import com.wiselink.model.user.UserCard;
  * @author leo
  */
 @Service
-public class FuncRoleService {
+public class FuncRoleService extends BaseService {
     private static final Logger LOGGER = LoggerFactory.getLogger(FuncRoleService.class);
 
     private static final FuncModules modules = FuncModules.getInstance();
@@ -58,97 +61,113 @@ public class FuncRoleService {
 
     /**
      * 获取一个功能角色的完整信息
+     * 
      * @param code
      * @return
-     * @throws ServiceException
+     * @
      */
-    public FuncRole getFuncRole(int code) throws ServiceException {
-        FuncRole role = getFuncRoleInfo(code);
-        if (role == null) {
-            return null;
+    public OperResult<FuncRole> getFuncRole(int code)  {
+        OperResult<FuncRole> r = getFuncRoleInfo(code);
+        if (r.error != ErrorCode.Success) {
+            return r;
         }
-        return getFuncRoleList(role);
+        return buildRoleFuncsAndUsers(r);
     }
 
     /**
      * 获取一个功能角色的基本信息
+     * 
      * @param code
      * @return
-     * @throws ServiceException
      */
-    public FuncRole getFuncRoleInfo(int code) throws ServiceException {
+    public OperResult<FuncRole> getFuncRoleInfo(int code) {
+        FuncRoleInfo froleInfo = null;
         try {
-            FuncRoleInfo froleInfo = froleDao.find(code);
-            if (froleInfo == null) {
-                return null;
-            }
-            LOGGER.debug("get func role info: {}", froleInfo);
-            return new FuncRole(froleInfo);
+            froleInfo = froleDao.find(code);
         } catch (Exception ex) {
-            throw new ServiceException(ex);
+            LOGGER.error("get func role " + code + " got exception", ex);
+            return r(ErrorCode.DbQueryFail, "查询功能角色信息失败：" , ex);
         }
+        if (froleInfo == null) {
+            return r(ErrorCode.DbQueryFail, "查询功能角色信息失败，请检查参数");
+        }
+        return r(new FuncRole(froleInfo));
     }
 
     /**
      * 获取一个角色#frole对应的所有功能和用户信息
+     * 
      * @param frole
      * @return
-     * @throws ServiceException 
      */
-    public FuncRole getFuncRoleList(FuncRole frole) throws ServiceException {
+    public OperResult<FuncRole> buildRoleFuncsAndUsers(OperResult<FuncRole> r) {
+        // get all module/funcs, and filter all that this role contains.
+        FuncRole frole = r.result;
+        List<Integer> funcCodes = Collections.emptyList();
         try {
-            List<String> userIds = froleUsersDao.getUsers(frole.info.code);
-            List<UserCard> users = userService.getUserCards(userIds);
-            List<Integer> funcCodes = froleFuncsDao.getFuncs(frole.info.code);
-            List<Func> funcs = getFuncs(funcCodes);
-            frole.setFuncs(funcs).setUsers(users);
-            LOGGER.debug("get func role: {}", frole);
-            return frole;
+            funcCodes = froleFuncsDao.getFuncs(frole.info.code);
         } catch (Exception ex) {
-            throw new ServiceException(ex);
+            LOGGER.error("get func role funcs " + frole + " got exception", ex);
+            return r(ErrorCode.DbQueryFail, "查询功能角色信息失败：" , ex);
+        } 
+        List<Checked<Func>> checkedFuncs = checkFuncs(funcCodes);
+
+        // get all users in this corp/user and check for frole
+        OperResult<List<UserCard>> users = userService.getUsersInOrgWithFroleOrNoFrole(
+                frole.info.corpId, frole.info.deptId, frole.info.code);
+        if (users.error != ErrorCode.Success) {
+            return r.setError(users.error).setReason(users.reason).setResult(null);
         }
+        List<String> froleUserIds;
+        try {
+            froleUserIds = froleUsersDao.getUsers(frole.info.code);
+        } catch (Exception ex) {
+            LOGGER.error("get func role users " + frole + " got exception", ex);
+            return r(ErrorCode.DbQueryFail, "查询功能角色信息失败：" , ex);
+        }
+        List<Checked<UserCard>> checkedUsers = checkUsers(users.result, froleUserIds);
+        return r.setResult(frole.setFuncs(checkedFuncs).setUsers(checkedUsers));
     }
 
-    /**
-     * 获取功能角色列表
-     * 
-     * @param from
-     * @param to
-     * @return
-     * @throws ServiceException
-     */
-    public List<FuncRoleInfo> getFuncRoles(QueryListParam param) throws ServiceException {
-        int from = (param.page - 1) * param.size + 1;
-        int to = from + param.size - 1;
+    public OperResult<List<FuncRoleInfo>> allFuncRoles() {
+        List<FuncRoleInfo> list = Collections.emptyList();
         try {
-            return froleDao.list(from, to);
+            list = froleDao.all();
         } catch (Exception ex) {
-            throw new ServiceException(ex);
+            LOGGER.error("get all func roles got exception", ex);
+            return r(ErrorCode.DbQueryFail, "查询功能角色列表失败：" , ex);
         }
-    }
-
-    public List<FuncRoleInfo> allFuncRoles() throws ServiceException {
-        try {
-            return froleDao.all();
-        } catch (Exception ex) {
-            throw new ServiceException(ex);
-        }
+        return r(list);
     }
     
-    public int allFuncRolesCount() throws ServiceException {
+    public OperResult<List<FuncRoleInfo>> allFuncRoles(String corpId) {
+        List<FuncRoleInfo> list = Collections.emptyList();
         try {
-            return froleDao.count();
+            list = froleDao.all(corpId);
         } catch (Exception ex) {
-            throw new ServiceException(ex);
+            LOGGER.error("get all func roles of " + corpId + " got exception", ex);
+            return r(ErrorCode.DbQueryFail, "查询功能角色列表失败：" , ex);
+        }
+        return r(list);
+    }
+    
+    public OperResult<Integer> allFuncRolesCount() {
+        try {
+            int n = froleDao.count();
+            return r(n);
+        } catch (Exception ex) {
+            LOGGER.error("count all func roles got exception", ex);
+            return r(ErrorCode.DbQueryFail, "查询功能角色个数失败：" , ex);
         }
     }
 
     /**
      * 获取所有的功能模块
+     * 
      * @return
      */
-    public Collection<FuncModule> allModules() {
-        return modules.allModules();
+    public OperResult<List<FuncModule>> allModules() {
+        return r(new ArrayList<FuncModule>(modules.allModules()));
     }
 
     /**
@@ -157,88 +176,65 @@ public class FuncRoleService {
      * @param code
      * @return
      */
-    public FuncModule getModule(int code) {
-        return modules.getModule(code);
-    }
-
-    /**
-     * 批量查询功能代码对应的功能
-     * @param funcCodes
-     * @return
-     */
-    public List<Func> getFuncs(List<Integer> funcCodes) {
-        List<Func> funcs = new ArrayList<Func>();
-        for (int code: funcCodes) {
-            funcs.add(modules.getFunc(code));
-        }
-        return funcs;
+    public OperResult<FuncModule> getModule(int code) {
+        return r(modules.getModule(code));
     }
 
     /**
      * 添加一个新的功能角色
      * 
-     * @param code
-     * @param name
-     * @param desc
-     * @param corpId
-     * @param deptId
-     * @param creatorId
+     * @param info
      * @return
-     * @throws ServiceException
+     * @
      */
-    public FuncRole newFuncRole(FuncRoleInfo info) throws ServiceException {
-        boolean ok = false;
+    public OperResult<FuncRole> newFuncRole(FuncRoleInfo info) {
         try {
-            ok = froleDao.add(info);
+            if (!froleDao.add(info)) {
+                return r(ErrorCode.DbInsertFail, "添加功能角色失败，请检查参数");
+            }
             info = froleDao.findByName(info.name);
+            return r(new FuncRole(info));
         } catch (Exception ex) { // SQLException, DataAccessException
-            throw new ServiceException(ex);
+            LOGGER.error("new func role" + info + " got exception", ex);
+            return r(ErrorCode.DbInsertFail, "添加功能角色失败：" , ex);
         }
-        if (!ok) {
-            throw new ServiceException("new func role failed.");
-        }
-        return new FuncRole(info);
     }
 
     /**
      * 修改一个功能角色对应的信息
-     * @param code
-     * @param name
-     * @param desc
-     * @param corpId
-     * @param deptId
+     * @param info
      * @return
-     * @throws ServiceException
+     * @
      */
-    public FuncRole updateFuncRole(FuncRoleInfo info) throws ServiceException {
-        boolean ok = false;
+    public OperResult<FuncRole> updateFuncRole(FuncRoleInfo info)  {
         try {
-            ok = froleDao.update(info);
+            if (!froleDao.update(info)) {
+                return r(ErrorCode.DbInsertFail, "添加功能角色失败，请检查参数");
+            }
         } catch (Exception ex) { // SQLException, DataAccessException
-            throw new ServiceException(ex);
-        }
-        if (!ok) {
-            throw new ServiceException("update func role failed.");
+            LOGGER.error("new func role" + info + " got exception", ex);
+            return r(ErrorCode.DbInsertFail, "添加功能角色失败：" , ex);
         }
         return getFuncRole(info.code);
     }
 
     /**
      * 设置一个功能能角色#code对应的功能和用户。
-     * <p>TODO 性能：rose.dao框架似乎不能批量插入、删除
+     * <p>
+     * TODO 性能：rose.dao框架似乎不能批量插入、删除
+     * 
      * @param roleCode
      * @param funcsToDel
      * @param funcsToAdd
      * @param usersToDel
      * @param usersToAdd
-     * @return 
-     * @throws ServiceException
+     * @return @
      */
-    public FuncRole updateFuncRole(int roleCode, List<Integer> funcsToDel, List<Integer> funcsToAdd,
-            List<String> usersToDel, List<String> usersToAdd) throws ServiceException {
-        FuncRole role = getFuncRoleInfo(roleCode);
-        if (role == null) {
-            return null;
+    public OperResult<FuncRole> updateFuncRole(int roleCode, List<Integer> funcsToDel,
+            List<Integer> funcsToAdd, List<String> usersToDel, List<String> usersToAdd) {
+        OperResult<FuncRole> r = getFuncRoleInfo(roleCode);
+        if (r.error != ErrorCode.Success) {
+            return r;
         }
         try {
             for (int funcCode: funcsToDel) {
@@ -254,30 +250,32 @@ public class FuncRoleService {
                 froleUsersDao.addUserToRole(roleCode, userId);
             }
         } catch (Exception ex) {
-            throw new ServiceException(ex);
+            LOGGER.error("modify func role funcs and users: " + r.result + " got exception", ex);
+            return r(ErrorCode.DbUpdateFail, "更新功能角色用户/功能列表失败：" , ex);
         }
-        return getFuncRoleList(role);
+        userService.updateUsersFuncRole(usersToDel, usersToAdd, roleCode);
+        return buildRoleFuncsAndUsers(r);
     }
 
     /**
      * @param code
-     * @throws ServiceException
      */
-    public boolean delete(int code) throws ServiceException {
+    public OperResult<Boolean> deleteFuncRole(int code)  {
         try {
             boolean ok = froleDao.delete(code);
             LOGGER.debug("deleted func fole:{}: {}", code, ok);
             if (!ok) {
-                return false;
+                return r(ErrorCode.DbDeleteFail, "删除功能角色失败，请检查参数");
             }
             ok = froleFuncsDao.deleteAll(code);
             LOGGER.debug("deleted func fole funcs:{}: {}", code, ok);
             ok = froleUsersDao.deleteAll(code);
             LOGGER.debug("deleted func fole users:{}: {}", code, ok);
         } catch (Exception ex) {
-            throw new ServiceException(ex);
+            LOGGER.error("delete func role " + code + " got exception", ex);
+            return r(ErrorCode.DbDeleteFail, "删除功能角色失败：" , ex);
         }
-        return true;
+        return r(true);
     }
 
     /**
@@ -289,5 +287,44 @@ public class FuncRoleService {
         froleDao.clear();
         froleFuncsDao.clear();
         froleUsersDao.clear();
+    }
+
+
+    /**
+     * 批量查询功能代码对应的功能
+     * @param funcCodes
+     * @return
+     */
+    private List<Checked<Func>> checkFuncs(List<Integer> toCheck) {
+        Map<Integer, Func> allFuncs = modules.allFuncsMap();
+        Map<Integer, Checked<Func>> checkedFuncs = new TreeMap<Integer, Checked<Func>>();
+        for (Map.Entry<Integer, Func> e: allFuncs.entrySet()) {
+            checkedFuncs.put(e.getKey(), new Checked<Func>(e.getValue(), false));
+        }
+        for (int code: toCheck) {
+            Checked<Func> cf = checkedFuncs.get(code);
+            if (cf == null) {
+                LOGGER.warn("no such func: {}", code);
+            } else {
+                cf.setChecked(true);
+            }
+        }
+        return new ArrayList<Checked<Func>>(checkedFuncs.values());
+    }
+
+    private List<Checked<UserCard>> checkUsers(List<UserCard> all, List<String> toCheck) {
+        Map<String, Checked<UserCard>> checked = new TreeMap<String, Checked<UserCard>>();
+        for (UserCard u: all) {
+            checked.put(u.id, new Checked<UserCard>(u, false));
+        }
+        for (String id: toCheck) {
+            Checked<UserCard> cu = checked.get(id);
+            if (cu == null) {
+                LOGGER.warn("no such user: {}", id);
+            } else {
+                cu.setChecked(true);
+            }
+        }
+        return new ArrayList<Checked<UserCard>>(checked.values());
     }
 }

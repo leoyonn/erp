@@ -16,22 +16,13 @@ import junit.framework.Assert;
 import org.junit.Test;
 
 import com.google.gson.Gson;
-import com.wiselink.base.ApiResult;
-import com.wiselink.base.ApiStatus;
 import com.wiselink.base.jsonable.Jsonable;
 import com.wiselink.base.jsonable.JsonableEnum;
-import com.wiselink.model.user.UserDeprecated;
 
 /**
  * @author leo
  */
 public class TestJsoner {
-    @Test
-    public void testGson() {
-        String json = new ApiResult(ApiStatus.SUCCESS, "this is a test msg").toJson();
-        System.out.println(json);
-        System.out.println(new UserDeprecated().toJson());
-    }
     @Test
     public void testReflect() throws SecurityException, NoSuchFieldException, InstantiationException, IllegalAccessException, ClassNotFoundException {
         Field f = Cj.class.getDeclaredField("f4");

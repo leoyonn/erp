@@ -30,13 +30,13 @@ public class UserRaw implements Jsonable {
     public Timestamp updateTime;
     public String operId;
 
-    public int catCode;
-    public int posCode;
-    public int froleCode;
-    public int droleCode;
-    public int statCode;
-    public String corpId;
-    public String deptId;
+    public int catCode = -1;
+    public int posCode = -1;
+    public int froleCode = -1;
+    public int droleCode = -1;
+    public int statCode = -1;
+    public String corpId = "";
+    public String deptId = "";
 
     public UserRaw() {}
 

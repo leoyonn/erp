@@ -13,7 +13,7 @@ import net.paoding.rose.web.paramresolver.ParamMetaData;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.validation.Errors;
 
-import com.wiselink.base.ApiStatus;
+import com.wiselink.result.ErrorCode;
 
 /**
  * @author leo
@@ -29,7 +29,7 @@ public class NotBlankValidator implements ParamValidator {
         String paramName = metaData.getParamName();
         String value = inv.getParameter(paramName);
         if (StringUtils.isBlank(value)) {
-            return BaseController.failResult(ApiStatus.INVALID_PARAMETER);
+            return BaseController.failResult(ErrorCode.BlankParam);
         }
         return null;
     }

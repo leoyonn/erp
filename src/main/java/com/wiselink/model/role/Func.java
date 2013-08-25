@@ -31,12 +31,12 @@ public class Func implements Jsonable {
 
     @Override
     public String toJson() {
-        return new Gson().toJson(this, Func.class);
+        return new Gson().toJson(this, getClass());
     }
 
     @Override
     public Jsonable fromJson(String json) {
-        return new Gson().fromJson(json, Func.class);
+        return new Gson().fromJson(json, getClass());
     }
     
     @Override

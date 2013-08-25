@@ -17,13 +17,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.wiselink.base.ApiStatus;
 import com.wiselink.controllers.annotations.LoginRequired;
 import com.wiselink.exception.ServiceException;
 import com.wiselink.model.supplier.Supplier;
 import com.wiselink.model.supplier.SupplierMode;
 import com.wiselink.model.supplier.SupplierStatus;
 import com.wiselink.model.supplier.SupplierType;
+import com.wiselink.result.ErrorCode;
 import com.wiselink.service.SupplierService;
 
 /**
@@ -87,7 +87,7 @@ public class SupplierController extends BaseController {
         } catch (ServiceException ex) {
             LOGGER.error("add supplier " + json + " got exception:", ex);
         }
-        return failResult(ApiStatus.DATA_INSERT_FAILED);
+        return failResult(ErrorCode.DbInsertFail);
     }
 
     @SuppressWarnings("@Post")
@@ -102,7 +102,7 @@ public class SupplierController extends BaseController {
         } catch (ServiceException ex) {
             LOGGER.error("update supplier " + json + " got exception:", ex);
         }
-        return failResult(ApiStatus.DATA_UPDATE_FAILED);
+        return failResult(ErrorCode.DbUpdateFail);
     }
 
     @SuppressWarnings("@Post")
@@ -116,7 +116,7 @@ public class SupplierController extends BaseController {
         } catch (ServiceException ex) {
             LOGGER.error("delete supplier " + id + " got exception:", ex);
         }
-        return failResult(ApiStatus.DATA_DELETE_FAILED);
+        return failResult(ErrorCode.DbDeleteFail);
     }
 
     @SuppressWarnings("@Post")
@@ -130,7 +130,7 @@ public class SupplierController extends BaseController {
         } catch (ServiceException ex) {
             LOGGER.error("delete supplier by name " + name + " got exception:", ex);
         }
-        return failResult(ApiStatus.DATA_DELETE_FAILED);
+        return failResult(ErrorCode.DbDeleteFail);
     }
 
     @Get("find/byid")
@@ -141,12 +141,12 @@ public class SupplierController extends BaseController {
                 LOGGER.debug("find by id got: {} success.", supplier);
                 return successResult(supplier);
             } else {
-                return failResult(ApiStatus.DATA_EMPTY);
+                return failResult(ErrorCode.DbEmpty);
             }
         } catch (ServiceException ex) {
             LOGGER.error("find by id " + id + " got exception:", ex);
         }
-        return failResult(ApiStatus.DATA_QUERY_FAILED);
+        return failResult(ErrorCode.DbQueryFail);
     }
 
     @Get("find/byname")
@@ -157,12 +157,12 @@ public class SupplierController extends BaseController {
                 LOGGER.debug("find by name got: {} success.", suppliers);
                 return successResult(suppliers);
             } else {
-                return failResult(ApiStatus.DATA_EMPTY);
+                return failResult(ErrorCode.DbEmpty);
             }
         } catch (ServiceException ex) {
             LOGGER.error("find by name " + name + " got exception:", ex);
         }
-        return failResult(ApiStatus.DATA_QUERY_FAILED);
+        return failResult(ErrorCode.DbQueryFail);
     }
 
     @Get("find")
@@ -173,12 +173,12 @@ public class SupplierController extends BaseController {
                 LOGGER.debug("find suppliers got: {} success.", suppliers);
                 return successResult(suppliers);
             } else {
-                return failResult(ApiStatus.DATA_EMPTY);
+                return failResult(ErrorCode.DbEmpty);
             }
         } catch (ServiceException ex) {
             LOGGER.error("find by <type:" + type + ", mode:" + mode + ", status:" + status + "> got exception:", ex);
         }
-        return failResult(ApiStatus.DATA_QUERY_FAILED);
+        return failResult(ErrorCode.DbQueryFail);
     }
 
     @Get("all")
@@ -189,11 +189,11 @@ public class SupplierController extends BaseController {
                 LOGGER.debug("find suppliers got: {} success.", suppliers);
                 return successResult(suppliers);
             } else {
-                return failResult(ApiStatus.DATA_EMPTY);
+                return failResult(ErrorCode.DbEmpty);
             }
         } catch (ServiceException ex) {
             LOGGER.error("query all suppliers got exception:", ex);
         }
-        return failResult(ApiStatus.DATA_QUERY_FAILED);
+        return failResult(ErrorCode.DbQueryFail);
     }
 }

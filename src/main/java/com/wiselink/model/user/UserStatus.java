@@ -50,7 +50,7 @@ public enum UserStatus implements Jsonable {
             case 0: return Active;
             case 1: return Blocked;
             case 2: return Invalid;
-            default: throw new IllegalArgumentException("invalid code in parameter");
+            default: return null;
         }
     }
 

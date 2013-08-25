@@ -104,4 +104,12 @@ public class CookieUtils {
     public static String getUserId(Invocation inv) {
         return getCookie(inv, Constants.COOKIE_KEY_USER_ID);
     }
+
+    public static String getCorpId(Invocation inv) {
+        return getCookie(inv, Constants.COOKIE_KEY_CORP_ID);
+    }
+
+    public static String getDeptId(Invocation inv) {
+        return getCookie(inv, Constants.COOKIE_KEY_DEPT_ID);
+    }
 }

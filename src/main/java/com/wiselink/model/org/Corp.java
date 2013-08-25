@@ -17,6 +17,7 @@ public class Corp extends Org {
     public String address;
     public String tel;
     public String contact;
+    public String superCorpId;
 
     public Corp() {}
 
@@ -31,24 +32,36 @@ public class Corp extends Org {
         return address;
     }
 
-    public void setAddress(String address) {
+    public Corp setAddress(String address) {
         this.address = address;
+        return this;
     }
 
     public String getTel() {
         return tel;
     }
 
-    public void setTel(String tel) {
+    public Corp setTel(String tel) {
         this.tel = tel;
+        return this;
     }
 
     public String getContact() {
         return contact;
     }
 
-    public void setContact(String contact) {
+    public Corp setContact(String contact) {
         this.contact = contact;
+        return this;
+    }
+
+    public String getSuperCorpId() {
+        return superCorpId;
+    }
+
+    public Corp setSuperCorpId(String superCorpId) {
+        this.superCorpId = superCorpId;
+        return this;
     }
 
     @Override
