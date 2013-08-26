@@ -34,7 +34,7 @@ import com.wiselink.utils.Utils;
 @Path("drole")
 @LoginRequired
 public class DataRoleController extends BaseController {
-    private static final Logger LOGGER = LoggerFactory.getLogger(FuncRoleController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DataRoleController.class);
 
     @Autowired
     private UserService userService;
@@ -48,9 +48,8 @@ public class DataRoleController extends BaseController {
      * @param code
      * @return
      */
-    @Get("1")
-    public String getDrole(@Param("param") String param) {
-        int code = JSONObject.fromObject(param).optInt("code", -1);
+    @Get("{code:[0-9]+}")
+    public String getDrole(@Param("code") int code) {
         if (code < 0) {
             return allDroles();
         }
@@ -58,14 +57,11 @@ public class DataRoleController extends BaseController {
     }
 
     /**
-     * list all #num data-roles sorted by {@link DataRole#code} from #from 
-     * 如果需要listall，设置from和num都为负值
-     * @param from
-     * @param num
+     * @param param
      * @return
      */
-    @Get("list")
-    public String listDroles(@Param("param") String param) {
+    @Get("all/1corp")
+    public String listDroles(@NotBlank @Param("param") String param) {
         String corpId = JSONObject.fromObject(param).optString("corpId");
         if (StringUtils.isBlank(corpId)) {
             return allDroles();
@@ -103,7 +99,7 @@ public class DataRoleController extends BaseController {
      */
     @SuppressWarnings("@Post")
     @Get("new")
-    public String newDrole(Invocation inv, @Param("param") String param) {
+    public String newDrole(Invocation inv, @NotBlank @Param("param") String param) {
         LOGGER.info("add data role from param: {}.", param);
         DataRoleInfo info = (DataRoleInfo) new DataRoleInfo().fromJson(param);
         info.setCreatorId(getUserIdFromCookie(inv));
@@ -122,7 +118,7 @@ public class DataRoleController extends BaseController {
      * @return
      */
     @Get("up/info")
-    public String updateDroleInfo(Invocation inv, @Param("param") String param) {
+    public String updateDroleInfo(Invocation inv, @NotBlank @Param("param") String param) {
         LOGGER.info("update data role from param: {}.", param);
         DataRoleInfo info = (DataRoleInfo) new DataRoleInfo().fromJson(param);
         info.setCreatorId(getUserIdFromCookie(inv));
@@ -148,7 +144,7 @@ public class DataRoleController extends BaseController {
      */
     @SuppressWarnings("@Post")
     @Get("up/list")
-    public String updateDroleList(@Param("param") String param) {
+    public String updateDroleList(@NotBlank @Param("param") String param) {
         JSONObject jparam = JSONObject.fromObject(param);
         LOGGER.info("update data role list {}", param);
         int code = jparam.optInt("code", -1);
@@ -169,9 +165,9 @@ public class DataRoleController extends BaseController {
      */
     @SuppressWarnings("@Post")
     @Get("del")
-    public String delete(@Param("param") String param) {
+    public String delete(@NotBlank @Param("param") String param) {
         LOGGER.info("deleting data role: {}", param);
-        int code = JSONObject.fromObject("param").optInt("code", -1);
+        int code = JSONObject.fromObject(param).optInt("code", -1);
         if (code < 0) {
             return failResult(ErrorCode.InvalidParam, "code参数不存在");
         }

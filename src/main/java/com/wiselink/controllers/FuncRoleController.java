@@ -8,8 +8,6 @@ package com.wiselink.controllers;
 
 import java.util.List;
 
-import javax.management.relation.Role;
-
 import net.paoding.rose.web.Invocation;
 import net.paoding.rose.web.annotation.Param;
 import net.paoding.rose.web.annotation.Path;
@@ -22,8 +20,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.wiselink.controllers.annotations.LoginRequired;
-import com.wiselink.model.param.QueryListParam;
 import com.wiselink.model.role.FuncRoleInfo;
+import com.wiselink.result.ErrorCode;
 import com.wiselink.service.FuncRoleService;
 import com.wiselink.service.UserService;
 import com.wiselink.utils.Utils;
@@ -50,25 +48,19 @@ public class FuncRoleController extends BaseController {
      * @param code
      * @return
      */
-    @Get("1")
-    public String getFrole(@NotBlank @Param("param") String param) {
-        LOGGER.info("get func role: {}", param);
-        int code = JSONObject.fromObject(param).optInt("code", -1);
-        if (code < 0) {
-            return allFroles();
-        }
+    @Get("{code:[0-9]+}")
+    public String getFrole(@Param("code") int code) {
         return apiResult(froleService.getFuncRole(code));
     }
 
     /**
-     * list all #num func-roles sorted by {@link Role#code} from #from 
-     * 如果需要listall，设置from和num都为负值
-     * @param from
-     * @param num
+     * all func roles in corpId
+     * 
+     * @param param
      * @return
      */
-    @Get("list")
-    public String listFroles(@Param("param") String param) {
+    @Get("all/1corp")
+    public String listFroles(@NotBlank @Param("param") String param) {
         String corpId = JSONObject.fromObject(param).optString("corpId");
         if (StringUtils.isBlank(corpId)) {
             return allFroles();
@@ -91,10 +83,8 @@ public class FuncRoleController extends BaseController {
      * @param code  如果code<0则返回所有的modules
      * @return
      */
-    @Get("module")
-    public String module(@NotBlank @Param("param") String param) {
-        LOGGER.info("query for module: {}", param);
-        int code = JSONObject.fromObject(param).optInt("code", -1);
+    @Get("module/{code:[0-9]+}")
+    public String module(@Param("code") int code) {
         if (code < 0) {
             return allModules();
         }
@@ -158,11 +148,18 @@ public class FuncRoleController extends BaseController {
      */
     @SuppressWarnings("@Post")
     @Get("up/list")
-    public String updateFroleList(@Param("code") int code,
-            @Param("funcsToDel") String funcsToDel, @Param("funcsToAdd") String funcsToAdd, 
-            @Param("usersToDel") String usersToDel, @Param("usersToAdd") String usersToAdd) {
-            LOGGER.info("updating func role: {}|fd:{}|fa:{}; ud:{}|ua:{}", 
-                    new Object[]{code, funcsToDel, funcsToAdd, usersToDel, usersToAdd});
+    public String updateFroleList(@Param("param") String param) {
+        JSONObject jparam = JSONObject.fromObject(param);
+        int code = jparam.optInt("code", -1);
+        if (code <= 0) {
+            return failResult(ErrorCode.InvalidParam, "参数code无效");
+        }
+        String funcsToDel = jparam.optString("funcsToDel", ""),
+               funcsToAdd = jparam.optString("funcsToAdd", ""), 
+               usersToDel = jparam.optString("usersToDel", ""),
+               usersToAdd = jparam.optString("usersToAdd", "");
+        LOGGER.info("updating func role: {}|fd:{}|fa:{}; ud:{}|ua:{}", 
+                new Object[]{code, funcsToDel, funcsToAdd, usersToDel, usersToAdd});
         List<Integer> fdel = Utils.parseArrayFromStrings(funcsToDel, ",");
         List<Integer> fadd = Utils.parseArrayFromStrings(funcsToAdd, ",");
         List<String> udel = Utils.split(usersToDel, ",");
@@ -177,8 +174,12 @@ public class FuncRoleController extends BaseController {
      */
     @SuppressWarnings("@Post")
     @Get("del")
-    public String delete(@Param("code") int code) {
+    public String delete(@NotBlank @Param("param") String param) {
+        int code = JSONObject.fromObject(param).optInt("code", -1);
         LOGGER.debug("deleting func role: {}", code);
+        if (code <= 0) {
+            return failResult(ErrorCode.InvalidParam, "参数code无效");
+        }
         return apiResult(froleService.deleteFuncRole(code));
     }
 }

@@ -81,6 +81,9 @@ public class DeptController  extends BaseController {
         if (StringUtils.isBlank(dept.getName()) || StringUtils.isBlank(dept.corpId)) {
             return failResult(ErrorCode.InvalidParam, "参数值为空：(name:" + dept.getName() + ", corpId:" + dept.getCorpId());
         }
+        if (dept.deptType == null) {
+            dept.deptType = "";
+        }
         DeptType type = DeptType.valueOf(dept.deptType);
         if (type != null) {
             dept.deptType = type.cname;

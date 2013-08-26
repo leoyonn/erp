@@ -177,7 +177,11 @@ public class FuncRoleService extends BaseService {
      * @return
      */
     public OperResult<FuncModule> getModule(int code) {
-        return r(modules.getModule(code));
+        FuncModule m = modules.getModule(code);
+        if (m == null) {
+            return r(ErrorCode.InvalidParam, "无此code的module");
+        }
+        return r(m);
     }
 
     /**

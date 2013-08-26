@@ -38,6 +38,11 @@ public class UserController extends BaseController {
     @Autowired
     private UserService userService;
 
+    @Get("positions")
+    public String allPositions() {
+        return apiResult(userService.allPositions());
+    }
+
     /**
      * 新建一个用户
      * 

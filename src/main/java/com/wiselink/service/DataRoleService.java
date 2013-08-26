@@ -207,12 +207,12 @@ public class DataRoleService extends BaseService {
      */
     public OperResult<DataRole> updateDataRole(DataRoleInfo info) {
         try {
-            if (!droleDao.add(info)) {
-                return r(ErrorCode.DbInsertFail, "插入数据角色失败，请检查参数");
+            if (!droleDao.update(info)) {
+                return r(ErrorCode.DbInsertFail, "更新数据角色失败，请检查参数");
             }
         } catch (Exception ex) {
-            LOGGER.error("new data role " + info + " got exception", ex);
-            return r(ErrorCode.DbInsertFail, "插入数据角色失败：" , ex);
+            LOGGER.error("update data role " + info + " got exception", ex);
+            return r(ErrorCode.DbUpdateFail, "更新数据角色失败：" , ex);
         }
         return getDataRole(info.code);
     }

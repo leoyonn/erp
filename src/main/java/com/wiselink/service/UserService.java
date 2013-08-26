@@ -8,6 +8,7 @@ package com.wiselink.service;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -67,6 +68,13 @@ public class UserService extends BaseService {
 
     @Autowired
     private DeptDAO deptDao;
+
+    /**
+     * @return
+     */
+    public OperResult<Collection<Position>> allPositions() {
+        return r(Positions.getInstance().allPositions());
+    }
 
     /**
      * 添加一个用户
