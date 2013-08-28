@@ -37,8 +37,12 @@ public class UserDaoTest {
     }
 
     @Test
+    public void test() throws DataAccessException, SQLException {
+        p(userDao.queryUsers("%三%", "", "", -1, 101075, -1, 0, 100));
+    }
+    @Test
     public void testUser() throws DataAccessException, SQLException {
-        p(userDao.delete(Arrays.asList(new String[]{"1020300003", "1020300004"}), "1020300000"));
+        p(userDao.delete(Arrays.asList(new String[]{"1020300003", "1020300004"})));
         p(userDao.add("1020300003", "account-3", "张阿三", "pass1", "http://avatar.com/3.jpg",
                 "zhangsan@picc.com", "13811811888", "95518-1", "我是张三", "河北省", "石家庄市",
                 "1020300000", "1020300000", 0, 0, 101051, 102017, 0, "1020300000", "1020300001"));
@@ -63,7 +67,7 @@ public class UserDaoTest {
         p(userDao.getUserByAccount(raw.account));
         p(userDao.getUserById("1020300003"));
         p(userDao.all());
-        p(userDao.queryUsers("%阿%", "", "", -1, -1, -1, 0, 10));
+        p(userDao.queryAllUsers("%阿%", "", "", -1, -1, -1));
         p(userDao.getUserCardsById(Arrays.asList(new String[]{"1020300003", "1020300004"})));
         p(userDao.countUserOfDepts(Arrays.asList(new String[]{"1020300001", "1020300002"})));
         p(userDao.countUserOfCorps(Arrays.asList(new String[]{"1020300000"})));

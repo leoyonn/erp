@@ -305,8 +305,8 @@ public interface UserDAO {
      * @return
      * @throws SQLException, DataAccessException
      */
-    @SQL("DELETE FROM " + TableName.User + " WHERE \"id\" IN (:ids) AND \"creatorId\" = :creatorId")
-    public int delete(@SQLParam("ids") List<String> ids, @SQLParam("creatorId") String creatorId) throws SQLException, DataAccessException;
+    @SQL("DELETE FROM " + TableName.User + " WHERE \"id\" IN (:ids)")
+    public int delete(@SQLParam("ids") List<String> ids) throws SQLException, DataAccessException;
 
     /**
      * @param name
@@ -315,24 +315,36 @@ public interface UserDAO {
      * @param posCode
      * @param froleCode
      * @param droleCode
-     * @param from
-     * @param to
+     * TODO from -> to 与#if冲突
      * @return
      */
     @SQL("SELECT " + KEYS_NO_PASS
+            + " FROM " + TableName.User
+            + " WHERE \"name\" LIKE :name"
+            + " #if(:corpId != null && :corpId.length() > 0){ AND \"corpId\" = :corpId}"
+            + " #if(:deptId != null && :deptId.length() > 0){ AND \"deptId\" = :deptId}"
+            + " #if(:posCode >= 0){AND \"posCode\" = :posCode}"
+            + " #if(:froleCode >= 0){AND \"froleCode\" = :froleCode}"
+            + " #if(:droleCode >= 0){AND \"droleCode\" = :droleCode}"
+            + " ORDER BY \"id\" ")
+    public List<UserRaw> queryAllUsers(@SQLParam("name") String name, @SQLParam("corpId") String corpId,
+            @SQLParam("deptId") String deptId, @SQLParam("posCode") int posCode, @SQLParam("froleCode") int froleCode,
+            @SQLParam("droleCode") int droleCode);
+
+    @SQL("SELECT " + KEYS_NO_PASS
             + " FROM (SELECT A.*, ROWNUM N FROM (SELECT * FROM " + TableName.User
             + " WHERE \"name\" LIKE :name"
-            + " #if(corpId != null && corpId.length() > 0){\"corpId\" = :corpId}"
-            + " #if(deptId != null && deptId.length() > 0){\"deptId\" = :deptId}"
-            + " #if(posCode >= 0){\"posCode\" = :posCode}"
-            + " #if(froleCode >= 0){\"froleCode\" = :froleCode}"
-            + " #if(droleCode >= 0){\"droleCode\" = :droleCode}"
+            + " #if(:corpId != null && :corpId.length() > 0){ AND \"corpId\" = :corpId}"
+            + " #if(:deptId != null && :deptId.length() > 0){ AND \"deptId\" = :deptId}"
+            + " #if(:posCode >= 0){ AND \"posCode\" = :posCode}"
+            + " #if(:froleCode >= 0){ AND \"froleCode\" = :froleCode}"
+            + " #if(:droleCode >= 0){ AND \"droleCode\" = :droleCode}"
             + " ORDER BY \"id\") A "
             + " WHERE ROWNUM <= :to) WHERE N >= :from")
     public List<UserRaw> queryUsers(@SQLParam("name") String name, @SQLParam("corpId") String corpId,
             @SQLParam("deptId") String deptId, @SQLParam("posCode") int posCode, @SQLParam("froleCode") int froleCode,
             @SQLParam("droleCode") int droleCode, @SQLParam("from") int from, @SQLParam("to") int to);
-
+    
     /**
      * 删除所有数据 
      * 警告：仅供测试、调试使用！

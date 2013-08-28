@@ -40,7 +40,8 @@ public class FuncModules {
             for (Object funcEle: me.elements()) {
                 Element fe = ((Element) funcEle);
                 Func func = new Func(Integer.valueOf(fe.attributeValue("code")),
-                        fe.attributeValue("name"), fe.attributeValue("desc"), module.code);
+                        fe.attributeValue("name"), fe.attributeValue("desc"), module.code)
+                        .setModuleName(module.name);
                 module.addFunc(func);
                 LOGGER.debug("loaded func {}...", module);
             }

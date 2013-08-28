@@ -31,6 +31,7 @@ import com.wiselink.model.user.UserCard;
 import com.wiselink.result.Checked;
 import com.wiselink.result.ErrorCode;
 import com.wiselink.result.OperResult;
+import com.wiselink.utils.UserSorter;
 
 /**
  * 功能角色相关的服务
@@ -266,6 +267,9 @@ public class FuncRoleService extends BaseService {
      */
     public OperResult<Boolean> deleteFuncRole(int code)  {
         try {
+            if (froleUsersDao.getUsers(code).size() > 0) {
+                return r(ErrorCode.DbDeleteFail, "尚有用户在此功能角色中，不可删除");
+            }
             boolean ok = froleDao.delete(code);
             LOGGER.debug("deleted func fole:{}: {}", code, ok);
             if (!ok) {
@@ -273,8 +277,6 @@ public class FuncRoleService extends BaseService {
             }
             ok = froleFuncsDao.deleteAll(code);
             LOGGER.debug("deleted func fole funcs:{}: {}", code, ok);
-            ok = froleUsersDao.deleteAll(code);
-            LOGGER.debug("deleted func fole users:{}: {}", code, ok);
         } catch (Exception ex) {
             LOGGER.error("delete func role " + code + " got exception", ex);
             return r(ErrorCode.DbDeleteFail, "删除功能角色失败：" , ex);
@@ -329,6 +331,6 @@ public class FuncRoleService extends BaseService {
                 cu.setChecked(true);
             }
         }
-        return new ArrayList<Checked<UserCard>>(checked.values());
+        return UserSorter.sort(new ArrayList<Checked<UserCard>>(checked.values()), UserSorter.ByDeptId);
     }
 }

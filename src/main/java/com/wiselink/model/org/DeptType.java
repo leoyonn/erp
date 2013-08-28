@@ -55,4 +55,13 @@ public enum DeptType {
     public static String allAsJson() {
         return allJson;
     }
+    
+    public static DeptType value(String name) {
+        try {
+            return valueOf(name);
+        } catch (IllegalArgumentException ex) {
+            return null;
+        }
+        
+    }
 }

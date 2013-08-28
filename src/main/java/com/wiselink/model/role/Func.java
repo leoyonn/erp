@@ -19,6 +19,7 @@ public class Func implements Jsonable {
     public String name;
     public String desc;
     public int moduleCode;
+    public String moduleName;
 
     public Func(){}
 
@@ -29,6 +30,10 @@ public class Func implements Jsonable {
         this.moduleCode = moduleCode;
     }
 
+    public Func setModuleName(String moduleName) {
+        this.moduleName = moduleName;
+        return this;
+    }
     @Override
     public String toJson() {
         return new Gson().toJson(this, getClass());

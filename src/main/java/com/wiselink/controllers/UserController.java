@@ -150,15 +150,10 @@ public class UserController extends BaseController {
     public String deleteUser(Invocation inv, @NotBlank @Param("param") String param) {
         JSONObject json = JSONObject.fromObject(param);
         String ids =json.optString("ids", "");
-        String creatorId =json.optString("creatorId", "");
-        String oper = getUserIdFromCookie(inv);
-        LOGGER.info("delete users: {} by current login:{}", ids, oper);
+        LOGGER.info("delete users: {} ", ids);
         if (StringUtils.isBlank(ids)) {
             return failResult(ErrorCode.BlankParam, "输入id列表为空");
         }
-        if (StringUtils.isEmpty(creatorId) || !creatorId.equals(oper)) {
-            return failResult(ErrorCode.AuthDenied, "创建者ID参数不存在或与当前登录用户不符，或与要删除的用户创建者不符");
-        }
-        return apiResult(userService.deleteUsers(Arrays.asList(ids.split(",")), creatorId));
+        return apiResult(userService.deleteUsers(Arrays.asList(ids.split(","))));
     }
 }

@@ -96,7 +96,11 @@ public class DataRoleService extends BaseService {
         if (droleInfo == null) {
             return r(ErrorCode.DbQueryFail, "获取数据角色信息失败，请检查参数");
         }
-        return r(new DataRole(droleInfo));
+        return r(new DataRole(fillLevelName(droleInfo)));
+    }
+
+    private DataRoleInfo fillLevelName(DataRoleInfo info) {
+        return info.setLevelName(levels.getLevel(info.levelCode).name);
     }
 
     /**
@@ -147,21 +151,31 @@ public class DataRoleService extends BaseService {
      * @return
      */
     public OperResult<List<DataRoleInfo>> allDataRoles(String corpId) {
+        List<DataRoleInfo> list = Collections.emptyList();
         try {
-            return r(droleDao.all(corpId));
+            list = droleDao.all(corpId);
         } catch (Exception ex) {
             LOGGER.error("get data roles got exception", ex);
             return r(ErrorCode.DbQueryFail, "查询数据角色列表失败：" , ex);
         }
+        for (DataRoleInfo info: list) {
+            fillLevelName(info);
+        }
+        return r(list);
     }
 
     public OperResult<List<DataRoleInfo>> allDataRoles() {
+        List<DataRoleInfo> list = Collections.emptyList();
         try {
-            return r(droleDao.all());
+            list = droleDao.all();
         } catch (Exception ex) {
             LOGGER.error("get data roles got exception", ex);
             return r(ErrorCode.DbQueryFail, "查询数据角色列表失败：" , ex);
         }
+        for (DataRoleInfo info: list) {
+            fillLevelName(info);
+        }
+        return r(list);
     }
 
     /**
@@ -197,7 +211,7 @@ public class DataRoleService extends BaseService {
         if (droleInfo == null) {
             return r(ErrorCode.DbUpdateFail, "读取数据角色失败，请检查参数");
         }
-        return r(new DataRole(droleInfo));
+        return r(new DataRole(fillLevelName(droleInfo)));
     }
 
     /**
@@ -249,6 +263,9 @@ public class DataRoleService extends BaseService {
      */
     public OperResult<Boolean> delete(int code) {
         try {
+            if (droleUsersDao.getUsers(code).size() > 0) {
+                return r(ErrorCode.DbDeleteFail, "尚有用户在此功能角色中，不可删除");
+            }
             boolean ok = droleDao.delete(code);
             LOGGER.debug("deleted data fole:{}: {}", code, ok);
             if (!ok) {
@@ -257,8 +274,6 @@ public class DataRoleService extends BaseService {
             }
             ok = droleScopesDao.deleteAll(code);
             LOGGER.debug("deleted data fole funcs:{}: {}", code, ok);
-            ok = droleUsersDao.deleteAll(code);
-            LOGGER.debug("deleted data fole users:{}: {}", code, ok);
         } catch (Exception ex) {
             LOGGER.error("delete data role " + code + " got exception", ex);
             return r(ErrorCode.DbDeleteFail, "删除数据角色失败：" , ex);

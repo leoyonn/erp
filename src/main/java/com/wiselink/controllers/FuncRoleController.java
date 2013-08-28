@@ -60,7 +60,7 @@ public class FuncRoleController extends BaseController {
      * @return
      */
     @Get("all/1corp")
-    public String listFroles(@NotBlank @Param("param") String param) {
+    public String allFroles(@NotBlank @Param("param") String param) {
         String corpId = JSONObject.fromObject(param).optString("corpId");
         if (StringUtils.isBlank(corpId)) {
             return allFroles();
@@ -122,7 +122,7 @@ public class FuncRoleController extends BaseController {
      * @return
      */
     @SuppressWarnings("not completed|post")
-    @Get("up/info")
+    @Get("up")
     public String updateFroleInfo(Invocation inv, @Param("param") String param) {
         LOGGER.info("add func role from param: {}.", param);
         FuncRoleInfo info = (FuncRoleInfo) new FuncRoleInfo().fromJson(param);
@@ -147,7 +147,7 @@ public class FuncRoleController extends BaseController {
      * @return
      */
     @SuppressWarnings("@Post")
-    @Get("up/list")
+    @Get("up/nodes")
     public String updateFroleList(@Param("param") String param) {
         JSONObject jparam = JSONObject.fromObject(param);
         int code = jparam.optInt("code", -1);

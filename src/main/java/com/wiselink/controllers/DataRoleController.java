@@ -117,7 +117,7 @@ public class DataRoleController extends BaseController {
      * @param deptId
      * @return
      */
-    @Get("up/info")
+    @Get("up")
     public String updateDroleInfo(Invocation inv, @NotBlank @Param("param") String param) {
         LOGGER.info("update data role from param: {}.", param);
         DataRoleInfo info = (DataRoleInfo) new DataRoleInfo().fromJson(param);
@@ -143,7 +143,7 @@ public class DataRoleController extends BaseController {
      * @return
      */
     @SuppressWarnings("@Post")
-    @Get("up/list")
+    @Get("up/nodes")
     public String updateDroleList(@NotBlank @Param("param") String param) {
         JSONObject jparam = JSONObject.fromObject(param);
         LOGGER.info("update data role list {}", param);

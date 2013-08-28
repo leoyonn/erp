@@ -80,4 +80,23 @@ public class IdUtils {
         }
         return DEPT_ID_REGEX.matcher(id).matches();
     }
+
+    /**
+     * 生成一个用户id
+     * 
+     * @param corpId
+     * @return
+     */
+    public static String genUserId(String corpId) {
+        if (StringUtils.isBlank(corpId)) {
+            corpId = "99";
+        } else {
+            corpId = corpId.substring(0, corpId.length() > 2 ? 2 : corpId.length());
+        }
+        return corpId + String.valueOf(System.currentTimeMillis()).substring(3, 11);
+    }
+    
+    public static void main(String[]args) {
+        System.out.println(System.currentTimeMillis());
+    }
 }

@@ -29,6 +29,7 @@ import com.wiselink.dao.UserDAO;
 import com.wiselink.exception.ServiceException;
 import com.wiselink.model.org.Corp;
 import com.wiselink.model.org.Dept;
+import com.wiselink.model.org.OrgType;
 import com.wiselink.model.param.QueryListParam;
 import com.wiselink.model.role.DataRoleInfo;
 import com.wiselink.model.role.FuncRoleInfo;
@@ -87,6 +88,11 @@ public class UserService extends BaseService {
         OperResult<User> r = buildUser(raw);
         if (r.error != ErrorCode.Success) {
             return r;
+        }
+        if (r.result.corp.type.equals(OrgType.Supplier.cname) && StringUtils.isEmpty(raw.id)) {
+            String id = IdUtils.genUserId(r.result.corp.id);
+            raw.setId(id);
+            r.result.setId(id);
         }
         try {
             if (!userDao.add(raw, password)) {
@@ -148,14 +154,14 @@ public class UserService extends BaseService {
      * @param creatorId
      * @return
      */
-    public OperResult<String> deleteUsers(List<String> ids, String creatorId) {
+    public OperResult<String> deleteUsers(List<String> ids) {
         int count = 0;
         try {
-            if ((count = userDao.delete(ids, creatorId)) <= 0) {
+            if ((count = userDao.delete(ids)) <= 0) {
                 return r(ErrorCode.DbDeleteFail, "删除用户失败，请检查参数");
             }
         } catch (Exception ex) {
-            LOGGER.error("delete user " + ids + " by creator: " + creatorId + "got exception", ex);
+            LOGGER.error("delete user " + ids + " got exception", ex);
             return r(ErrorCode.DbDeleteFail, "删除用户失败：" , ex);
         }
         return r("成功删除" + count + "个用户");
@@ -393,7 +399,7 @@ public class UserService extends BaseService {
         int from = (param.page - 1) * param.size + 1;
         int to = from + param.size - 1;
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("list depts of name: {} from {} to {}", new Object[]{name, from, to});
+            LOGGER.debug("query users of name: {} from {} to {}", new Object[]{name, from, to});
         }
         try {
             raws = userDao.queryUsers(name, corpId, deptId, posCode, froleCode, droleCode, from, to);
@@ -527,7 +533,7 @@ public class UserService extends BaseService {
             for (String id: usersToDel) {
                 userDao.updateFuncRole(id, -1);
             }
-            for (String id: usersToDel) {
+            for (String id: usersToAdd) {
                 userDao.updateFuncRole(id, roleCode);
             }
         } catch (Exception ex) {

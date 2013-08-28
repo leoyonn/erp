@@ -84,7 +84,7 @@ public class DeptController  extends BaseController {
         if (dept.deptType == null) {
             dept.deptType = "";
         }
-        DeptType type = DeptType.valueOf(dept.deptType);
+        DeptType type = DeptType.value(dept.deptType);
         if (type != null) {
             dept.deptType = type.cname;
         }

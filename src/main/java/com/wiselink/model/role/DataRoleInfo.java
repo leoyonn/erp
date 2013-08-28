@@ -20,6 +20,7 @@ public class DataRoleInfo implements Jsonable {
     public String name;
     public String desc;
     public int levelCode;
+    public String levelName;
     public String corpId;
     public String deptId;
     public String creatorId;
@@ -40,6 +41,11 @@ public class DataRoleInfo implements Jsonable {
     }
 
     public DataRoleInfo() {}
+
+    public DataRoleInfo setLevelName(String levelName) {
+        this.levelName = levelName;
+        return this;
+    }
 
     @Override
     public String toJson() {
