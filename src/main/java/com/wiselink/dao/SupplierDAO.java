@@ -24,17 +24,16 @@ import com.wiselink.model.supplier.Supplier;
  */
 @DAO
 public interface SupplierDAO {
-    String KEYS = "\"id\", \"name\", \"desc\", \"type\", \"mode\", \"contact\", "
-            + "\"tel\", \"email\", \"status\", \"startTime\", \"endTime\", \"createTime\", \"creatorId\"";
+    String KEYS_SUPPLIER = "\"id\", \"name\", \"desc\", \"type\", \"mode\", \"stype\", \"contact\", "
+            + "\"tel\", \"status\", \"startTime\", \"endTime\", \"createTime\", \"creatorId\"";
 
-    String VALUES = ":id, :name, :desc, :type, :mode, :contact, "
-            + ":tel, :email, :status, " +
+    String VALUES_SUPPLIER = ":id, :name, :desc, :type, :mode, :stype, :contact, :tel, :status, " +
             "#if(:startTime != null && :startTime.getTime() > 0) {:startTime} #else{sysdate}, " +
             "#if(:endTime != null && :endTime.getTime() > 0) {:endTime} #else{sysdate}, " +
             "sysdate, :creatorId";
 
-    String VALUES_OBJ = ":supplier.id, :supplier.name, :supplier.desc, :supplier.type, :supplier.mode," +
-    		" :supplier.contact, :supplier.tel, :supplier.email, :supplier.status," +
+    String VALUES_OBJ_SUPPLIER = ":supplier.id, :supplier.name, :supplier.desc, :supplier.type," +
+    		" :supplier.mode, :supplier.stype, :supplier.contact, :supplier.tel, :supplier.status," +
             "#if(:supplier.startTime != null && :supplier.startTime.getTime() > 0) {:supplier.startTime} #else{sysdate}, " +
             "#if(:supplier.endTime != null && :supplier.endTime.getTime() > 0) {:supplier.endTime} #else{sysdate}, " +
     		"sysdate, :supplier.creatorId";
@@ -44,14 +43,13 @@ public interface SupplierDAO {
      * 
      * @param supplier
      * @return
-     * @throws SQLException
-     *             , DataAccessException
+     * @throws SQLException, DataAccessException
      */
-    @SQL("INSERT INTO " + TableName.Supplier + " (" + KEYS + ")" + " VALUES(" + VALUES + ")")
+    @SQL("INSERT INTO " + TableName.Supplier + " (" + KEYS_SUPPLIER + ")" + " VALUES(" + VALUES_SUPPLIER + ")")
     boolean add(@SQLParam("id") String id,
             @SQLParam("name") String name, @SQLParam("desc") String desc, @SQLParam("type") String type,
-            @SQLParam("mode") String mode, @SQLParam("contact") String contact, 
-            @SQLParam("tel") String tel, @SQLParam("email") String email, @SQLParam("status") String status,
+            @SQLParam("mode") String mode, @SQLParam("stype") String stype, @SQLParam("contact") String contact, 
+            @SQLParam("tel") String tel, @SQLParam("status") String status,
             @SQLParam("startTime") Timestamp startTime, @SQLParam("endTime") Timestamp endTime,
             @SQLParam("creatorId") String creatorId) throws SQLException, DataAccessException;
 
@@ -60,7 +58,7 @@ public interface SupplierDAO {
      * @param supplier
      * @return
      */
-    @SQL("INSERT INTO " + TableName.Supplier + "(" + KEYS + ")" + " VALUES(" + VALUES_OBJ + ")")
+    @SQL("INSERT INTO " + TableName.Supplier + "(" + KEYS_SUPPLIER + ")" + " VALUES(" + VALUES_OBJ_SUPPLIER + ")")
     boolean add(@SQLParam("supplier") Supplier supplier);
 
     /**
@@ -73,9 +71,9 @@ public interface SupplierDAO {
             + "#if(:desc != null && :desc.length() > 0) {\"desc\"=:desc, }"
             + "#if(:type != null && :type.length() > 0) {\"type\"=:type, }"
             + "#if(:mode != null && :mode.length() > 0) {\"mode\"=:mode, }"
+            + "#if(:stype != null && :stype.length() > 0) {\"stype\"=:stype, }"
             + "#if(:contact != null && :contact.length() > 0) {\"contact\"=:contact, }"
             + "#if(:tel != null && :tel.length() > 0) {\"tel\"=:tel, }"
-            + "#if(:email != null && :email.length() > 0) {\"email\"=:email, }"
             + "#if(:status != null && :status.length() > 0) {\"status\"=:status, }"
             + "#if(:startTime != null && :startTime.getTime() > 0) {\"startTime\"=:startTime, }"
             + "#if(:endTime != null && :endTime.getTime() > 0) {\"endTime\"=:endTime, }"
@@ -83,8 +81,8 @@ public interface SupplierDAO {
             + " WHERE \"id\"=:id")
     boolean update(@SQLParam("id") String id,
             @SQLParam("name") String name, @SQLParam("desc") String desc, @SQLParam("type") String type,
-            @SQLParam("mode") String mode, @SQLParam("contact") String contact, 
-            @SQLParam("tel") String tel, @SQLParam("email") String email, @SQLParam("status") String status,
+            @SQLParam("mode") String mode, @SQLParam("stype") String stype, @SQLParam("contact") String contact, 
+            @SQLParam("tel") String tel, @SQLParam("status") String status,
             @SQLParam("startTime") Timestamp startTime, @SQLParam("endTime") Timestamp endTime)
                     throws SQLException, DataAccessException;
 
@@ -99,9 +97,9 @@ public interface SupplierDAO {
             + "#if(:supplier.desc != null && :supplier.desc.length() > 0) {\"desc\"=:supplier.desc, }"
             + "#if(:supplier.type != null && :supplier.type.length() > 0) {\"type\"=:supplier.type, }"
             + "#if(:supplier.mode != null && :supplier.mode.length() > 0) {\"mode\"=:supplier.mode, }"
+            + "#if(:supplier.stype != null && :supplier.stype.length() > 0) {\"stype\"=:supplier.stype, }"
             + "#if(:supplier.contact != null && :supplier.contact.length() > 0) {\"contact\"=:supplier.contact, }"
             + "#if(:supplier.tel != null && :supplier.tel.length() > 0) {\"tel\"=:supplier.tel, }"
-            + "#if(:supplier.email != null && :supplier.email.length() > 0) {\"email\"=:supplier.email, }"
             + "#if(:supplier.status != null && :supplier.status.length() > 0) {\"status\"=:supplier.status, }"
             + "#if(:supplier.startTime != null && :supplier.startTime.getTime() > 0) {\"startTime\"=:supplier.startTime, }"
             + "#if(:supplier.endTime != null && :supplier.endTime.getTime() > 0) {\"endTime\"=:supplier.endTime, }"
@@ -114,7 +112,7 @@ public interface SupplierDAO {
      * @param id
      * @return
      */
-    @SQL("SELECT " + KEYS + " FROM " + TableName.Supplier + " WHERE \"id\" = :id")
+    @SQL("SELECT " + KEYS_SUPPLIER + " FROM " + TableName.Supplier + " WHERE \"id\" = :id")
     Supplier findById(@SQLParam("id") String id) throws SQLException, DataAccessException;
 
     /**
@@ -122,7 +120,7 @@ public interface SupplierDAO {
      * @param name
      * @return
      */
-    @SQL("SELECT " + KEYS + " FROM " + TableName.Supplier + " WHERE \"name\" = :name")
+    @SQL("SELECT " + KEYS_SUPPLIER + " FROM " + TableName.Supplier + " WHERE \"name\" = :name")
     List<Supplier> findByName(@SQLParam("name") String name) throws SQLException, DataAccessException;
 
     /**
@@ -134,12 +132,31 @@ public interface SupplierDAO {
      * @throws SQLException
      * @throws DataAccessException
      */
-    @SQL("SELECT " + KEYS + " FROM " + TableName.Supplier + " WHERE "
-            + "#if(:type != null && :type.length() > 0) {\"type\"=:type AND }"
-            + "#if(:mode != null && :mode.length() > 0) {\"mode\"=:mode AND }"
-            + "#if(:status != null && :status.length() > 0) {\"status\"=:status AND }"
-            + "1=1" + " ORDER BY \"id\"")
-    List<Supplier> find(@SQLParam("type") String type, @SQLParam("mode") String mode, @SQLParam("status") String status)
+    @SQL("SELECT " + KEYS_SUPPLIER + " FROM " + TableName.Supplier + " WHERE \"type\" = '供货商' AND (1=0 "
+            + "OR \"name\" LIKE :name"
+            + "#if(:mode != null && :mode.length() > 0) {OR \"mode\"=:mode }"
+            + "#if(:stype != null && :stype.length() > 0) {OR \"stype\"=:stype }"
+            + "#if(:status != null && :status.length() > 0) {OR \"status\"=:status }"
+            + " ) ORDER BY \"id\"")
+    List<Supplier> queryByOr(@SQLParam("name") String name, @SQLParam("mode") String mode, @SQLParam("stype") String stype, @SQLParam("status") String status)
+            throws SQLException, DataAccessException;
+
+    /**
+     * 根据类型或供销形式或状态查询
+     * @param type
+     * @param mode
+     * @param status
+     * @return
+     * @throws SQLException
+     * @throws DataAccessException
+     */
+    @SQL("SELECT " + KEYS_SUPPLIER + " FROM " + TableName.Supplier + " WHERE \"type\" = '供货商' "
+            + "AND \"name\" LIKE :name"
+            + "#if(:mode != null && :mode.length() > 0) {AND \"mode\"=:mode }"
+            + "#if(:stype != null && :stype.length() > 0) {AND \"stype\"=:stype }"
+            + "#if(:status != null && :status.length() > 0) {AND \"status\"=:status }"
+            + " ORDER BY \"id\"")
+    List<Supplier> queryByAnd(@SQLParam("name") String name, @SQLParam("mode") String mode, @SQLParam("stype") String stype, @SQLParam("status") String status)
             throws SQLException, DataAccessException;
 
     /**
@@ -149,13 +166,15 @@ public interface SupplierDAO {
      * @throws SQLException
      * @throws DataAccessException
      */
-    @SQL("SELECT " + KEYS + " FROM " + TableName.Supplier + " ORDER BY \"id\"")
+    @SQL("SELECT " + KEYS_SUPPLIER + " FROM " + TableName.Supplier + " WHERE \"type\" = '供货商' ORDER BY \"id\"")
     List<Supplier> all() throws SQLException, DataAccessException;
 
     /**
      * 删除指定供货商
+     * 
      * @return
-     * @throws SQLException, DataAccessException
+     * @throws SQLException
+     *             , DataAccessException
      */
     @SQL("DELETE FROM " + TableName.Supplier + " WHERE \"id\" = :id")
     boolean delete(@SQLParam("id") String id) throws SQLException, DataAccessException;
@@ -175,4 +194,5 @@ public interface SupplierDAO {
      */
     @SQL("DELETE FROM " + TableName.Supplier)
     int clear() throws SQLException, DataAccessException;
+
 }

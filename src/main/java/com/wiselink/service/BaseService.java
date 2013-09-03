@@ -19,7 +19,7 @@ public class BaseService {
     
     protected static <T> OperResult<T> r(ErrorCode e, String reason, Throwable ex) {
         String msg = ex.getMessage();
-        if (ex.getCause().toString().contains("SQLIntegrityConstraintViolationException")) {
+        if (ex.getCause() != null && ex.getCause().toString().contains("SQLIntegrityConstraintViolationException")) {
             msg = "违反唯一约束条件";
         }
         return new OperResult<T>(e, reason + msg);

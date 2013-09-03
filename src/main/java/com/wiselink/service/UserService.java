@@ -31,6 +31,7 @@ import com.wiselink.model.org.Corp;
 import com.wiselink.model.org.Dept;
 import com.wiselink.model.org.OrgType;
 import com.wiselink.model.param.QueryListParam;
+import com.wiselink.model.param.QueryListParam.QueryType;
 import com.wiselink.model.role.DataRoleInfo;
 import com.wiselink.model.role.FuncRoleInfo;
 import com.wiselink.model.user.Position;
@@ -319,7 +320,7 @@ public class UserService extends BaseService {
             }
         } catch (Exception ex) {
             LOGGER.error("build raw " + raw + " to user got exception", ex);
-            return r(ErrorCode.DbQueryFail, "查询用户信息失败：" , ex);
+            return r(ErrorCode.DbQueryFail, "查询用户信息失败：", ex);
         }
         return r(user);
     }
@@ -330,7 +331,7 @@ public class UserService extends BaseService {
      * @param userIds
      * @return
      */
-    private OperResult<List<User>> buildUsers(List<UserRaw> raws) {
+    private OperResult<List<User>> buildUsers(List<UserRaw> raws, int total) {
         // 1. read all user roleCs
         // 2. init roles and code/ids of attributes
         Map<String, User> users = new HashMap<String, User>();
@@ -381,7 +382,7 @@ public class UserService extends BaseService {
         }
         List<User> res = new ArrayList<User>(users.values());
         Collections.sort(res, COMPARATOR_USER_BY_ID);
-        return r(res);
+        return r(res, total);
     }
 
     /**
@@ -401,13 +402,17 @@ public class UserService extends BaseService {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("query users of name: {} from {} to {}", new Object[]{name, from, to});
         }
+        int total = 0;
         try {
-            raws = userDao.queryUsers(name, corpId, deptId, posCode, froleCode, droleCode, from, to);
+            raws = param.q == QueryType.or ? userDao.queryUsersByOr(name, corpId, deptId, posCode, froleCode, droleCode, from, to)
+                    : userDao.queryUsersByAnd(name, corpId, deptId, posCode, froleCode, droleCode, from, to);
+            total = param.q == QueryType.or ? userDao.countAllUsersByOr(name, corpId, deptId, posCode, froleCode, droleCode)
+                    : userDao.countAllUsersByAnd(name, corpId, deptId, posCode, froleCode, droleCode);
         } catch (Exception ex) {
             LOGGER.error("query users of " + param + " got exception:", ex);
             return r(ErrorCode.DbQueryFail, "查询用户列表失败：" , ex);
         }
-        return buildUsers(raws);
+        return buildUsers(raws, total);
     }
 
     /**
@@ -500,7 +505,7 @@ public class UserService extends BaseService {
         if (raws == null || raws.size() == 0) {
             return r(ErrorCode.DbQueryFail, "未查到任何用户");
         }
-        return buildUsers(raws);
+        return buildUsers(raws, raws.size());
     }
 
     public OperResult<Integer> countUsersInDepts(List<String> deptIds) {

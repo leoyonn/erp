@@ -6,6 +6,8 @@
  */
 package com.wiselink.controllers;
 
+import java.util.Arrays;
+
 import net.paoding.rose.web.Invocation;
 import net.paoding.rose.web.annotation.Param;
 import net.paoding.rose.web.annotation.Path;
@@ -20,6 +22,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.wiselink.controllers.annotations.LoginRequired;
 import com.wiselink.model.org.Corp;
 import com.wiselink.model.org.OrgType;
+import com.wiselink.model.param.QueryListParam;
+import com.wiselink.model.supplier.Supplier;
+import com.wiselink.model.supplier.SupplierMode;
+import com.wiselink.model.supplier.SupplierStatus;
+import com.wiselink.model.supplier.SupplierType;
 import com.wiselink.result.ErrorCode;
 import com.wiselink.service.CorpService;
 
@@ -52,11 +59,22 @@ public class CorpController extends BaseController {
      */
     @SuppressWarnings("@Post")
     @Get("new")
-    public String newCorp(Invocation inv, @Param("param") String param) {
-        // TODO creator verification
-        Corp corp = (Corp) new Corp().fromJson(param);
-        LOGGER.info("new corp: {}...", corp);
-        return apiResult(corpService.newCorp(corp));
+    public String newCorp(Invocation inv, @NotBlank @Param("param") String param) {
+        JSONObject json = JSONObject.fromObject(param);
+        OrgType type = OrgType.value(json.optInt("type", 0));
+        switch (type) {
+            case Corp: {
+                Corp corp = (Corp) new Corp().fromJson(param);
+                corp.setType(type.cname);
+                return apiResult(corpService.newCorp(corp));
+            }
+            case Supplier: {
+                Supplier supplier = (Supplier)new Supplier().fromJson(param);
+                supplier.setType(type.cname);
+                return apiResult(corpService.newSupplier(supplier));
+            }
+            default: return failResult(ErrorCode.InvalidParam, "无效的公司类型：type");
+        }
     }
 
     /**
@@ -68,9 +86,21 @@ public class CorpController extends BaseController {
     @SuppressWarnings("@Post")
     @Get("up")
     public String updateCorp(Invocation inv, @Param("param") String param) {
-        Corp corp = (Corp) new Corp().fromJson(param);
-        LOGGER.info("update corp: {}...", corp);
-        return apiResult(corpService.updateCorp(corp));
+        JSONObject json = JSONObject.fromObject(param);
+        OrgType type = OrgType.value(json.optInt("type", 0));
+        switch (type) {
+            case Corp: {
+                Corp corp = (Corp) new Corp().fromJson(param);
+                corp.setType(type.cname);
+                return apiResult(corpService.updateCorp(corp));
+            }
+            case Supplier: {
+                Supplier supplier = (Supplier)new Supplier().fromJson(param);
+                supplier.setType(type.cname);
+                return apiResult(corpService.updateSupplier(supplier));
+            }
+            default: return failResult(ErrorCode.InvalidParam, "无效的公司类型：type");
+        }
     }
 
     @Get("{id:[0-9]+}")
@@ -81,19 +111,37 @@ public class CorpController extends BaseController {
     @SuppressWarnings("@Post")
     @Get("del")
     public String deleteCorp(@Param("param") String param) {
-        String id = JSONObject.fromObject(param).optString("id", "");
-        if (StringUtils.isEmpty(id)) {
-            return failResult(ErrorCode.InvalidParam, "参数中Id为空");
+        JSONObject json = JSONObject.fromObject(param);
+        String ids =json.optString("ids", "");
+        LOGGER.info("delete corps: {} ", ids);
+        if (StringUtils.isBlank(ids)) {
+            return failResult(ErrorCode.BlankParam, "输入id列表为空");
         }
-        return apiResult(corpService.deleteCorp(id));
+        return apiResult(corpService.deleteCorps(Arrays.asList(ids.split(","))));
     }
-    
+
     /**
      * 获取所有的公司
      * @return
      */
-    @Get("all")
-    public String allCorps() {
-        return apiResult(corpService.allCorps());
+    @Get("query")
+    public String queryCorps(@NotBlank @Param("param") String param) {
+        QueryListParam listParam = (QueryListParam) new QueryListParam().fromJson(param);
+        return apiResult(corpService.queryCorps(listParam));
+    }
+    
+    @Get("supplier/modes")
+    public String supplierModes() {
+        return successResult(SupplierMode.all());
+    }
+    
+    @Get("supplier/statuses")
+    public String supplierStatuses() {
+        return successResult(SupplierStatus.all());
+    }
+    
+    @Get("supplier/types")
+    public String supplierTypes() {
+        return successResult(SupplierType.all());
     }
 }

@@ -25,6 +25,7 @@ import com.wiselink.model.user.UserRaw;
 import com.wiselink.result.ErrorCode;
 import com.wiselink.service.UserService;
 import com.wiselink.utils.CookieUtils;
+import com.wiselink.utils.IdUtils;
 
 /**
  * 
@@ -155,5 +156,17 @@ public class UserController extends BaseController {
             return failResult(ErrorCode.BlankParam, "输入id列表为空");
         }
         return apiResult(userService.deleteUsers(Arrays.asList(ids.split(","))));
+    }
+    
+    @Get("newid")
+    public String newId(Invocation inv, @Param("param") String param) {
+        String corpId = "";
+        if (!StringUtils.isBlank(param)) {
+            JSONObject json = JSONObject.fromObject(param);
+            corpId = json.optString("corpId", "");
+        }
+        String id = IdUtils.genUserId(corpId);
+        LOGGER.info("new id of corp: {} got {}", corpId, id);
+        return successResult(id);
     }
 }

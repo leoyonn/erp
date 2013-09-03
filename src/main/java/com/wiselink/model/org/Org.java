@@ -6,6 +6,8 @@
  */
 package com.wiselink.model.org;
 
+import java.sql.Timestamp;
+
 import com.google.gson.Gson;
 import com.wiselink.base.jsonable.Jsonable;
 
@@ -19,6 +21,8 @@ public class Org implements Jsonable {
     public String type;
     public String name;
     public String desc;
+    public String creatorId;
+    public Timestamp createTime;
     
     public Org() {}
 
@@ -62,6 +66,24 @@ public class Org implements Jsonable {
 
     public Org setDesc(String desc) {
         this.desc = desc;
+        return this;
+    }
+
+    public String getCreatorId() {
+        return creatorId;
+    }
+
+    public Org setCreatorId(String creatorId) {
+        this.creatorId = creatorId;
+        return this;
+    }
+
+    public Timestamp getCreateTime() {
+        return createTime;
+    }
+
+    public Org setCreateTime(Timestamp createTime) {
+        this.createTime = createTime;
         return this;
     }
 

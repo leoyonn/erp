@@ -24,7 +24,7 @@ import com.wiselink.model.org.Corp;
  */
 @DAO
 public interface CorpDAO {
-    String KEYS =" (\"id\", \"type\", \"name\", \"desc\", \"address\", \"tel\", \"contact\", \"superCorpId\")";
+    String KEYS ="\"id\", \"type\", \"name\", \"desc\", \"address\", \"tel\", \"contact\", \"superCorpId\"";
     String VALUES = " VALUES (:id, :type, :name, :desc, :address, :tel, :contact, :superCorpId)";
     String VALUES_OBJ = " VALUES (:c.id, :c.type, :c.name, :c.desc, :c.address, :c.tel, :c.contact, :c.superCorpId)";
     String KVS = " \"type\"=:type, \"name\"=:name, \"desc\"=:desc, \"address\"=:address, "
@@ -38,7 +38,7 @@ public interface CorpDAO {
      * @return
      * @throws SQLException, DataAccessException
      */
-    @SQL("INSERT INTO " + TableName.Corp + KEYS + VALUES)
+    @SQL("INSERT INTO " + TableName.Corp + "(" + KEYS + ")" + VALUES)
     public boolean addCorp(@SQLParam("id") String id,
             @SQLParam("type") String type,
             @SQLParam("name") String name,
@@ -48,7 +48,7 @@ public interface CorpDAO {
             @SQLParam("contact") String contact,
             @SQLParam("superCorpId") String superCorpId) throws SQLException, DataAccessException;
 
-    @SQL("INSERT INTO " + TableName.Corp + KEYS + VALUES_OBJ)
+    @SQL("INSERT INTO " + TableName.Corp + "(" + KEYS + ")" + VALUES_OBJ)
     public boolean addCorp(@SQLParam("c") Corp corp) throws SQLException, DataAccessException;
 
     /**
@@ -70,7 +70,7 @@ public interface CorpDAO {
     @SQL("UPDATE " + TableName.Corp + " SET " + KVS_OBJ + " WHERE \"id\"=:c.id")
     public boolean updateCorp(@SQLParam("c") Corp corp) throws SQLException, DataAccessException;
 
-    @SQL("SELECT * FROM " + TableName.Corp + " WHERE \"id\" = :id")
+    @SQL("SELECT " + KEYS + " FROM " + TableName.Corp + " WHERE \"id\" = :id")
     public Corp find(@SQLParam("id") String id) throws SQLException, DataAccessException;
 
     @SQL("SELECT * FROM " + TableName.Corp + " WHERE \"name\" = :name")
@@ -83,7 +83,7 @@ public interface CorpDAO {
      * @param num
      * @return
      */
-    @SQL("SELECT * FROM " + TableName.Corp + " WHERE \"id\" IN (:ids) ORDER BY \"id\"")
+    @SQL("SELECT " + KEYS + " FROM " + TableName.Corp + " WHERE \"id\" IN (:ids) ORDER BY \"id\"")
     public List<Corp> list(@SQLParam("ids") Collection<String> ids) throws SQLException, DataAccessException;
 
     /**
@@ -92,10 +92,13 @@ public interface CorpDAO {
      * @throws SQLException
      * @throws DataAccessException
      */
-    @SQL("SELECT * FROM " + TableName.Corp + " ORDER BY \"id\"")
-    public List<Corp> all() throws SQLException, DataAccessException;
+    @SQL("SELECT " + KEYS + " FROM " + TableName.Corp + " WHERE \"name\" LIKE :name" + " ORDER BY \"id\"")
+    public List<Corp> all(@SQLParam("name") String name) throws SQLException, DataAccessException;
 
-    @SQL("SELECT * FROM " + TableName.Corp + " WHERE \"superCorpId\" = :superCorpId ORDER BY \"id\"")
+    @SQL("SELECT " + KEYS + " FROM " + TableName.Corp + " WHERE \"type\" != '供货商' AND \"name\" LIKE :name" + " ORDER BY \"id\"")
+    public List<Corp> allNotSupplier(@SQLParam("name") String name) throws SQLException, DataAccessException;
+
+    @SQL("SELECT " + KEYS + " FROM " + TableName.Corp + " WHERE \"superCorpId\" = :superCorpId ORDER BY \"id\"")
     public List<Corp> subCorps(@SQLParam("superCorpId") String superCorpId) throws SQLException, DataAccessException;
 
 

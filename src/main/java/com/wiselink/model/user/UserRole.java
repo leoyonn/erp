@@ -79,10 +79,10 @@ public class UserRole implements Jsonable {
         JSONObject json = new JSONObject();
         json.put("id", id);
         if (cat != null) {
-            json.put("cat", cat.json);
+            json.put("cat", cat.toJson());
         }
         if (stat != null) {
-            json.put("stat", stat.json);
+            json.put("stat", stat.toJson());
         }
         if (pos != null) {
             json.put("pos", pos.toJson());

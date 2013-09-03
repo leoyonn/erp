@@ -8,35 +8,35 @@ package com.wiselink.model.user;
 
 import net.sf.json.JSONObject;
 
+import com.google.gson.Gson;
 import com.wiselink.base.jsonable.Jsonable;
-import com.wiselink.utils.Utils;
 
 /**
  * 用户归属性质：1、公司内部；2、供货商
  * @author leo
  */
-public enum UserCategory implements Jsonable {
-    Corp(0, "公司内部"),
-    Supplier(1, "供货商");
+public class UserCategory implements Jsonable {
+    public final static UserCategory Corp = new UserCategory(0, "Corp", "公司内部");
+    public final static UserCategory Supplier = new UserCategory(1, "Supplier", "供货商");
 
     public final int code;
-    public final String desc;
-    public final String json;
+    public final String name;
+    public final String cname;
 
-    UserCategory(int code, String desc) {
+    UserCategory(int code, String name, String cname) {
         this.code = code;
-        this.desc = desc;
-        json = Utils.buildEnumJson(code, name(), desc);
+        this.cname = cname;
+        this.name = name;
     }
 
     @Override
     public String toString() {
-        return json;
+        return toJson();
     }
 
     @Override
     public String toJson() {
-        return json;
+        return new Gson().toJson(this, getClass());
     }
 
     @Override

@@ -8,36 +8,36 @@ package com.wiselink.model.user;
 
 import net.sf.json.JSONObject;
 
+import com.google.gson.Gson;
 import com.wiselink.base.jsonable.Jsonable;
-import com.wiselink.utils.Utils;
 
 /**
  * 
  * @author leo
  */
-public enum UserStatus implements Jsonable {
-    Active(0, "正常"),
-    Blocked(1, "禁止"),
-    Invalid(2, "无效");
+public class UserStatus implements Jsonable {
+    public static final UserStatus Active = new UserStatus(0, "Active", "正常");
+    public static final UserStatus Blocked = new UserStatus(1, "Blocked", "禁止");
+    public static final UserStatus Invalid = new UserStatus(2, "Invalid", "无效");
 
     public final int code;
-    public final String desc;
-    public final String json;
+    public final String name;
+    public final String cname;
 
-    UserStatus(int code, String desc) {
+    UserStatus(int code, String name, String cname) {
         this.code = code;
-        this.desc = desc;
-        json = Utils.buildEnumJson(code, name(), desc);
+        this.cname = cname;
+        this.name = name;
     }
 
     @Override
     public String toString() {
-        return json;
+        return toJson();
     }
 
     @Override
     public String toJson() {
-        return json;
+        return new Gson().toJson(this, getClass());
     }
 
     @Override

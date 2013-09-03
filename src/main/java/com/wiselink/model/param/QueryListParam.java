@@ -22,7 +22,15 @@ import com.wiselink.base.jsonable.Jsonable;
  */
 public class QueryListParam implements Jsonable {
     public static enum QueryType {
-        and, or, not,
+        and, or, not;
+        
+        public static QueryType value(String v) {
+            try {
+                return valueOf(v);
+            } catch (Exception ex) {
+                return and;
+            }
+        }
     }
 
     public int page;
@@ -78,13 +86,13 @@ public class QueryListParam implements Jsonable {
     @Override
     public Jsonable fromJson(String json) {
         JSONObject j = JSONObject.fromObject(json);
-        this.page = j.optInt("page", 0);
+        this.page = j.optInt("page", 1);
         this.size = j.optInt("size", 15);
         JSONObject where = j.getJSONObject("where");
         for (@SuppressWarnings("unchecked") Iterator<String> it = where.keys(); it.hasNext();) {
             String k = it.next();
             if (k.equals("con")) {
-                this.q = QueryType.valueOf(where.getString(k));
+                this.q = QueryType.value(where.getString(k));
             } else {
                 this.fields.put(k, where.getString(k));
             }

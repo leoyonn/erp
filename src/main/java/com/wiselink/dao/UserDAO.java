@@ -327,7 +327,20 @@ public interface UserDAO {
             + " #if(:froleCode >= 0){AND \"froleCode\" = :froleCode}"
             + " #if(:droleCode >= 0){AND \"droleCode\" = :droleCode}"
             + " ORDER BY \"id\" ")
-    public List<UserRaw> queryAllUsers(@SQLParam("name") String name, @SQLParam("corpId") String corpId,
+    public List<UserRaw> queryAllUsersByAnd(@SQLParam("name") String name, @SQLParam("corpId") String corpId,
+            @SQLParam("deptId") String deptId, @SQLParam("posCode") int posCode, @SQLParam("froleCode") int froleCode,
+            @SQLParam("droleCode") int droleCode);
+
+    @SQL("SELECT COUNT(\"id\") "
+            + " FROM " + TableName.User
+            + " WHERE \"name\" LIKE :name"
+            + " #if(:corpId != null && :corpId.length() > 0){ AND \"corpId\" = :corpId}"
+            + " #if(:deptId != null && :deptId.length() > 0){ AND \"deptId\" = :deptId}"
+            + " #if(:posCode >= 0){AND \"posCode\" = :posCode}"
+            + " #if(:froleCode >= 0){AND \"froleCode\" = :froleCode}"
+            + " #if(:droleCode >= 0){AND \"droleCode\" = :droleCode}"
+            + " ORDER BY \"id\" ")
+    public int countAllUsersByAnd(@SQLParam("name") String name, @SQLParam("corpId") String corpId,
             @SQLParam("deptId") String deptId, @SQLParam("posCode") int posCode, @SQLParam("froleCode") int froleCode,
             @SQLParam("droleCode") int droleCode);
 
@@ -341,10 +354,62 @@ public interface UserDAO {
             + " #if(:droleCode >= 0){ AND \"droleCode\" = :droleCode}"
             + " ORDER BY \"id\") A "
             + " WHERE ROWNUM <= :to) WHERE N >= :from")
-    public List<UserRaw> queryUsers(@SQLParam("name") String name, @SQLParam("corpId") String corpId,
+    public List<UserRaw> queryUsersByAnd(@SQLParam("name") String name, @SQLParam("corpId") String corpId,
             @SQLParam("deptId") String deptId, @SQLParam("posCode") int posCode, @SQLParam("froleCode") int froleCode,
             @SQLParam("droleCode") int droleCode, @SQLParam("from") int from, @SQLParam("to") int to);
-    
+
+
+
+    /**
+     * @param name
+     * @param corpId
+     * @param deptId
+     * @param posCode
+     * @param froleCode
+     * @param droleCode
+     * TODO from -> to 与#if冲突
+     * @return
+     */
+    @SQL("SELECT " + KEYS_NO_PASS
+            + " FROM " + TableName.User
+            + " WHERE \"name\" LIKE :name"
+            + " #if(:corpId != null && :corpId.length() > 0){ OR \"corpId\" = :corpId}"
+            + " #if(:deptId != null && :deptId.length() > 0){ OR \"deptId\" = :deptId}"
+            + " #if(:posCode >= 0){OR \"posCode\" = :posCode}"
+            + " #if(:froleCode >= 0){OR \"froleCode\" = :froleCode}"
+            + " #if(:droleCode >= 0){OR \"droleCode\" = :droleCode}"
+            + " ORDER BY \"id\" ")
+    public List<UserRaw> queryAllUsersByOr(@SQLParam("name") String name, @SQLParam("corpId") String corpId,
+            @SQLParam("deptId") String deptId, @SQLParam("posCode") int posCode, @SQLParam("froleCode") int froleCode,
+            @SQLParam("droleCode") int droleCode);
+
+    @SQL("SELECT COUNT(\"id\") "
+            + " FROM " + TableName.User
+            + " WHERE \"name\" LIKE :name"
+            + " #if(:corpId != null && :corpId.length() > 0){ OR \"corpId\" = :corpId}"
+            + " #if(:deptId != null && :deptId.length() > 0){ OR \"deptId\" = :deptId}"
+            + " #if(:posCode >= 0){OR \"posCode\" = :posCode}"
+            + " #if(:froleCode >= 0){OR \"froleCode\" = :froleCode}"
+            + " #if(:droleCode >= 0){OR \"droleCode\" = :droleCode}"
+            + " ORDER BY \"id\" ")
+    public int countAllUsersByOr(@SQLParam("name") String name, @SQLParam("corpId") String corpId,
+            @SQLParam("deptId") String deptId, @SQLParam("posCode") int posCode, @SQLParam("froleCode") int froleCode,
+            @SQLParam("droleCode") int droleCode);
+
+    @SQL("SELECT " + KEYS_NO_PASS
+            + " FROM (SELECT A.*, ROWNUM N FROM (SELECT * FROM " + TableName.User
+            + " WHERE \"name\" LIKE :name"
+            + " #if(:corpId != null && :corpId.length() > 0){ OR \"corpId\" = :corpId}"
+            + " #if(:deptId != null && :deptId.length() > 0){ OR \"deptId\" = :deptId}"
+            + " #if(:posCode >= 0){ OR \"posCode\" = :posCode}"
+            + " #if(:froleCode >= 0){ OR \"froleCode\" = :froleCode}"
+            + " #if(:droleCode >= 0){ OR \"droleCode\" = :droleCode}"
+            + " ORDER BY \"id\") A "
+            + " WHERE ROWNUM <= :to) WHERE N >= :from")
+    public List<UserRaw> queryUsersByOr(@SQLParam("name") String name, @SQLParam("corpId") String corpId,
+            @SQLParam("deptId") String deptId, @SQLParam("posCode") int posCode, @SQLParam("froleCode") int froleCode,
+            @SQLParam("droleCode") int droleCode, @SQLParam("from") int from, @SQLParam("to") int to);
+
     /**
      * 删除所有数据 
      * 警告：仅供测试、调试使用！

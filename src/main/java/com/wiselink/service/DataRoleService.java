@@ -33,6 +33,7 @@ import com.wiselink.model.user.UserCard;
 import com.wiselink.result.Checked;
 import com.wiselink.result.ErrorCode;
 import com.wiselink.result.OperResult;
+import com.wiselink.utils.UserSorter;
 
 /**
  * 
@@ -313,7 +314,7 @@ public class DataRoleService extends BaseService {
                 cu.setChecked(true);
             }
         }
-        return new ArrayList<Checked<UserCard>>(checked.values());
+        return UserSorter.sort(new ArrayList<Checked<UserCard>>(checked.values()), UserSorter.ByDeptId);
     }
 
 }

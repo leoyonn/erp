@@ -27,6 +27,17 @@ public class CorpDaoTest {
     @Autowired
     private CorpDAO corpDao;
 
+    @Autowired
+    private SupplierDAO supplierDao;
+
+    void p(Object o) {
+        System.out.println(o);
+    }
+
+    @Test
+    public void testSupplier() throws DataAccessException, SQLException {
+        p(supplierDao.all());
+    }
     @Test
     public void test() throws DataAccessException, SQLException {
         corpDao.delete("1020301100");
