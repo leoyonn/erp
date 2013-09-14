@@ -23,15 +23,18 @@ import org.springframework.stereotype.Service;
 
 import com.wiselink.dao.CorpDAO;
 import com.wiselink.dao.DataRoleInfoDAO;
+import com.wiselink.dao.DataRoleUsersDAO;
 import com.wiselink.dao.DeptDAO;
 import com.wiselink.dao.FuncRoleInfoDAO;
+import com.wiselink.dao.FuncRoleUsersDAO;
+import com.wiselink.dao.SupplierDAO;
 import com.wiselink.dao.UserDAO;
 import com.wiselink.exception.ServiceException;
 import com.wiselink.model.org.Corp;
 import com.wiselink.model.org.Dept;
-import com.wiselink.model.org.OrgType;
 import com.wiselink.model.param.QueryListParam;
 import com.wiselink.model.param.QueryListParam.QueryType;
+import com.wiselink.model.param.UserQueryParam;
 import com.wiselink.model.role.DataRoleInfo;
 import com.wiselink.model.role.FuncRoleInfo;
 import com.wiselink.model.user.Position;
@@ -47,6 +50,7 @@ import com.wiselink.result.ErrorCode;
 import com.wiselink.result.OperResult;
 import com.wiselink.utils.AuthUtils;
 import com.wiselink.utils.IdUtils;
+import com.wiselink.utils.Utils;
 
 /**
  * TODO: too much DAO, optimize on perf.
@@ -63,13 +67,21 @@ public class UserService extends BaseService {
     private FuncRoleInfoDAO funcRoleDao;
 
     @Autowired
+    private FuncRoleUsersDAO froleUsersDao;
+    
+    @Autowired
     private DataRoleInfoDAO dataRoleDao;
 
+    @Autowired
+    private DataRoleUsersDAO droleUsersDao;
     @Autowired
     private CorpDAO corpDao;
 
     @Autowired
     private DeptDAO deptDao;
+    
+    @Autowired
+    private SupplierDAO supplierDao;
 
     /**
      * @return
@@ -90,14 +102,20 @@ public class UserService extends BaseService {
         if (r.error != ErrorCode.Success) {
             return r;
         }
-        if (r.result.corp.type.equals(OrgType.Supplier.cname) && StringUtils.isEmpty(raw.id)) {
-            String id = IdUtils.genUserId(r.result.corp.id);
+        if (StringUtils.isBlank(raw.id)) {
+            String id = IdUtils.isUserIdLegal(raw.getAccount()) ? raw.getAccount() : IdUtils.genUserId(r.result.corp.id);
             raw.setId(id);
             r.result.setId(id);
         }
         try {
             if (!userDao.add(raw, password)) {
                 return r(ErrorCode.DbInsertFail, "插入用户数据失败，请检查参数");
+            }
+            if (r.result.frole != null) {
+                froleUsersDao.addUserToRole(raw.froleCode, raw.id);
+            }
+            if (r.result.drole != null) {
+                droleUsersDao.addUserToRole(raw.droleCode, raw.id);
             }
         } catch (Exception ex) {
             LOGGER.error("new user " + raw + " got exception", ex);
@@ -120,6 +138,14 @@ public class UserService extends BaseService {
         try {
             if (!userDao.update(raw)) {
                 return r(ErrorCode.DbUpdateFail, "更新用户数据失败，请检查参数");
+            }
+            froleUsersDao.deleteUser(raw.id);
+            if (r.result.frole != null) {
+                froleUsersDao.addUserToRole(raw.froleCode, raw.id);
+            }
+            droleUsersDao.deleteUser(raw.id);
+            if (r.result.drole != null) {
+                droleUsersDao.addUserToRole(raw.droleCode, raw.id);
             }
         } catch (Exception ex) {
             LOGGER.error("update user " + raw + " got exception", ex);
@@ -151,7 +177,7 @@ public class UserService extends BaseService {
     /**
      * 删除用户信息
      * 
-     * @param id
+     * @param code
      * @param creatorId
      * @return
      */
@@ -161,6 +187,8 @@ public class UserService extends BaseService {
             if ((count = userDao.delete(ids)) <= 0) {
                 return r(ErrorCode.DbDeleteFail, "删除用户失败，请检查参数");
             }
+            froleUsersDao.deleteUsers(ids);
+            droleUsersDao.deleteUsers(ids);
         } catch (Exception ex) {
             LOGGER.error("delete user " + ids + " got exception", ex);
             return r(ErrorCode.DbDeleteFail, "删除用户失败：" , ex);
@@ -198,10 +226,10 @@ public class UserService extends BaseService {
     public OperResult<Auth> auth(String user, String password, String userIp) {
         Auth auth = null;
         try {
-            if (IdUtils.isUserIdLegal(user)) {
-                auth = userDao.authById(user);
-            } else if (IdUtils.isUserAccountLegal(user)) {
+            if (IdUtils.isUserAccountLegal(user)) {
                 auth = userDao.authByAccount(user);
+            } else if (IdUtils.isUserIdLegal(user)) {
+                auth = userDao.authById(user);
             } else {
                 return r(ErrorCode.InvalidParam, "不是合法的用户Id或Account：" + user);
             }
@@ -293,7 +321,7 @@ public class UserService extends BaseService {
             if (raw.froleCode >= 0) {
                 FuncRoleInfo frole = funcRoleDao.find(raw.froleCode);
                 if (frole == null) {
-                    return r(ErrorCode.InvalidParam, "用户的forleCode无效：" + raw.froleCode);
+                    return r(ErrorCode.InvalidParam, "用户的froleCode无效：" + raw.froleCode);
                 }
                 user.setFrole(frole);
             }
@@ -389,29 +417,37 @@ public class UserService extends BaseService {
      * @param listParam
      * @return
      */
-    public OperResult<List<User>> queryUsers(QueryListParam param) {
+    public OperResult<List<User>> queryUsers(QueryListParam param, String myCorpId) {
         List<UserRaw> raws = Collections.emptyList();
-        String name = param.getLikeField("name", "");
-        String corpId = param.getStringField("corpId", "");
-        String deptId = param.getStringField("deptId", "");
-        int posCode = param.getIntField("posCode", -1);
-        int froleCode = param.getIntField("froleCode", -1);
-        int droleCode = param.getIntField("droleCode", -1);
-        int from = (param.page - 1) * param.size + 1;
-        int to = from + param.size - 1;
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("query users of name: {} from {} to {}", new Object[]{name, from, to});
-        }
-        int total = 0;
+        UserQueryParam query = new UserQueryParam()
+                .setName(param.getLikeField("name", ""))
+                .setCorpId(param.getStringField("corpId", ""))
+                .setDeptId(param.getStringField("deptId", ""))
+                .setPosCode(param.getIntField("posCode", -1))
+                .setFroleCode(param.getIntField("froleCode", -1))
+                .setDroleCode(param.getIntField("droleCode", -1))
+                .setMyCorpId(myCorpId)
+                .setFrom((param.page - 1) * param.size);
+        query.setTo(query.from + param.size);
+        List<String> suppliers = Collections.emptyList();
+        List<String> subcorps = Collections.emptyList();
         try {
-            raws = param.q == QueryType.or ? userDao.queryUsersByOr(name, corpId, deptId, posCode, froleCode, droleCode, from, to)
-                    : userDao.queryUsersByAnd(name, corpId, deptId, posCode, froleCode, droleCode, from, to);
-            total = param.q == QueryType.or ? userDao.countAllUsersByOr(name, corpId, deptId, posCode, froleCode, droleCode)
-                    : userDao.countAllUsersByAnd(name, corpId, deptId, posCode, froleCode, droleCode);
+            suppliers = supplierDao.getSuppliers(myCorpId);
+            subcorps = corpDao.subCorpIds(myCorpId);
+        } catch (Exception ex) {
+            LOGGER.error("query suppliers/subcorps of " + myCorpId + " got exception:", ex);
+        }
+        query.setSuppliers(suppliers).setSubcorps(subcorps);
+        LOGGER.debug("query user by param: {} {}", query, myCorpId);
+        try {
+            raws = param.q == QueryType.or ? userDao.queryAllUsersByOr(query)
+                    : userDao.queryAllUsersByAnd(query);
         } catch (Exception ex) {
             LOGGER.error("query users of " + param + " got exception:", ex);
             return r(ErrorCode.DbQueryFail, "查询用户列表失败：" , ex);
         }
+        int total = raws.size();
+        raws = Utils.sublist(query.from, query.to, raws);
         return buildUsers(raws, total);
     }
 
@@ -548,6 +584,29 @@ public class UserService extends BaseService {
         return r(false);
     }
 
+
+    /**
+     * 更新一组用中的数据角色
+     * 
+     * @param usersToDel
+     * @param usersToAdd
+     * @param roleCode
+     */
+    public OperResult<Boolean> updateUsersDataRole(List<String> usersToDel, List<String> usersToAdd, int roleCode) {
+        try {
+            for (String id: usersToDel) {
+                userDao.updateDataRole(id, -1);
+            }
+            for (String id: usersToAdd) {
+                userDao.updateDataRole(id, roleCode);
+            }
+        } catch (Exception ex) {
+            LOGGER.error("update users func role got exception:", ex);
+            return r(ErrorCode.DbUpdateFail, "更新用户功能角色属性失败：" , ex);
+        }
+        return r(false);
+    }
+
     public OperResult<List<UserCard>> getUsersInOrgWithFroleOrNoFrole(String corpId, String deptId, int froleCode) {
         List<UserCardRaw> raws = Collections.emptyList();
         try {
@@ -572,7 +631,7 @@ public class UserService extends BaseService {
                 raws = userDao.getUserCardsOfDeptWithDroleOrNoDrole(corpId, deptId, droleCode);
             }
         } catch (Exception ex) {
-            LOGGER.error("get usres in org " + corpId + ", " + deptId + " got exception:", ex);
+            LOGGER.error("get users in org " + corpId + ", " + deptId + " got exception:", ex);
             return r(ErrorCode.DbQueryFail, "查询公司/部门中的用户列表失败：" , ex);
         }
         return buildUserCards(raws);

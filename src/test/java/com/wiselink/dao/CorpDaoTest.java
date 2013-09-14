@@ -7,6 +7,7 @@
 package com.wiselink.dao;
 
 import java.sql.SQLException;
+import java.util.Arrays;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -36,7 +37,8 @@ public class CorpDaoTest {
 
     @Test
     public void testSupplier() throws DataAccessException, SQLException {
-        p(supplierDao.all());
+        p(corpDao.all("%%", "", Arrays.asList(new String[]{"1001001"})));
+        // p(supplierDao.all());
     }
     @Test
     public void test() throws DataAccessException, SQLException {
@@ -53,5 +55,6 @@ public class CorpDaoTest {
                 .setId("1020301100").setType("省分公司")
                 .setName("中国人保河北省xx市分公司").setDesc("河北石家庄的省分公司"));
         System.out.println(ok);
+        corpDao.delete("1020301100");
     }
 }

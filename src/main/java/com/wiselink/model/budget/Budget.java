@@ -15,160 +15,71 @@ import com.wiselink.base.jsonable.Jsonable;
  * @author leo
  */
 public class Budget implements Jsonable {
-    public String id;
-    public String account;
-    public String name;
-    //public String password;
-    public String avatar;
-    public String email;
-    public String phone;
-    public String tel;
-    public String desc;
-    public String province; 
-    public String city; 
+    public int code;
+    public String type;
+    public String progress; 
+    public String status; 
+    public String year;
+    public String org;
     public Timestamp createTime;
     public String creatorId;
-    public Timestamp updateTime;
-    public String operId;
+    public String amountApply;
+    public String amountApprove;
+    public String amountAlloc; 
 
     public Budget() {}
-    
 
-    /**
-     * constructor
-     * @param id
-     * @param account
-     * @param name
-     * @param password
-     * @param avatar
-     * @param email
-     * @param phone
-     * @param tel
-     * @param desc
-     * @param province
-     * @param city
-     * @param createTime
-     * @param creatorId
-     * @param updateTime
-     * @param operId
-     */
-    public Budget(String id, String account, String name, String password, String avatar, String email, String phone,
-            String tel, String desc, String province, String city, Timestamp createTime, String creatorId,
-            Timestamp updateTime, String operId) {
-        this.id = id;
-        this.account = account;
-        this.name = name;
-        // this.password = password;
-        this.avatar = avatar;
-        this.email = email;
-        this.phone = phone;
-        this.tel = tel;
-        this.desc = desc;
-        this.province = province;
-        this.city = city;
-        this.createTime = createTime;
-        this.creatorId = creatorId;
-        this.updateTime = updateTime;
-        this.operId = operId;
+    public int getCode() {
+        return code;
     }
 
-
-    public String getId() {
-        return id;
-    }
-
-    public Budget setId(String id) {
-        this.id = id;
+    public Budget setCode(int id) {
+        this.code = id;
         return this;
     }
 
-    public String getAccount() {
-        return account;
+    public String getType() {
+        return type;
     }
 
-    public Budget setAccount(String account) {
-        this.account = account;
+    public Budget setType(String type) {
+        this.type = type;
         return this;
     }
 
-    public String getName() {
-        return name;
+    public String getProgress() {
+        return progress;
     }
 
-    public Budget setName(String name) {
-        this.name = name;
+    public Budget setProgress(String progress) {
+        this.progress = progress;
         return this;
     }
 
-//    public String getPassword() {
-//        return password;
-//    }
-//
-//    public Budget setPassword(String password) {
-//        this.password = password;
-//        return this;
-//    }
-
-    public String getAvatar() {
-        return avatar;
+    public String getStatus() {
+        return status;
     }
 
-    public Budget setAvatar(String avatar) {
-        this.avatar = avatar;
+    public Budget setStatus(String status) {
+        this.status = status;
         return this;
     }
 
-    public String getEmail() {
-        return email;
+    public String getYear() {
+        return year;
     }
 
-    public Budget setEmail(String email) {
-        this.email = email;
+    public Budget setYear(String year) {
+        this.year = year;
         return this;
     }
 
-    public String getPhone() {
-        return phone;
+    public String getOrg() {
+        return org;
     }
 
-    public Budget setPhone(String phone) {
-        this.phone = phone;
-        return this;
-    }
-
-    public String getTel() {
-        return tel;
-    }
-
-    public Budget setTel(String tel) {
-        this.tel = tel;
-        return this;
-    }
-
-    public String getDesc() {
-        return desc;
-    }
-
-    public Budget setDesc(String desc) {
-        this.desc = desc;
-        return this;
-    }
-
-    public String getProvince() {
-        return province;
-    }
-
-    public Budget setProvince(String province) {
-        this.province = province;
-        return this;
-    }
-
-    public String getCity() {
-        return city;
-    }
-
-    public Budget setCity(String city) {
-        this.city = city;
+    public Budget setOrg(String org) {
+        this.org = org;
         return this;
     }
 
@@ -181,15 +92,6 @@ public class Budget implements Jsonable {
         return this;
     }
 
-    public Timestamp getUpdateTime() {
-        return updateTime;
-    }
-
-    public Budget setUpdateTime(Timestamp updateTime) {
-        this.updateTime = updateTime;
-        return this;
-    }
-
     public String getCreatorId() {
         return creatorId;
     }
@@ -199,14 +101,31 @@ public class Budget implements Jsonable {
         return this;
     }
 
-    public String getOperId() {
-        return operId;
+    public String getAmountApply() {
+        return amountApply;
     }
 
-    public Budget setOperId(String operId) {
-        this.operId = operId;
+    public Budget setAmountApply(String amountApply) {
+        this.amountApply = amountApply;
         return this;
     }
+
+    public String getAmountApprove() {
+        return amountApprove;
+    }
+
+    public Budget setAmountApprove(String amountApprove) {
+        this.amountApprove = amountApprove;
+        return this;
+    }
+
+    public String getAmountAlloc() {
+        return amountAlloc;
+    }
+
+    public Budget setAmountAlloc(String amountAlloc) {
+        this.amountAlloc = amountAlloc;
+        return this;    }
 
     @Override
     public String toJson() {

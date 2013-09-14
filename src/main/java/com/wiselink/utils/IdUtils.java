@@ -16,12 +16,12 @@ import org.apache.commons.lang.StringUtils;
  * @author leo
  */
 public class IdUtils {
-    private static final int LEN_USER_ID = 12; 
+    private static final int LEN_USER_ID = 10; 
     private static final int LEN_USER_ACCOUNT_MIN = 3; 
     private static final int LEN_USER_ACCOUNT_MAX = 30; 
     private static final Pattern USER_ID_REGEX = Pattern.compile("\\d{" + LEN_USER_ID + "}");
     private static final Pattern USER_ACCOUNT_REGEX = Pattern.compile(
-            "^[a-zA-Z][\\da-zA-Z-_]{" + (LEN_USER_ACCOUNT_MIN - 1) + "," + (LEN_USER_ACCOUNT_MAX - 1) + "}");
+            "^[\\da-zA-Z-_]{" + (LEN_USER_ACCOUNT_MIN - 1) + "," + (LEN_USER_ACCOUNT_MAX - 1) + "}");
     private static final Pattern CORP_ID_REGEX = Pattern.compile("\\d{" + 6 + "}0{4}");
     private static final Pattern DEPT_ID_REGEX = Pattern.compile("\\d{" + 8 + "}0{2}");
 

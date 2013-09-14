@@ -16,6 +16,8 @@ import net.paoding.rose.jade.annotation.SQLParam;
 import org.springframework.dao.DataAccessException;
 
 import com.wiselink.base.TableName;
+import com.wiselink.model.param.UserQueryParam;
+import com.wiselink.model.user.Positions;
 import com.wiselink.model.user.UserCardRaw;
 import com.wiselink.model.user.UserRaw;
 import com.wiselink.result.Auth;
@@ -209,6 +211,10 @@ public interface UserDAO {
     public boolean updateFuncRole(@SQLParam("id") String id, @SQLParam("froleCode") int froleCode)
             throws SQLException, DataAccessException;
 
+    @SQL("UPDATE " + TableName.User + " SET " + "\"droleCode\"=:droleCode WHERE \"id\"=:id")
+    public boolean updateDataRole(@SQLParam("id") String id, @SQLParam("droleCode") int droleCode)
+            throws SQLException, DataAccessException;
+
     /**
      * 获取用户密码
      * 
@@ -308,107 +314,43 @@ public interface UserDAO {
     @SQL("DELETE FROM " + TableName.User + " WHERE \"id\" IN (:ids)")
     public int delete(@SQLParam("ids") List<String> ids) throws SQLException, DataAccessException;
 
-    /**
-     * @param name
-     * @param corpId
-     * @param deptId
-     * @param posCode
-     * @param froleCode
-     * @param droleCode
-     * TODO from -> to 与#if冲突
-     * @return
-     */
-    @SQL("SELECT " + KEYS_NO_PASS
-            + " FROM " + TableName.User
-            + " WHERE \"name\" LIKE :name"
-            + " #if(:corpId != null && :corpId.length() > 0){ AND \"corpId\" = :corpId}"
-            + " #if(:deptId != null && :deptId.length() > 0){ AND \"deptId\" = :deptId}"
-            + " #if(:posCode >= 0){AND \"posCode\" = :posCode}"
-            + " #if(:froleCode >= 0){AND \"froleCode\" = :froleCode}"
-            + " #if(:droleCode >= 0){AND \"droleCode\" = :droleCode}"
-            + " ORDER BY \"id\" ")
-    public List<UserRaw> queryAllUsersByAnd(@SQLParam("name") String name, @SQLParam("corpId") String corpId,
-            @SQLParam("deptId") String deptId, @SQLParam("posCode") int posCode, @SQLParam("froleCode") int froleCode,
-            @SQLParam("droleCode") int droleCode);
-
-    @SQL("SELECT COUNT(\"id\") "
-            + " FROM " + TableName.User
-            + " WHERE \"name\" LIKE :name"
-            + " #if(:corpId != null && :corpId.length() > 0){ AND \"corpId\" = :corpId}"
-            + " #if(:deptId != null && :deptId.length() > 0){ AND \"deptId\" = :deptId}"
-            + " #if(:posCode >= 0){AND \"posCode\" = :posCode}"
-            + " #if(:froleCode >= 0){AND \"froleCode\" = :froleCode}"
-            + " #if(:droleCode >= 0){AND \"droleCode\" = :droleCode}"
-            + " ORDER BY \"id\" ")
-    public int countAllUsersByAnd(@SQLParam("name") String name, @SQLParam("corpId") String corpId,
-            @SQLParam("deptId") String deptId, @SQLParam("posCode") int posCode, @SQLParam("froleCode") int froleCode,
-            @SQLParam("droleCode") int droleCode);
+    String Q_NAME = " \"name\" LIKE :q.name ";
+    String Q_L_CORPID = " #if(:q.corpId != null && :q.corpId.length() > 0){ ";
+    String Q_R_CORPID = " \"corpId\" = :q.corpId} ";
+    String Q_L_POSCODE = " #if(:q.posCode >= 0){ ";
+    String Q_R_POSCODE = " \"posCode\" = :q.posCode} ";
+    String Q_L_FROLECODE = " #if(:q.froleCode >= 0){ ";
+    String Q_R_FROLECODE = " \"froleCode\" = :q.froleCode} ";
+    String Q_L_DROLECODE = " #if(:q.droleCode >= 0){ ";
+    String Q_R_DROLECODE = " \"droleCode\" = :q.droleCode} ";
+    String Q_MYCORPID =" #if(:q.myCorpId != null && :q.myCorpId.length() > 0){ "
+            + " \"corpId\" = :q.myCorpId} #else{1=0} ";
+    String Q_SUBCORPS =" #if(:q.subcorps != null && :q.subcorps.size() > 0){ "
+            + " \"corpId\" IN (:q.subcorps) AND \"posCode\" = " + Positions.ADMIN_POS_CODE + "} #else{1=0} ";
+    String Q_SUPPLIERS = " #if(:q.suppliers != null && :q.suppliers.size() > 0){ "
+            + " \"corpId\" IN (:q.suppliers)} #else{1=0} ";
 
     @SQL("SELECT " + KEYS_NO_PASS
-            + " FROM (SELECT A.*, ROWNUM N FROM (SELECT * FROM " + TableName.User
-            + " WHERE \"name\" LIKE :name"
-            + " #if(:corpId != null && :corpId.length() > 0){ AND \"corpId\" = :corpId}"
-            + " #if(:deptId != null && :deptId.length() > 0){ AND \"deptId\" = :deptId}"
-            + " #if(:posCode >= 0){ AND \"posCode\" = :posCode}"
-            + " #if(:froleCode >= 0){ AND \"froleCode\" = :froleCode}"
-            + " #if(:droleCode >= 0){ AND \"droleCode\" = :droleCode}"
-            + " ORDER BY \"id\") A "
-            + " WHERE ROWNUM <= :to) WHERE N >= :from")
-    public List<UserRaw> queryUsersByAnd(@SQLParam("name") String name, @SQLParam("corpId") String corpId,
-            @SQLParam("deptId") String deptId, @SQLParam("posCode") int posCode, @SQLParam("froleCode") int froleCode,
-            @SQLParam("droleCode") int droleCode, @SQLParam("from") int from, @SQLParam("to") int to);
-
-
-
-    /**
-     * @param name
-     * @param corpId
-     * @param deptId
-     * @param posCode
-     * @param froleCode
-     * @param droleCode
-     * TODO from -> to 与#if冲突
-     * @return
-     */
-    @SQL("SELECT " + KEYS_NO_PASS
-            + " FROM " + TableName.User
-            + " WHERE \"name\" LIKE :name"
-            + " #if(:corpId != null && :corpId.length() > 0){ OR \"corpId\" = :corpId}"
-            + " #if(:deptId != null && :deptId.length() > 0){ OR \"deptId\" = :deptId}"
-            + " #if(:posCode >= 0){OR \"posCode\" = :posCode}"
-            + " #if(:froleCode >= 0){OR \"froleCode\" = :froleCode}"
-            + " #if(:droleCode >= 0){OR \"droleCode\" = :droleCode}"
+            + " FROM " + TableName.User + " WHERE "
+            + Q_NAME
+            + Q_L_CORPID + "AND" + Q_R_CORPID
+            + Q_L_POSCODE + "AND" + Q_R_POSCODE
+            + Q_L_FROLECODE + "AND" + Q_R_FROLECODE
+            + Q_L_DROLECODE + "AND" + Q_R_DROLECODE
+            + "AND(" + Q_MYCORPID + "OR" + Q_SUBCORPS + "OR" + Q_SUPPLIERS + ")"
             + " ORDER BY \"id\" ")
-    public List<UserRaw> queryAllUsersByOr(@SQLParam("name") String name, @SQLParam("corpId") String corpId,
-            @SQLParam("deptId") String deptId, @SQLParam("posCode") int posCode, @SQLParam("froleCode") int froleCode,
-            @SQLParam("droleCode") int droleCode);
-
-    @SQL("SELECT COUNT(\"id\") "
-            + " FROM " + TableName.User
-            + " WHERE \"name\" LIKE :name"
-            + " #if(:corpId != null && :corpId.length() > 0){ OR \"corpId\" = :corpId}"
-            + " #if(:deptId != null && :deptId.length() > 0){ OR \"deptId\" = :deptId}"
-            + " #if(:posCode >= 0){OR \"posCode\" = :posCode}"
-            + " #if(:froleCode >= 0){OR \"froleCode\" = :froleCode}"
-            + " #if(:droleCode >= 0){OR \"droleCode\" = :droleCode}"
-            + " ORDER BY \"id\" ")
-    public int countAllUsersByOr(@SQLParam("name") String name, @SQLParam("corpId") String corpId,
-            @SQLParam("deptId") String deptId, @SQLParam("posCode") int posCode, @SQLParam("froleCode") int froleCode,
-            @SQLParam("droleCode") int droleCode);
+    public List<UserRaw> queryAllUsersByAnd(@SQLParam("q") UserQueryParam query) throws SQLException, DataAccessException;
 
     @SQL("SELECT " + KEYS_NO_PASS
-            + " FROM (SELECT A.*, ROWNUM N FROM (SELECT * FROM " + TableName.User
-            + " WHERE \"name\" LIKE :name"
-            + " #if(:corpId != null && :corpId.length() > 0){ OR \"corpId\" = :corpId}"
-            + " #if(:deptId != null && :deptId.length() > 0){ OR \"deptId\" = :deptId}"
-            + " #if(:posCode >= 0){ OR \"posCode\" = :posCode}"
-            + " #if(:froleCode >= 0){ OR \"froleCode\" = :froleCode}"
-            + " #if(:droleCode >= 0){ OR \"droleCode\" = :droleCode}"
-            + " ORDER BY \"id\") A "
-            + " WHERE ROWNUM <= :to) WHERE N >= :from")
-    public List<UserRaw> queryUsersByOr(@SQLParam("name") String name, @SQLParam("corpId") String corpId,
-            @SQLParam("deptId") String deptId, @SQLParam("posCode") int posCode, @SQLParam("froleCode") int froleCode,
-            @SQLParam("droleCode") int droleCode, @SQLParam("from") int from, @SQLParam("to") int to);
+            + " FROM " + TableName.User + " WHERE "
+            + Q_NAME
+            + Q_L_CORPID + "OR" + Q_R_CORPID
+            + Q_L_POSCODE + "OR" + Q_R_POSCODE
+            + Q_L_FROLECODE + "OR" + Q_R_FROLECODE
+            + Q_L_DROLECODE + "OR" + Q_R_DROLECODE
+            + "OR(" + Q_MYCORPID + "OR" + Q_SUBCORPS + "OR" + Q_SUPPLIERS + ")"
+            + " ORDER BY \"id\" ")
+    public List<UserRaw> queryAllUsersByOr(@SQLParam("q") UserQueryParam query) throws SQLException, DataAccessException;
 
     /**
      * 删除所有数据 

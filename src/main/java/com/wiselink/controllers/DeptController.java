@@ -81,12 +81,11 @@ public class DeptController  extends BaseController {
         if (StringUtils.isBlank(dept.getName()) || StringUtils.isBlank(dept.corpId)) {
             return failResult(ErrorCode.InvalidParam, "参数值为空：(name:" + dept.getName() + ", corpId:" + dept.getCorpId());
         }
-        if (dept.deptType == null) {
-            dept.deptType = "";
-        }
         DeptType type = DeptType.value(dept.deptType);
         if (type != null) {
             dept.deptType = type.cname;
+        } else {
+            dept.deptType = "";
         }
         OperResult<Dept> r = deptService.newDept(dept);
         return apiResult(r);
@@ -108,9 +107,11 @@ public class DeptController  extends BaseController {
             return failResult(ErrorCode.InvalidParam, "参数值为空：(id:" + dept.id
                     + ",name:" + dept.getName() + ", corpId:" + dept.getCorpId());
         }
-        DeptType type = DeptType.valueOf(dept.deptType);
+        DeptType type = DeptType.value(dept.deptType);
         if (type != null) {
             dept.deptType = type.cname;
+        } else {
+            dept.deptType = "";
         }
         OperResult<Dept> r = deptService.updateDept(dept);
         return apiResult(r);

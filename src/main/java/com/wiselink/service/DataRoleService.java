@@ -255,7 +255,7 @@ public class DataRoleService extends BaseService {
             LOGGER.error("modify data role scopse and users: " + r.result + " got exception", ex);
             return r(ErrorCode.DbUpdateFail, "更新功能角色用户/功能列表失败：" , ex);
         }
-        userService.updateUsersFuncRole(usersToDel, usersToAdd, roleCode);
+        userService.updateUsersDataRole(usersToDel, usersToAdd, roleCode);
         return buildRoleScopesAndUsers(r);
     }
 

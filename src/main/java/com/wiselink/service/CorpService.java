@@ -25,6 +25,7 @@ import com.wiselink.model.param.QueryListParam;
 import com.wiselink.model.supplier.Supplier;
 import com.wiselink.result.ErrorCode;
 import com.wiselink.result.OperResult;
+import com.wiselink.utils.Utils;
 
 /**
  * 组织结构相关的服务
@@ -90,7 +91,7 @@ public class CorpService extends BaseService {
     /**
      * 查询一个公司
      * 
-     * @param id
+     * @param code
      * @return
      * @throws ServiceException
      */
@@ -112,7 +113,15 @@ public class CorpService extends BaseService {
             if (depts.error != ErrorCode.Success) {
                 return r(depts.error, depts.reason);
             } else if (depts.result.size() > 0) {
-                return r(ErrorCode.AuthDenied, "不能删除还有子部门存在的公司");
+                if (depts.result.size() == 1 && "大客户部".equals(depts.result.get(0).name)) {
+                    try {
+                        deptDao.delete(depts.result.get(0).id);
+                    } catch (Exception ex) {
+                        return r(ErrorCode.DbDeleteFail, "删除公司对应的#大客户部#失败：" , ex);
+                    }
+                } else {
+                    return r(ErrorCode.AuthDenied, "不能删除还有子部门存在的公司");
+                }
             }
         }
         try {
@@ -153,9 +162,10 @@ public class CorpService extends BaseService {
      * 
      * @return
      */
-    public OperResult<List<Corp>> queryCorps(QueryListParam param) {
+    public OperResult<List<Corp>> queryCorps(QueryListParam param, String myCorpId) {
         String name = param.getLikeField("name", "");
-        OrgType type = OrgType.value(param.getIntField("type", -1));
+        int typeInt = param.getIntField("type", -1);
+        OrgType type = OrgType.value(typeInt);
         int from = (param.page - 1) * param.size;
         int to = from + param.size;
         if (LOGGER.isDebugEnabled()) {
@@ -168,22 +178,26 @@ public class CorpService extends BaseService {
                     String mode = param.getStringField("mode", "");
                     String stype = param.getStringField("stype", "");
                     String status = param.getStringField("status", "");
+                    // TODO: 下级单位供货的公司
+                    List<String> suppliers = supplierDao.getSuppliers(myCorpId);
                     switch (param.q) {
-                        case and: result.addAll(supplierDao.queryByAnd(name, mode, stype, status));
+                        case and: result.addAll(supplierDao.queryByAnd(name, mode, stype, status, suppliers));
                         break;
-                        case or:  result.addAll(supplierDao.queryByOr(name, mode, stype, status));
+                        case or:  result.addAll(supplierDao.queryByOr(name, mode, stype, status, suppliers));
                         break;
                         default:
                             break;
                     }
                     break;
                 }
-                case Corp: {
-                    result.addAll(corpDao.allNotSupplier(name));
-                    break;
-                }
                 default: {
-                    result.addAll(corpDao.all(name));
+                    if (typeInt == 0) {
+                        result.addAll(corpDao.allNotSupplier(name, myCorpId));
+                    } else {
+                        // TODO: 下级单位供货的公司
+                        List<String> suppliers = supplierDao.getSuppliers(myCorpId);
+                        result.addAll(corpDao.all(name, myCorpId, suppliers));
+                    }
                     break;
                 }
             }
@@ -192,14 +206,7 @@ public class CorpService extends BaseService {
             return r(ErrorCode.DbQueryFail, "查找公司失败：", ex);
         }
         int total = result.size();
-        if (to > total) {
-            to = total;
-        }
-        if (from >= to) {
-            result.clear();
-        } else {
-            result = result.subList(from, to);
-        }
+        result = Utils.sublist(from, to, result);
         return r(result, total);
     }
 
@@ -222,17 +229,23 @@ public class CorpService extends BaseService {
      * @param fromJson
      * @return
      */
-    public OperResult<Supplier> newSupplier(Supplier supplier) {
+    public OperResult<Supplier> newSupplier(String myCorpId, Supplier supplier) {
         try {
-            if (supplierDao.add(supplier)) {
-                return r(supplier);
-            } else {
+            if (!supplierDao.add(supplier)) {
                 return r(ErrorCode.DbInsertFail, "添加供货商失败，请检查参数");
             }
+            supplierDao.addRelation(myCorpId, supplier.id);
+            
         } catch (Exception ex) {
             LOGGER.error("add supplier : " + supplier + " got exception", ex);
             return r(ErrorCode.DbInsertFail, "添加供货商失败：" , ex);
         }
+        Dept dept = (Dept) new Dept(null, "大客户部", "", "", supplier.id).setCreatorId(supplier.creatorId);
+        OperResult<Dept> r = deptService.newDept(dept);
+        if (r.error != ErrorCode.Success) {
+            return r(r.error, "未供货商添加#大客户部#" + dept + "失败");
+        }
+        return r(supplier);
     }
 
     /**
@@ -251,6 +264,15 @@ public class CorpService extends BaseService {
         } catch (Exception ex) {
             LOGGER.error("update supplier: " + supplier + " got exception", ex);
             return r(ErrorCode.DbInsertFail, "修改供货商失败：", ex);
+        }
+    }
+
+    public OperResult<List<Corp>> all() {
+        try {
+            return r(corpDao.all());
+        } catch (Exception ex) {
+            LOGGER.error("get all corps got exception", ex);
+            return r(ErrorCode.DbQueryFail, "查询所有公司：", ex);
         }
     }
 }

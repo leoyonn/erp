@@ -61,9 +61,11 @@ public class CorpController extends BaseController {
     @Get("new")
     public String newCorp(Invocation inv, @NotBlank @Param("param") String param) {
         JSONObject json = JSONObject.fromObject(param);
-        OrgType type = OrgType.value(json.optInt("type", 0));
+        OrgType type = OrgType.value(json.optInt("type", -1));
         switch (type) {
-            case Corp: {
+            case Corp1: // fall through
+            case Corp2: // fall through
+            case Corp3: {
                 Corp corp = (Corp) new Corp().fromJson(param);
                 corp.setType(type.cname);
                 return apiResult(corpService.newCorp(corp));
@@ -71,9 +73,10 @@ public class CorpController extends BaseController {
             case Supplier: {
                 Supplier supplier = (Supplier)new Supplier().fromJson(param);
                 supplier.setType(type.cname);
-                return apiResult(corpService.newSupplier(supplier));
+                String myCorpId = getCorpIdFromCookie(inv); 
+                return apiResult(corpService.newSupplier(myCorpId, supplier));
             }
-            default: return failResult(ErrorCode.InvalidParam, "无效的公司类型：type");
+            default: return failResult(ErrorCode.InvalidParam, "无效的公司类型：type，请查看corp/orgtypes接口");
         }
     }
 
@@ -87,9 +90,11 @@ public class CorpController extends BaseController {
     @Get("up")
     public String updateCorp(Invocation inv, @Param("param") String param) {
         JSONObject json = JSONObject.fromObject(param);
-        OrgType type = OrgType.value(json.optInt("type", 0));
+        OrgType type = OrgType.value(json.optInt("type", -1));
         switch (type) {
-            case Corp: {
+            case Corp1: // fall through
+            case Corp2: // fall through
+            case Corp3: {
                 Corp corp = (Corp) new Corp().fromJson(param);
                 corp.setType(type.cname);
                 return apiResult(corpService.updateCorp(corp));
@@ -99,7 +104,7 @@ public class CorpController extends BaseController {
                 supplier.setType(type.cname);
                 return apiResult(corpService.updateSupplier(supplier));
             }
-            default: return failResult(ErrorCode.InvalidParam, "无效的公司类型：type");
+            default: return failResult(ErrorCode.InvalidParam, "无效的公司类型：type，请查看corp/orgtypes接口");
         }
     }
 
@@ -115,19 +120,29 @@ public class CorpController extends BaseController {
         String ids =json.optString("ids", "");
         LOGGER.info("delete corps: {} ", ids);
         if (StringUtils.isBlank(ids)) {
-            return failResult(ErrorCode.BlankParam, "输入id列表为空");
+            return failResult(ErrorCode.BlankParam, "输入ids列表为空");
         }
         return apiResult(corpService.deleteCorps(Arrays.asList(ids.split(","))));
     }
 
     /**
-     * 获取所有的公司
+     * 查询满足要求的公司
      * @return
      */
     @Get("query")
-    public String queryCorps(@NotBlank @Param("param") String param) {
+    public String queryCorps(Invocation inv, @NotBlank @Param("param") String param) {
         QueryListParam listParam = (QueryListParam) new QueryListParam().fromJson(param);
-        return apiResult(corpService.queryCorps(listParam));
+        String myCorpId = getCorpIdFromCookie(inv);
+        return apiResult(corpService.queryCorps(listParam, myCorpId));
+    }
+    
+    /**
+     * just for test
+     * @return
+     */
+    @Get("all")
+    public String allCorps() {
+        return apiResult(corpService.all());
     }
     
     @Get("supplier/modes")

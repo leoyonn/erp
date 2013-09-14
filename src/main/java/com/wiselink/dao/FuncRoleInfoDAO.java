@@ -88,7 +88,7 @@ public interface FuncRoleInfoDAO {
      * @param num
      * @return
      */
-    @SQL("SELECT " + KEYS + " FROM " + TableName.FuncRoleInfo + "WHERE \"corpId\" = :corpId ORDER BY \"code\"")
+    @SQL("SELECT * FROM " + TableName.FuncRoleInfo + "WHERE \"corpId\" = :corpId ORDER BY \"code\"")
     public List<FuncRoleInfo> all(@SQLParam("corpId") String corpId) throws SQLException, DataAccessException;
 
     @SQL("SELECT * FROM " + TableName.FuncRoleInfo + " ORDER BY \"code\"")

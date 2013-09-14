@@ -14,14 +14,11 @@ import net.sf.json.JSONObject;
  * @author leo
  */
 public enum OrgType {
-    Corp(0, "公司内部"),
     Supplier(1, "供货商"),
-    Group(2, "集团"),
-    Corp0(3, "总公司"),
-    Corp1(4, "省分公司"),
-    Corp2(5, "市分公司"),
-    Corp3(6, "县支公司"),
-    Dept(7, "部门"),
+    Corp1(2, "省分公司"),
+    Corp2(3, "市分公司"),
+    Corp3(4, "县支公司"),
+    Dept(5, "部门"),
     Invalid(-1, "无效");
 
     public final String cname;
@@ -59,10 +56,7 @@ public enum OrgType {
     
     public static OrgType value(int code) {
         switch (code) {
-            case 0: return Corp;
             case 1: return Supplier;
-            case 2: return Group;
-            case 3: return Corp0;
             case 4: return Corp1;
             case 5: return Corp2;
             case 6: return Corp3;

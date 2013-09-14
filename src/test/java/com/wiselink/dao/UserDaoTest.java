@@ -17,6 +17,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.wiselink.model.param.UserQueryParam;
 import com.wiselink.model.user.UserRaw;
 
 /**
@@ -38,7 +39,12 @@ public class UserDaoTest {
 
     @Test
     public void test() throws DataAccessException, SQLException {
-        p(userDao.queryUsersByAnd("%三%", "", "", -1, 101075, -1, 0, 100));
+        UserQueryParam q = new UserQueryParam().setName("%省%").setCorpId("").setDeptId("")
+                .setPosCode(-1).setFroleCode(-1).setDroleCode(-1).setFrom(0).setTo(100)
+                .setMyCorpId("").setSubcorps(Arrays.asList(new String[]{"1300000000"}))
+                .setSuppliers(Arrays.asList(new String[]{"1300000000"}));
+        p(userDao.queryAllUsersByOr(q));
+        p(userDao.queryAllUsersByAnd(q));
     }
     @Test
     public void testUser() throws DataAccessException, SQLException {
@@ -67,7 +73,8 @@ public class UserDaoTest {
         p(userDao.getUserByAccount(raw.account));
         p(userDao.getUserById("1020300003"));
         p(userDao.all());
-        p(userDao.queryAllUsersByAnd("%阿%", "", "", -1, -1, -1));
+        p(userDao.queryAllUsersByAnd(new UserQueryParam().setName("%阿%").setCorpId("").setDeptId("")
+                .setPosCode(-1).setFroleCode(101075).setFroleCode(-1).setFrom(0).setTo(100).setMyCorpId("1020300000").setSuppliers(null)));
         p(userDao.getUserCardsById(Arrays.asList(new String[]{"1020300003", "1020300004"})));
         p(userDao.countUserOfDepts(Arrays.asList(new String[]{"1020300001", "1020300002"})));
         p(userDao.countUserOfCorps(Arrays.asList(new String[]{"1020300000"})));

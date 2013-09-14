@@ -169,4 +169,18 @@ public class Utils {
         }
         return v;
     }
+
+    public static <T> List<T> sublist(int from, int to, List<T> list) {
+        int total = list.size();
+        if (to > total) {
+            to = total;
+        }
+        if (from >= to) {
+            list.clear();
+        } else {
+            list = list.subList(from, to);
+        }
+        return list;
+    }
 }
+

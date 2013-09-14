@@ -53,6 +53,17 @@ public interface FuncRoleUsersDAO  {
     public boolean delete(@SQLParam("roleCode") int roleCode, @SQLParam("userId") String userId) throws SQLException, DataAccessException;
 
     /**
+     * 删除所有角色对应的用户信息
+     * @param userIds
+     * @return
+     */
+    @SQL("DELETE FROM " + TableName.FuncRoleUsers + " WHERE \"userId\" IN (:userIds)")
+    public boolean deleteUsers(@SQLParam("userIds") List<String> userIds) throws SQLException, DataAccessException;
+
+    @SQL("DELETE FROM " + TableName.FuncRoleUsers + " WHERE \"userId\" = :userId")
+    public boolean deleteUser(@SQLParam("userId") String userId) throws SQLException, DataAccessException;
+
+    /**
      * 删除角色对应的所有用户
      * @return
      */

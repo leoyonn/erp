@@ -20,7 +20,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.wiselink.controllers.annotations.LoginRequired;
-import com.wiselink.model.role.DataRole;
 import com.wiselink.model.role.DataRoleInfo;
 import com.wiselink.result.ErrorCode;
 import com.wiselink.service.DataRoleService;

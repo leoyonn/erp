@@ -137,8 +137,12 @@ public interface SupplierDAO {
             + "#if(:mode != null && :mode.length() > 0) {OR \"mode\"=:mode }"
             + "#if(:stype != null && :stype.length() > 0) {OR \"stype\"=:stype }"
             + "#if(:status != null && :status.length() > 0) {OR \"status\"=:status }"
-            + " ) ORDER BY \"id\"")
-    List<Supplier> queryByOr(@SQLParam("name") String name, @SQLParam("mode") String mode, @SQLParam("stype") String stype, @SQLParam("status") String status)
+            + " ) "
+            + " AND \"id\" in (:filter)"
+            + " ORDER BY \"id\"")
+    List<Supplier> queryByOr(@SQLParam("name") String name, @SQLParam("mode") String mode, 
+            @SQLParam("stype") String stype, @SQLParam("status") String status,
+            @SQLParam("filter") List<String> filter)
             throws SQLException, DataAccessException;
 
     /**
@@ -155,8 +159,11 @@ public interface SupplierDAO {
             + "#if(:mode != null && :mode.length() > 0) {AND \"mode\"=:mode }"
             + "#if(:stype != null && :stype.length() > 0) {AND \"stype\"=:stype }"
             + "#if(:status != null && :status.length() > 0) {AND \"status\"=:status }"
+            + "AND \"id\" in (:filter)"
             + " ORDER BY \"id\"")
-    List<Supplier> queryByAnd(@SQLParam("name") String name, @SQLParam("mode") String mode, @SQLParam("stype") String stype, @SQLParam("status") String status)
+    List<Supplier> queryByAnd(@SQLParam("name") String name, @SQLParam("mode") String mode, 
+            @SQLParam("stype") String stype, @SQLParam("status") String status, 
+            @SQLParam("filter") List<String> filter)
             throws SQLException, DataAccessException;
 
     /**
@@ -195,4 +202,10 @@ public interface SupplierDAO {
     @SQL("DELETE FROM " + TableName.Supplier)
     int clear() throws SQLException, DataAccessException;
 
+    /**********************************************************************************************/
+    @SQL("INSERT INTO " + TableName.SupplierRelation + "(\"corpId\", \"supplierId\") VALUES (:corpId, :supplierId)")
+    void addRelation(@SQLParam("corpId") String corpId, @SQLParam("supplierId") String supplierId);
+    
+    @SQL("SELECT \"supplierId\" FROM " + TableName.SupplierRelation + " WHERE \"corpId\" = :corpId")
+    List<String> getSuppliers(@SQLParam("corpId") String corpId) throws SQLException, DataAccessException; 
 }

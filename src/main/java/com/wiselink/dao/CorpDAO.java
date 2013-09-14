@@ -86,20 +86,32 @@ public interface CorpDAO {
     @SQL("SELECT " + KEYS + " FROM " + TableName.Corp + " WHERE \"id\" IN (:ids) ORDER BY \"id\"")
     public List<Corp> list(@SQLParam("ids") Collection<String> ids) throws SQLException, DataAccessException;
 
+
+    @SQL("SELECT " + KEYS + " FROM " + TableName.Corp + " ORDER BY \"id\"")
+    public List<Corp> all() throws SQLException, DataAccessException;
+
     /**
      * 获取所有的公司列表
      * @return
      * @throws SQLException
      * @throws DataAccessException
      */
-    @SQL("SELECT " + KEYS + " FROM " + TableName.Corp + " WHERE \"name\" LIKE :name" + " ORDER BY \"id\"")
-    public List<Corp> all(@SQLParam("name") String name) throws SQLException, DataAccessException;
+    @SQL("SELECT " + KEYS + " FROM " + TableName.Corp + " WHERE \"name\" LIKE :name"
+            + " AND (\"id\" = :corpId OR \"id\" IN (:suppliers) OR \"superCorpId\" = :corpId)"
+            + " ORDER BY \"id\"")
+    public List<Corp> all(@SQLParam("name") String name, @SQLParam("corpId") String corpId,
+            @SQLParam("suppliers") List<String> suppliers) throws SQLException, DataAccessException;
 
-    @SQL("SELECT " + KEYS + " FROM " + TableName.Corp + " WHERE \"type\" != '供货商' AND \"name\" LIKE :name" + " ORDER BY \"id\"")
-    public List<Corp> allNotSupplier(@SQLParam("name") String name) throws SQLException, DataAccessException;
+    @SQL("SELECT " + KEYS + " FROM " + TableName.Corp + " WHERE \"type\" != '供货商' AND \"name\" LIKE :name"
+            + " AND (\"id\" = :corpId OR \"superCorpId\" = :corpId)"
+            + " ORDER BY \"id\"")
+    public List<Corp> allNotSupplier(@SQLParam("name") String name, @SQLParam("corpId") String corpId) throws SQLException, DataAccessException;
 
     @SQL("SELECT " + KEYS + " FROM " + TableName.Corp + " WHERE \"superCorpId\" = :superCorpId ORDER BY \"id\"")
     public List<Corp> subCorps(@SQLParam("superCorpId") String superCorpId) throws SQLException, DataAccessException;
+
+    @SQL("SELECT \"id\" FROM " + TableName.Corp + " WHERE \"superCorpId\" = :superCorpId ORDER BY \"id\"")
+    public List<String> subCorpIds(@SQLParam("superCorpId") String superCorpId) throws SQLException, DataAccessException;
 
 
     /**

@@ -24,6 +24,7 @@ import com.wiselink.utils.Utils;
 public class Positions {
     private static final Logger LOGGER = LoggerFactory.getLogger(Positions.class);
     private static final String POSITION_PATH = "conf/positions.xml";
+    public static final int ADMIN_POS_CODE = 5;
 
     /**
      * 从配置文件中加载所有岗位

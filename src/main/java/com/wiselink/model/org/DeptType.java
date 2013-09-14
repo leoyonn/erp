@@ -59,9 +59,8 @@ public enum DeptType {
     public static DeptType value(String name) {
         try {
             return valueOf(name);
-        } catch (IllegalArgumentException ex) {
+        } catch (Exception ex) {
             return null;
         }
-        
     }
 }

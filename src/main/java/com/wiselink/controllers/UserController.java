@@ -57,6 +57,10 @@ public class UserController extends BaseController {
         String creatorId = getUserIdFromCookie(inv);
         UserRaw user = (UserRaw)new UserRaw().fromJson(param);
         user.setCreatorId(creatorId).setOperId(creatorId);
+        if (!StringUtils.isBlank(user.getId()) && !IdUtils.isUserIdLegal(user.getId())
+            || !StringUtils.isBlank(user.getAccount()) && !IdUtils.isUserAccountLegal(user.getAccount())) {
+            return failResult(ErrorCode.InvalidParam, "用户account或id非法");
+        }
         String password = JSONObject.fromObject(param).optString("password", "");
         LOGGER.info("creating user: {} with password: {}", user, password);
         if (StringUtils.isBlank(password)) {
@@ -126,11 +130,12 @@ public class UserController extends BaseController {
      * @return
      */
     @Get("query")
-    public String queryUsers(@NotBlank @Param("param") String param) {
+    public String queryUsers(Invocation inv, @NotBlank @Param("param") String param) {
         LOGGER.info("list users: {}", param);
         QueryListParam listParam = (QueryListParam) new QueryListParam().fromJson(param);
+        String myCorpId = getCorpIdFromCookie(inv);
         LOGGER.info("list users with list param: {}", listParam);
-        return apiResult(userService.queryUsers(listParam));
+        return apiResult(userService.queryUsers(listParam, myCorpId));
     }
 
     /**
@@ -143,7 +148,7 @@ public class UserController extends BaseController {
     }
 
     /**
-     * @param id
+     * @param code
      * @return
      */
     @SuppressWarnings("@Post")
